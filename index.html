@@ -1,0 +1,3739 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVL FMS — Financial Management Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="login-page" id="app-body">
+    <a href="#" class="nav-item" data-page="payments" data-perm="clients">
+      <i class="fas fa-money-check-alt"></i><span>Payments</span>
+    </a>
+    <!-- ═══════════════════════════════════ LOGIN PAGE ═══════════════════════════════════ -->
+    <div id="login-screen" class="login-screen">
+      <div class="login-bg" id="login-bg"></div>
+      <div class="login-card">
+        <div class="login-logo" id="login-logo">
+          <div class="logo-circle"><i class="fas fa-chart-line"></i></div>
+          <span class="login-company-name" id="login-company-name"
+            >SVL FMS</span
+          >
+        </div>
+        <h2>Welcome Back</h2>
+        <p class="login-sub">Sign in to your account to continue</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email"
+              ><i class="fas fa-user"></i> Username</label
+            >
+            <input
+              type="text"
+              id="login-email"
+              placeholder="Enter your username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="login-password"
+              ><i class="fas fa-lock"></i> Password</label
+            >
+            <div class="pw-wrap">
+              <input
+                type="password"
+                id="login-password"
+                placeholder="Enter your password"
+                required
+              />
+              <button
+                type="button"
+                class="pw-toggle"
+                onclick="togglePassword()"
+                title="Show or hide password"
+              >
+                <i class="fas fa-eye" id="pw-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div id="login-error" class="login-error hidden">
+            Invalid username or password.
+          </div>
+          <button type="submit" class="btn-login">
+            <span id="login-btn-text">Sign In</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+        <p class="login-hint">Demo: superadmin / admin123</p>
+        <div class="powered-by-login">
+          Powered by <strong>Software Vala Liberia</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ MAIN APP ═══════════════════════════════════ -->
+    <div id="main-app" class="main-app hidden">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo" id="sidebar-logo-area">
+            <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="logo-text">
+              <span class="company-title" id="sidebar-company-name"
+                >SVL FMS</span
+              >
+              <span class="company-sub">SVL FMS</span>
+            </div>
+          </div>
+          <button
+            class="sidebar-toggle"
+            id="sidebar-toggle"
+            title="Toggle sidebar"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebar-nav">
+          <div class="nav-section-label">Main</div>
+          <a
+            href="#"
+            class="nav-item active"
+            data-page="dashboard"
+            data-perm="dashboard"
+          >
+            <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" data-page="clients" data-perm="clients">
+            <i class="fas fa-users"></i><span>Clients</span>
+          </a>
+          <a href="#" class="nav-item" data-page="reports" data-perm="reports">
+            <i class="fas fa-chart-bar"></i><span>Reports</span>
+          </a>
+          <!-- Financial Reports sub-nav -->
+          <div class="sub-nav" id="financial-reports-subnav">
+            <a
+              href="#"
+              class="nav-item sub-nav-item"
+              data-page="income-statement"
+              data-perm="reports"
+            >
+              <i class="fas fa-file-invoice-dollar"></i
+              ><span>Income Statement</span>
+            </a>
+            <a
+              href="#"
+              class="nav-item sub-nav-item"
+              data-page="balance-sheet"
+              data-perm="reports"
+            >
+              <i class="fas fa-balance-scale"></i><span>Balance Sheet</span>
+            </a>
+            <a
+              href="#"
+              class="nav-item sub-nav-item"
+              data-page="cash-flow"
+              data-perm="reports"
+            >
+              <i class="fas fa-water"></i><span>Cash Flow</span>
+            </a>
+            <a
+              href="#"
+              class="nav-item sub-nav-item"
+              data-page="profit-loss"
+              data-perm="reports"
+            >
+              <i class="fas fa-chart-line"></i><span>Profit &amp; Loss</span>
+            </a>
+          </div>
+          <a
+            href="#"
+            class="nav-item"
+            data-page="activities"
+            data-perm="activities"
+          >
+            <i class="fas fa-history"></i><span>Activities</span>
+          </a>
+          <a href="#" class="nav-item" data-page="invoices" data-perm="clients">
+            <i class="fas fa-file-invoice-dollar"></i><span>Invoices</span>
+          </a>
+          <a
+            href="#"
+            class="nav-item"
+            data-page="payment-details"
+            data-perm="clients"
+          >
+            <i class="fas fa-university"></i><span>Payment Details</span>
+          </a>
+          <a href="#" class="nav-item" data-page="payments" data-perm="clients">
+            <i class="fas fa-money-check-alt"></i><span>Payments</span>
+          </a>
+
+          <div class="nav-section-label">Administration</div>
+          <a
+            href="#"
+            class="nav-item perm-staff"
+            data-page="staff"
+            data-perm="staff_management"
+          >
+            <i class="fas fa-user-shield"></i><span>Staff Management</span>
+          </a>
+          <a
+            href="#"
+            class="nav-item perm-licenses"
+            data-page="licenses"
+            data-perm="settings"
+          >
+            <i class="fas fa-key"></i><span>Licenses</span>
+          </a>
+          <a
+            href="#"
+            class="nav-item perm-settings"
+            data-page="settings"
+            data-perm="settings"
+          >
+            <i class="fas fa-cog"></i><span>Settings</span>
+          </a>
+          <a
+            href="#"
+            class="nav-item tenant-management-nav"
+            data-page="tenant-management"
+            data-perm="settings"
+          >
+            <i class="fas fa-globe"></i><span>Tenant Management</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="powered-sidebar">
+            Powered by <strong>Software Vala Liberia</strong>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT AREA -->
+      <div class="content-area" id="content-area">
+        <!-- SERVICES TOP NAV BAR -->
+        <nav class="services-navbar" id="services-navbar">
+          <div class="services-navbar-inner">
+            <span class="services-nav-label"
+              ><i class="fas fa-th"></i> Our Services</span
+            >
+            <div class="services-nav-items" id="services-nav-items">
+              <button
+                class="svc-nav-btn"
+                data-service="financial-advisory"
+                onclick="navigateTo('svc-financial-advisory')"
+              >
+                <i class="fas fa-chart-pie"></i>
+                <span>Financial Management Advisory</span>
+              </button>
+              <button
+                class="svc-nav-btn"
+                data-service="research-consulting"
+                onclick="navigateTo('svc-research-consulting')"
+              >
+                <i class="fas fa-microscope"></i>
+                <span>Research &amp; Consulting</span>
+              </button>
+              <button
+                class="svc-nav-btn"
+                data-service="access-management"
+                onclick="navigateTo('svc-access-management')"
+              >
+                <i class="fas fa-key"></i>
+                <span>Access Management</span>
+              </button>
+              <button
+                class="svc-nav-btn"
+                data-service="business-development"
+                onclick="navigateTo('svc-business-development')"
+              >
+                <i class="fas fa-rocket"></i>
+                <span>Business Development</span>
+              </button>
+              <button
+                class="svc-nav-btn"
+                data-service="vehicle-hire"
+                onclick="navigateTo('svc-vehicle-hire')"
+              >
+                <i class="fas fa-car"></i>
+                <span>Vehicle Hire &amp; Printing</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+          <div class="navbar-left">
+            <button class="menu-btn" id="menu-btn" title="Toggle sidebar">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title-wrap">
+              <h1 class="page-title" id="page-title">Dashboard</h1>
+              <span class="breadcrumb" id="breadcrumb">Home / Dashboard</span>
+            </div>
+          </div>
+          <div class="navbar-right">
+            <div class="date-display" id="nav-date"></div>
+            <div class="notifications">
+              <button
+                type="button"
+                class="notif-btn"
+                id="notif-btn"
+                title="Open notifications"
+                aria-label="Open notifications"
+                aria-expanded="false"
+              >
+                <i class="fas fa-bell"></i
+                ><span class="notif-badge" id="notif-badge">3</span>
+              </button>
+              <div class="notif-dropdown hidden" id="notif-dropdown">
+                <div class="notif-header">
+                  <span>Notifications</span
+                  ><button type="button" onclick="clearNotifications(event)">
+                    Clear All
+                  </button>
+                </div>
+                <div class="notif-list" id="notif-list"></div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="subscription-btn"
+              onclick="openLicensesPanel()"
+              title="Open license subscriptions"
+              aria-label="Open license subscriptions"
+            >
+              <i class="fas fa-id-card"></i><span>License Subscription</span>
+            </button>
+            <div class="user-menu" id="user-menu-btn">
+              <div class="user-avatar" id="nav-user-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="user-info">
+                <span class="user-name" id="nav-user-name">Admin</span>
+                <span class="user-role" id="nav-user-role">Super Admin</span>
+              </div>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <!-- Admin Quick Panel Trigger -->
+            <button
+              class="admin-panel-btn"
+              id="admin-panel-toggle"
+              title="Admin Panel"
+            >
+              <i class="fas fa-sliders-h"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="page-content" id="page-content">
+          <!-- ─────────────── DASHBOARD PAGE ─────────────── -->
+          <section id="page-dashboard" class="page active">
+            <!-- Services Quick Access Banner -->
+            <div class="services-banner">
+              <div class="services-banner-header">
+                <div class="services-banner-title">
+                  <div class="services-banner-icon">
+                    <i class="fas fa-th-large"></i>
+                  </div>
+                  <div>
+                    <h3>Our Services</h3>
+                    <p>Click any service to explore what SVL FMS offers</p>
+                  </div>
+                </div>
+              </div>
+              <div class="services-banner-cards">
+                <button
+                  class="svc-dash-card"
+                  onclick="navigateTo('svc-financial-advisory')"
+                >
+                  <div class="svc-card-icon service-color-purple">
+                    <i class="fas fa-chart-pie"></i>
+                  </div>
+                  <div class="svc-card-body">
+                    <span class="svc-card-title"
+                      >Financial Management Advisory</span
+                    >
+                    <span class="svc-card-desc"
+                      >Expert advisory on financial planning, budgeting &amp;
+                      investment strategy</span
+                    >
+                  </div>
+                  <i class="fas fa-arrow-right svc-card-arrow"></i>
+                </button>
+                <button
+                  class="svc-dash-card"
+                  onclick="navigateTo('svc-research-consulting')"
+                >
+                  <div class="svc-card-icon service-color-blue">
+                    <i class="fas fa-microscope"></i>
+                  </div>
+                  <div class="svc-card-body">
+                    <span class="svc-card-title"
+                      >Research &amp; Consulting</span
+                    >
+                    <span class="svc-card-desc"
+                      >Data-driven research, market analysis &amp; strategic
+                      consulting services</span
+                    >
+                  </div>
+                  <i class="fas fa-arrow-right svc-card-arrow"></i>
+                </button>
+                <button
+                  class="svc-dash-card"
+                  onclick="navigateTo('svc-access-management')"
+                >
+                  <div class="svc-card-icon service-color-green">
+                    <i class="fas fa-key"></i>
+                  </div>
+                  <div class="svc-card-body">
+                    <span class="svc-card-title">Access Management</span>
+                    <span class="svc-card-desc"
+                      >Secure identity verification, permissions &amp; access
+                      control solutions</span
+                    >
+                  </div>
+                  <i class="fas fa-arrow-right svc-card-arrow"></i>
+                </button>
+                <button
+                  class="svc-dash-card"
+                  onclick="navigateTo('svc-business-development')"
+                >
+                  <div class="svc-card-icon service-color-amber">
+                    <i class="fas fa-rocket"></i>
+                  </div>
+                  <div class="svc-card-body">
+                    <span class="svc-card-title">Business Development</span>
+                    <span class="svc-card-desc"
+                      >Growth strategies, partnerships, market entry &amp;
+                      expansion support</span
+                    >
+                  </div>
+                  <i class="fas fa-arrow-right svc-card-arrow"></i>
+                </button>
+                <button
+                  class="svc-dash-card"
+                  onclick="navigateTo('svc-vehicle-hire')"
+                >
+                  <div class="svc-card-icon service-color-red">
+                    <i class="fas fa-car"></i>
+                  </div>
+                  <div class="svc-card-body">
+                    <span class="svc-card-title"
+                      >Vehicle Hire &amp; Printing</span
+                    >
+                    <span class="svc-card-desc"
+                      >Fleet rental services &amp; professional printing &amp;
+                      branding solutions</span
+                    >
+                  </div>
+                  <i class="fas fa-arrow-right svc-card-arrow"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-cards" id="summary-cards">
+              <!-- JS-generated metric cards -->
+            </div>
+
+            <div class="dashboard-mid-row">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3>
+                    <i class="fas fa-chart-area"></i> Loan Portfolio Overview
+                  </h3>
+                  <div class="chart-controls">
+                    <button
+                      class="chart-btn active"
+                      onclick="switchChart('bar')"
+                    >
+                      Bar
+                    </button>
+                    <button class="chart-btn" onclick="switchChart('line')">
+                      Line
+                    </button>
+                    <button class="chart-btn" onclick="switchChart('doughnut')">
+                      Donut
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-height-lg">
+                  <canvas id="portfolio-chart"></canvas>
+                </div>
+              </div>
+              <div class="status-pie-card">
+                <div class="chart-card-header">
+                  <h3><i class="fas fa-pie-chart"></i> Status Breakdown</h3>
+                </div>
+                <div class="chart-height-md">
+                  <canvas id="status-chart"></canvas>
+                </div>
+                <div id="status-legend" class="status-legend"></div>
+              </div>
+            </div>
+
+            <!-- Portfolio by Client -->
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3>
+                  <i class="fas fa-building"></i> Loan Portfolio by Client
+                </h3>
+                <div class="section-filters">
+                  <button
+                    class="filter-btn active"
+                    onclick="filterPortfolio('all')"
+                  >
+                    All
+                  </button>
+                  <button
+                    class="filter-btn"
+                    onclick="filterPortfolio('Corporation')"
+                  >
+                    Corp
+                  </button>
+                  <button
+                    class="filter-btn"
+                    onclick="filterPortfolio('Individual')"
+                  >
+                    Individual
+                  </button>
+                </div>
+              </div>
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table" id="portfolio-table">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>Type</th>
+                      <th>Loan Amount</th>
+                      <th>Amount Paid</th>
+                      <th>Remaining</th>
+                      <th>Status</th>
+                      <th>Summary</th>
+                    </tr>
+                  </thead>
+                  <tbody id="portfolio-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-clock"></i> Recent Activities</h3>
+                <a href="#" class="see-all" data-page="activities">See All</a>
+              </div>
+              <table class="activities-table" id="recent-activities-table">
+                <thead>
+                  <tr>
+                    <th>Client Name</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>By</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-activities-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ─────────────── SERVICE: FINANCIAL ADVISORY ─────────────── -->
+          <section id="page-svc-financial-advisory" class="page hidden">
+            <div class="svc-page-header service-purple">
+              <button class="btn-back" onclick="navigateTo('dashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+              <div class="svc-page-hero">
+                <div class="svc-page-icon service-color-purple">
+                  <i class="fas fa-chart-pie"></i>
+                </div>
+                <div>
+                  <h2>Financial Management Advisory</h2>
+                  <p>
+                    Expert guidance on financial planning, portfolio management,
+                    investment strategy and wealth optimization for individuals
+                    and corporations.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="svc-highlights" id="svc-fa-highlights"></div>
+            <div class="svc-content-grid">
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-list-check icon-purple"></i>
+                    What We Offer
+                  </h3>
+                </div>
+                <ul class="svc-feature-list" id="svc-fa-features"></ul>
+              </div>
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-user-tie icon-purple"></i> Who It's For
+                  </h3>
+                </div>
+                <div id="svc-fa-audience" class="svc-audience-list"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3>
+                  <i class="fas fa-phone-alt icon-purple"></i> Get Started
+                </h3>
+              </div>
+              <div class="svc-cta-box">
+                <p>
+                  Ready to optimize your financial strategy? Contact TDJ
+                  Consultancy Inc. today for a free consultation.
+                </p>
+                <button
+                  class="btn-primary"
+                  onclick="openServiceEnquiry('Financial Management Advisory')"
+                >
+                  <i class="fas fa-envelope"></i> Request Consultation
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── SERVICE: RESEARCH & CONSULTING ─────────────── -->
+          <section id="page-svc-research-consulting" class="page hidden">
+            <div class="svc-page-header service-blue">
+              <button class="btn-back" onclick="navigateTo('dashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+              <div class="svc-page-hero">
+                <div class="svc-page-icon service-color-blue">
+                  <i class="fas fa-microscope"></i>
+                </div>
+                <div>
+                  <h2>Research &amp; Consulting</h2>
+                  <p>
+                    Data-driven research, market intelligence, feasibility
+                    studies, and strategic consulting to inform your key
+                    business decisions.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="svc-highlights" id="svc-rc-highlights"></div>
+            <div class="svc-content-grid">
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-list-check icon-blue"></i>
+                    What We Offer
+                  </h3>
+                </div>
+                <ul class="svc-feature-list" id="svc-rc-features"></ul>
+              </div>
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-user-tie icon-blue"></i> Who It's For
+                  </h3>
+                </div>
+                <div id="svc-rc-audience" class="svc-audience-list"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-phone-alt icon-blue"></i> Get Started</h3>
+              </div>
+              <div class="svc-cta-box">
+                <p>
+                  Need research-backed decisions? Let our analysts deliver
+                  insights that drive results.
+                </p>
+                <button
+                  class="btn-primary"
+                  onclick="openServiceEnquiry('Research and Consulting')"
+                >
+                  <i class="fas fa-envelope"></i> Request Consultation
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── SERVICE: ACCESS MANAGEMENT ─────────────── -->
+          <section id="page-svc-access-management" class="page hidden">
+            <div class="svc-page-header service-green">
+              <button class="btn-back" onclick="navigateTo('dashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+              <div class="svc-page-hero">
+                <div class="svc-page-icon service-color-green">
+                  <i class="fas fa-key"></i>
+                </div>
+                <div>
+                  <h2>Access Management</h2>
+                  <p>
+                    Comprehensive identity &amp; access solutions including
+                    role-based permissions, user provisioning, audit trails and
+                    compliance frameworks.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="svc-highlights" id="svc-am-highlights"></div>
+            <div class="svc-content-grid">
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-list-check icon-green"></i>
+                    What We Offer
+                  </h3>
+                </div>
+                <ul class="svc-feature-list" id="svc-am-features"></ul>
+              </div>
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-user-tie icon-green"></i> Who It's For
+                  </h3>
+                </div>
+                <div id="svc-am-audience" class="svc-audience-list"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-phone-alt icon-green"></i> Get Started</h3>
+              </div>
+              <div class="svc-cta-box">
+                <p>
+                  Secure your organization's data and systems with our expert
+                  access management solutions.
+                </p>
+                <button
+                  class="btn-primary"
+                  onclick="openServiceEnquiry('Access Management')"
+                >
+                  <i class="fas fa-envelope"></i> Request Consultation
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── SERVICE: BUSINESS DEVELOPMENT ─────────────── -->
+          <section id="page-svc-business-development" class="page hidden">
+            <div class="svc-page-header service-amber">
+              <button class="btn-back" onclick="navigateTo('dashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+              <div class="svc-page-hero">
+                <div class="svc-page-icon service-color-amber">
+                  <i class="fas fa-rocket"></i>
+                </div>
+                <div>
+                  <h2>Business Development</h2>
+                  <p>
+                    Strategic growth planning, partnership facilitation, market
+                    entry support, and revenue acceleration for ambitious
+                    organizations.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="svc-highlights" id="svc-bd-highlights"></div>
+            <div class="svc-content-grid">
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-list-check icon-amber"></i>
+                    What We Offer
+                  </h3>
+                </div>
+                <ul class="svc-feature-list" id="svc-bd-features"></ul>
+              </div>
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-user-tie icon-amber"></i> Who It's For
+                  </h3>
+                </div>
+                <div id="svc-bd-audience" class="svc-audience-list"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-phone-alt icon-amber"></i> Get Started</h3>
+              </div>
+              <div class="svc-cta-box">
+                <p>
+                  Ready to accelerate your business growth? Our development
+                  experts are here to build your path forward.
+                </p>
+                <button
+                  class="btn-primary"
+                  onclick="openServiceEnquiry('Business Development')"
+                >
+                  <i class="fas fa-envelope"></i> Request Consultation
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── SERVICE: VEHICLE HIRE & PRINTING ─────────────── -->
+          <section id="page-svc-vehicle-hire" class="page hidden">
+            <div class="svc-page-header service-red">
+              <button class="btn-back" onclick="navigateTo('dashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+              <div class="svc-page-hero">
+                <div class="svc-page-icon service-color-red">
+                  <i class="fas fa-car"></i>
+                </div>
+                <div>
+                  <h2>Vehicle Hire &amp; Printing</h2>
+                  <p>
+                    Reliable fleet rental services and professional printing,
+                    branding, and signage solutions for businesses of all sizes.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="svc-highlights" id="svc-vh-highlights"></div>
+            <div class="svc-content-grid">
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-list-check icon-red"></i>
+                    What We Offer
+                  </h3>
+                </div>
+                <ul class="svc-feature-list" id="svc-vh-features"></ul>
+              </div>
+              <div class="section-card svc-detail-card">
+                <div class="section-card-header">
+                  <h3><i class="fas fa-user-tie icon-red"></i> Who It's For</h3>
+                </div>
+                <div id="svc-vh-audience" class="svc-audience-list"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-phone-alt icon-red"></i> Get Started</h3>
+              </div>
+              <div class="svc-cta-box">
+                <p>
+                  Need a vehicle or professional print materials? Get in touch
+                  for same-day quotes and availability.
+                </p>
+                <button
+                  class="btn-primary"
+                  onclick="openServiceEnquiry('Vehicle Hire and Printing')"
+                >
+                  <i class="fas fa-envelope"></i> Request Quote
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── CLIENTS PAGE ─────────────── -->
+          <section id="page-clients" class="page hidden">
+            <div class="page-toolbar">
+              <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input
+                  type="text"
+                  id="client-search"
+                  placeholder="Search clients..."
+                  oninput="filterClients()"
+                />
+              </div>
+              <div class="toolbar-right">
+                <select
+                  id="status-filter"
+                  onchange="filterClients()"
+                  title="Filter clients by status"
+                >
+                  <option value="">All Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Overdue">Overdue</option>
+                  <option value="Pending">Pending</option>
+                </select>
+                <button class="btn-primary" onclick="openAddClientModal()">
+                  <i class="fas fa-plus"></i> Add Client
+                </button>
+                <button
+                  class="btn-secondary"
+                  onclick="downloadClientImportTemplate()"
+                >
+                  <i class="fas fa-file-download"></i> CSV Template
+                </button>
+                <button
+                  class="btn-secondary"
+                  onclick="triggerUpload('client-csv-upload')"
+                >
+                  <i class="fas fa-file-import"></i> Bulk Upload CSV
+                </button>
+                <input
+                  type="file"
+                  id="client-csv-upload"
+                  accept=".csv,text/csv"
+                  class="hidden-input"
+                  onchange="previewClientCsv(event)"
+                  title="Client CSV file"
+                />
+              </div>
+            </div>
+            <div class="clients-grid" id="clients-grid"></div>
+          </section>
+
+          <!-- ─────────────── REPORTS PAGE ─────────────── -->
+          <section id="page-reports" class="page hidden">
+            <div class="reports-summary" id="reports-summary"></div>
+
+            <!-- Financial Reports Quick Access -->
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-folder-open"></i> Financial Reports</h3>
+                <span class="section-sub"
+                  >Click a report to view detailed breakdown</span
+                >
+              </div>
+              <div class="fin-report-cards">
+                <button
+                  class="fin-report-btn"
+                  onclick="navigateTo('income-statement')"
+                >
+                  <div class="frb-icon service-color-purple">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                  </div>
+                  <div class="frb-body">
+                    <span class="frb-title">Income Statement</span>
+                    <span class="frb-desc"
+                      >Revenue, expenses &amp; net income</span
+                    >
+                  </div>
+                  <i class="fas fa-chevron-right frb-arrow"></i>
+                </button>
+                <button
+                  class="fin-report-btn"
+                  onclick="navigateTo('balance-sheet')"
+                >
+                  <div class="frb-icon service-color-blue">
+                    <i class="fas fa-balance-scale"></i>
+                  </div>
+                  <div class="frb-body">
+                    <span class="frb-title">Balance Sheet</span>
+                    <span class="frb-desc"
+                      >Assets, liabilities &amp; equity</span
+                    >
+                  </div>
+                  <i class="fas fa-chevron-right frb-arrow"></i>
+                </button>
+                <button
+                  class="fin-report-btn"
+                  onclick="navigateTo('cash-flow')"
+                >
+                  <div class="frb-icon service-color-green">
+                    <i class="fas fa-water"></i>
+                  </div>
+                  <div class="frb-body">
+                    <span class="frb-title">Cash Flow</span>
+                    <span class="frb-desc"
+                      >Operating, investing &amp; financing</span
+                    >
+                  </div>
+                  <i class="fas fa-chevron-right frb-arrow"></i>
+                </button>
+                <button
+                  class="fin-report-btn"
+                  onclick="navigateTo('profit-loss')"
+                >
+                  <div class="frb-icon service-color-amber">
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                  <div class="frb-body">
+                    <span class="frb-title">Profit &amp; Loss</span>
+                    <span class="frb-desc">P&amp;L summary by period</span>
+                  </div>
+                  <i class="fas fa-chevron-right frb-arrow"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="dashboard-mid-row">
+              <div class="chart-card wide">
+                <div class="chart-card-header">
+                  <h3><i class="fas fa-chart-line"></i> Monthly Collections</h3>
+                </div>
+                <div class="chart-height-sm">
+                  <canvas id="monthly-chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-list-alt"></i> Full Loan Register</h3>
+                <button class="btn-secondary" onclick="exportReport()">
+                  <i class="fas fa-download"></i> Export CSV
+                </button>
+              </div>
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table" id="full-register-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Client</th>
+                      <th>Loan Amount</th>
+                      <th>Rate</th>
+                      <th>Duration</th>
+                      <th>Interest</th>
+                      <th>Total</th>
+                      <th>Paid</th>
+                      <th>Balance</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="full-register-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── INCOME STATEMENT PAGE ─────────────── -->
+          <section id="page-income-statement" class="page hidden">
+            <div class="fin-report-header">
+              <button class="btn-back" onclick="navigateTo('reports')">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </button>
+              <div class="fin-report-title-wrap">
+                <div class="fin-report-icon service-color-purple">
+                  <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                  <h2>Income Statement</h2>
+                  <p>Revenue, expenses &amp; net income summary</p>
+                </div>
+              </div>
+              <button
+                class="btn-secondary"
+                onclick="exportFinReport('income-statement')"
+              >
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+            <div class="fin-report-kpis" id="is-kpis"></div>
+            <div class="fin-report-grid">
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-arrow-circle-up icon-accent"></i>
+                    Revenue
+                  </h3>
+                </div>
+                <table class="fin-table" id="is-revenue-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                      <th>% of Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="is-revenue-tbody"></tbody>
+                  <tfoot id="is-revenue-tfoot"></tfoot>
+                </table>
+              </div>
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-arrow-circle-down icon-danger"></i>
+                    Expenses
+                  </h3>
+                </div>
+                <table class="fin-table" id="is-expense-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                      <th>% of Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="is-expense-tbody"></tbody>
+                  <tfoot id="is-expense-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="fin-net-summary" id="is-net-summary"></div>
+            </div>
+            <div class="section-card">
+              <div class="chart-card-header">
+                <h3>
+                  <i class="fas fa-chart-bar icon-primary"></i>
+                  Income vs Expense Trend
+                </h3>
+              </div>
+              <div class="chart-height-sm">
+                <canvas id="is-chart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── BALANCE SHEET PAGE ─────────────── -->
+          <section id="page-balance-sheet" class="page hidden">
+            <div class="fin-report-header">
+              <button class="btn-back" onclick="navigateTo('reports')">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </button>
+              <div class="fin-report-title-wrap">
+                <div class="fin-report-icon service-color-blue">
+                  <i class="fas fa-balance-scale"></i>
+                </div>
+                <div>
+                  <h2>Balance Sheet</h2>
+                  <p>Assets, liabilities &amp; shareholders' equity</p>
+                </div>
+              </div>
+              <button
+                class="btn-secondary"
+                onclick="exportFinReport('balance-sheet')"
+              >
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+            <div class="fin-report-kpis" id="bs-kpis"></div>
+            <div class="fin-report-grid">
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-coins icon-accent"></i>
+                    Assets
+                  </h3>
+                </div>
+                <table class="fin-table" id="bs-assets-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bs-assets-tbody"></tbody>
+                  <tfoot id="bs-assets-tfoot"></tfoot>
+                </table>
+              </div>
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-hand-holding-usd icon-danger"></i>
+                    Liabilities &amp; Equity
+                  </h3>
+                </div>
+                <table class="fin-table" id="bs-liab-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bs-liab-tbody"></tbody>
+                  <tfoot id="bs-liab-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="chart-card-header">
+                <h3>
+                  <i class="fas fa-chart-pie icon-primary"></i>
+                  Assets vs Liabilities
+                </h3>
+              </div>
+              <div class="chart-height-sm">
+                <canvas id="bs-chart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── CASH FLOW PAGE ─────────────── -->
+          <section id="page-cash-flow" class="page hidden">
+            <div class="fin-report-header">
+              <button class="btn-back" onclick="navigateTo('reports')">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </button>
+              <div class="fin-report-title-wrap">
+                <div class="fin-report-icon service-color-green">
+                  <i class="fas fa-water"></i>
+                </div>
+                <div>
+                  <h2>Cash Flow Statement</h2>
+                  <p>Operating, investing &amp; financing activities</p>
+                </div>
+              </div>
+              <button
+                class="btn-secondary"
+                onclick="exportFinReport('cash-flow')"
+              >
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+            <div class="fin-report-kpis" id="cf-kpis"></div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3>
+                  <i class="fas fa-cogs icon-primary"></i>
+                  Operating Activities
+                </h3>
+              </div>
+              <table class="fin-table" id="cf-operating-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Amount (USD)</th>
+                  </tr>
+                </thead>
+                <tbody id="cf-operating-tbody"></tbody>
+                <tfoot id="cf-operating-tfoot"></tfoot>
+              </table>
+            </div>
+            <div class="fin-report-grid">
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-building icon-info"></i>
+                    Investing Activities
+                  </h3>
+                </div>
+                <table class="fin-table" id="cf-investing-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cf-investing-tbody"></tbody>
+                  <tfoot id="cf-investing-tfoot"></tfoot>
+                </table>
+              </div>
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-university icon-warning"></i>
+                    Financing Activities
+                  </h3>
+                </div>
+                <table class="fin-table" id="cf-financing-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cf-financing-tbody"></tbody>
+                  <tfoot id="cf-financing-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="chart-card-header">
+                <h3>
+                  <i class="fas fa-chart-area icon-accent"></i>
+                  Cash Flow Trend
+                </h3>
+              </div>
+              <div class="chart-height-sm">
+                <canvas id="cf-chart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── PROFIT & LOSS PAGE ─────────────── -->
+          <section id="page-profit-loss" class="page hidden">
+            <div class="fin-report-header">
+              <button class="btn-back" onclick="navigateTo('reports')">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </button>
+              <div class="fin-report-title-wrap">
+                <div class="fin-report-icon service-color-amber">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                  <h2>Profit &amp; Loss (P&amp;L)</h2>
+                  <p>Gross profit, net profit &amp; margin analysis</p>
+                </div>
+              </div>
+              <button
+                class="btn-secondary"
+                onclick="exportFinReport('profit-loss')"
+              >
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+            <div class="fin-report-kpis" id="pl-kpis"></div>
+            <div class="fin-report-grid">
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-plus-circle icon-accent"></i>
+                    Income
+                  </h3>
+                </div>
+                <table class="fin-table" id="pl-income-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                      <th>Margin %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pl-income-tbody"></tbody>
+                  <tfoot id="pl-income-tfoot"></tfoot>
+                </table>
+              </div>
+              <div class="section-card">
+                <div class="section-card-header">
+                  <h3>
+                    <i class="fas fa-minus-circle icon-danger"></i>
+                    Costs &amp; Deductions
+                  </h3>
+                </div>
+                <table class="fin-table" id="pl-costs-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Amount (USD)</th>
+                      <th>Margin %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pl-costs-tbody"></tbody>
+                  <tfoot id="pl-costs-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="fin-net-summary" id="pl-net-summary"></div>
+            </div>
+            <div class="section-card">
+              <div class="chart-card-header">
+                <h3>
+                  <i class="fas fa-chart-bar icon-warning"></i>
+                  P&amp;L Monthly Trend
+                </h3>
+              </div>
+              <div class="chart-height-sm">
+                <canvas id="pl-chart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── ACTIVITIES PAGE ─────────────── -->
+          <section id="page-activities" class="page hidden">
+            <div class="page-toolbar">
+              <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input
+                  type="text"
+                  id="activity-search"
+                  placeholder="Search activities..."
+                  oninput="filterActivities()"
+                />
+              </div>
+              <button class="btn-primary" onclick="openAddActivityModal()">
+                <i class="fas fa-plus"></i> Log Activity
+              </button>
+            </div>
+            <div class="section-card">
+              <table
+                class="activities-table full-table"
+                id="full-activities-table"
+              >
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Client Name</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Performed By</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="full-activities-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ─────────────── INVOICES PAGE ─────────────── -->
+          <section id="page-invoices" class="page hidden">
+            <div class="page-toolbar">
+              <div>
+                <h2 class="page-section-title">Client Invoices</h2>
+                <p class="page-section-subtitle">
+                  Issue, print, or download A4 invoices for client accounts.
+                </p>
+              </div>
+              <button class="btn-primary" onclick="openInvoiceEditor()">
+                <i class="fas fa-plus"></i> Add Invoice
+              </button>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-receipt"></i> Invoice Register</h3>
+                <span class="section-sub"
+                  >Select a client to issue an invoice.</span
+                >
+              </div>
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table invoice-register-table">
+                  <thead>
+                    <tr>
+                      <th>Invoice</th>
+                      <th>Client</th>
+                      <th>Issue Date</th>
+                      <th>Total Repayment</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoice-register-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-payment-details" class="page hidden">
+            <div class="page-toolbar">
+              <div>
+                <h2 class="page-section-title">Payment Details</h2>
+                <p class="page-section-subtitle">
+                  Manage the Bank, Mobile Money, and Orange Money details
+                  clients use to pay.
+                </p>
+              </div>
+              <button class="btn-primary" onclick="savePaymentDetails()">
+                <i class="fas fa-save"></i> Save Payment Details
+              </button>
+            </div>
+            <div class="payment-details-grid">
+              <div class="section-card payment-details-card">
+                <div class="section-card-header">
+                  <h3><i class="fas fa-university"></i> Bank Payment</h3>
+                  <button
+                    class="btn-secondary btn-sm"
+                    onclick="copyPaymentDetails('bank')"
+                  >
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+                <div class="form-group">
+                  <label for="pd-bank-name">Bank Name</label
+                  ><input id="pd-bank-name" placeholder="Enter bank name" />
+                </div>
+                <div class="form-group">
+                  <label for="pd-bank-account-name">Account Name</label
+                  ><input
+                    id="pd-bank-account-name"
+                    placeholder="Enter account name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-bank-account-number">Account Number</label
+                  ><input
+                    id="pd-bank-account-number"
+                    placeholder="Enter account number"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-bank-branch">Branch / SWIFT</label
+                  ><input
+                    id="pd-bank-branch"
+                    placeholder="Enter branch or SWIFT code"
+                  />
+                </div>
+              </div>
+              <div class="section-card payment-details-card">
+                <div class="section-card-header">
+                  <h3><i class="fas fa-mobile-alt"></i> Mobile Money</h3>
+                  <button
+                    class="btn-secondary btn-sm"
+                    onclick="copyPaymentDetails('mobile')"
+                  >
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+                <div class="form-group">
+                  <label for="pd-mobile-name">Registered Name</label
+                  ><input
+                    id="pd-mobile-name"
+                    placeholder="Enter registered name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-mobile-number">Mobile Money Number</label
+                  ><input
+                    id="pd-mobile-number"
+                    placeholder="Enter mobile money number"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-mobile-instructions">Instructions</label
+                  ><textarea
+                    id="pd-mobile-instructions"
+                    rows="3"
+                    placeholder="Enter mobile money instructions"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="section-card payment-details-card">
+                <div class="section-card-header">
+                  <h3><i class="fas fa-mobile-alt"></i> Orange Money</h3>
+                  <button
+                    class="btn-secondary btn-sm"
+                    onclick="copyPaymentDetails('orange')"
+                  >
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+                <div class="form-group">
+                  <label for="pd-orange-name">Registered Name</label
+                  ><input
+                    id="pd-orange-name"
+                    placeholder="Enter registered name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-orange-number">Orange Money Number</label
+                  ><input
+                    id="pd-orange-number"
+                    placeholder="Enter Orange Money number"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pd-orange-instructions">Instructions</label
+                  ><textarea
+                    id="pd-orange-instructions"
+                    rows="3"
+                    placeholder="Enter Orange Money instructions"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-payments" class="page hidden">
+            <div class="page-toolbar">
+              <div>
+                <h2 class="page-section-title">Payment Center</h2>
+                <p class="page-section-subtitle">
+                  Record Bank, Mobile Money, and Orange Money payments in real
+                  time.
+                </p>
+              </div>
+              <button class="btn-primary" onclick="openPaymentModal()">
+                <i class="fas fa-plus"></i> Make Payment
+              </button>
+            </div>
+            <div class="section-card">
+              <div class="section-card-header">
+                <h3><i class="fas fa-wallet"></i> Recent Payments</h3>
+              </div>
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table">
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Client</th>
+                      <th>Method</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="payments-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─────────────── STAFF PAGE ─────────────── -->
+          <section id="page-staff" class="page hidden">
+            <div class="page-toolbar">
+              <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input
+                  type="text"
+                  id="staff-search"
+                  placeholder="Search staff..."
+                  oninput="filterStaff()"
+                />
+              </div>
+              <button class="btn-primary" onclick="openAddStaffModal()">
+                <i class="fas fa-plus"></i> Add Staff
+              </button>
+            </div>
+            <div class="staff-grid" id="staff-grid"></div>
+          </section>
+
+          <!-- ─────────────── LICENSES PAGE ─────────────── -->
+          <section id="page-licenses" class="page hidden">
+            <!-- Page Header -->
+            <div class="lic-page-header">
+              <div class="lic-header-left">
+                <div class="lic-header-icon"><i class="fas fa-key"></i></div>
+                <div>
+                  <h2>License Management</h2>
+                  <p>
+                    Issue, manage and track software licenses for all business
+                    clients
+                  </p>
+                </div>
+              </div>
+              <div class="lic-header-actions">
+                <button class="btn-secondary" onclick="exportLicensesCSV()">
+                  <i class="fas fa-download"></i> Export CSV
+                </button>
+                <button class="btn-primary" onclick="openIssueLicenseModal('')">
+                  <i class="fas fa-plus"></i> Issue New License
+                </button>
+              </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="lic-stats-row">
+              <div class="lic-stat-card blue">
+                <div class="lic-stat-icon">
+                  <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="lic-stat-info">
+                  <span class="lic-stat-val" id="lic-stat-total">0</span>
+                  <span class="lic-stat-lbl">Total Licenses</span>
+                </div>
+              </div>
+              <div class="lic-stat-card green">
+                <div class="lic-stat-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="lic-stat-info">
+                  <span class="lic-stat-val" id="lic-stat-active">0</span>
+                  <span class="lic-stat-lbl">Active</span>
+                </div>
+              </div>
+              <div class="lic-stat-card red">
+                <div class="lic-stat-icon">
+                  <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="lic-stat-info">
+                  <span class="lic-stat-val" id="lic-stat-expired">0</span>
+                  <span class="lic-stat-lbl">Expired</span>
+                </div>
+              </div>
+              <div class="lic-stat-card orange">
+                <div class="lic-stat-icon">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="lic-stat-info">
+                  <span class="lic-stat-val" id="lic-stat-expiring">0</span>
+                  <span class="lic-stat-lbl">Expiring Soon</span>
+                </div>
+              </div>
+              <div class="lic-stat-card purple">
+                <div class="lic-stat-icon">
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="lic-stat-info">
+                  <span class="lic-stat-val" id="lic-stat-revenue">$0.00</span>
+                  <span class="lic-stat-lbl">Active Revenue</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Plan Distribution Row -->
+            <div class="lic-plan-dist-row">
+              <div class="lic-plan-dist-item monthly">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="lic-stat-monthly">0</span> Monthly
+              </div>
+              <div class="lic-plan-dist-item quarterly">
+                <i class="fas fa-calendar-week"></i>
+                <span id="lic-stat-quarterly">0</span> Quarterly
+              </div>
+              <div class="lic-plan-dist-item yearly">
+                <i class="fas fa-calendar-check"></i>
+                <span id="lic-stat-yearly">0</span> Yearly
+              </div>
+            </div>
+
+            <!-- Plans Section -->
+            <div class="lic-section-title">
+              <i class="fas fa-th-large"></i> Available Plans — Click to Issue
+            </div>
+            <div class="lic-plans-grid" id="lic-plans-cards"></div>
+
+            <!-- All Licenses Table -->
+            <div class="lic-section-title lic-section-title-spaced">
+              <i class="fas fa-list"></i> All Issued Licenses
+            </div>
+            <div class="lic-table-card">
+              <div class="lic-table-toolbar">
+                <div class="lic-search-wrap">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    id="lic-search"
+                    placeholder="Search business, key, email…"
+                    oninput="applyLicenseFilters()"
+                  />
+                </div>
+                <select
+                  id="lic-filter-status"
+                  onchange="applyLicenseFilters()"
+                  title="Filter licenses by status"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="Active">Active</option>
+                  <option value="Expired">Expired</option>
+                  <option value="Suspended">Suspended</option>
+                  <option value="Pending">Pending</option>
+                </select>
+                <span class="lic-count-label" id="lic-count-label"></span>
+              </div>
+              <div class="table-responsive">
+                <table class="lic-table">
+                  <thead>
+                    <tr>
+                      <th>License Key</th>
+                      <th>Business</th>
+                      <th>Plan</th>
+                      <th>Status</th>
+                      <th>Issued</th>
+                      <th>Expires</th>
+                      <th>Issued By</th>
+                      <th>Notes</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lic-table-body">
+                    <tr>
+                      <td colspan="9" class="empty-state">
+                        <i class="fas fa-key"></i><br />No licenses yet — issue
+                        one above
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="lic-pagination" id="lic-pagination"></div>
+            </div>
+          </section>
+
+          <!-- ─────────────── SETTINGS PAGE ─────────────── -->
+          <section id="page-tenant-management" class="page hidden">
+            <div class="page-toolbar">
+              <div>
+                <h2 class="page-section-title">Tenant Management</h2>
+                <p class="page-section-subtitle">
+                  Configure licensed admin workspaces, domains, SEO, and plan
+                  features.
+                </p>
+              </div>
+              <button class="btn-secondary" onclick="backupSystemData()">
+                <i class="fas fa-database"></i> Backup Data
+              </button>
+            </div>
+            <div class="section-card tenant-admin-only">
+              <div class="section-card-header">
+                <h3><i class="fas fa-key"></i> Licensed Workspaces</h3>
+                <span class="section-sub"
+                  >Super Admin controls access granted by each purchased
+                  plan.</span
+                >
+              </div>
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table">
+                  <thead>
+                    <tr>
+                      <th>Business</th>
+                      <th>Plan</th>
+                      <th>Status</th>
+                      <th>Subdomain</th>
+                      <th>Website</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tenant-license-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="section-card tenant-config-card">
+              <div class="section-card-header">
+                <h3>
+                  <i class="fas fa-sliders-h"></i> Workspace Configuration
+                </h3>
+                <span id="tenant-config-status" class="section-sub"
+                  >Select a license to configure it.</span
+                >
+              </div>
+              <form
+                id="tenant-config-form"
+                onsubmit="saveTenantConfiguration(event)"
+              >
+                <input type="hidden" id="tenant-license-id" />
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="tenant-subdomain">Subdomain</label
+                    ><input id="tenant-subdomain" placeholder="client-name" />
+                  </div>
+                  <div class="form-group">
+                    <label for="tenant-domain">Domain Name</label
+                    ><input
+                      id="tenant-domain"
+                      placeholder="www.clientdomain.com"
+                    />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="tenant-website">Website URL</label
+                    ><input
+                      id="tenant-website"
+                      type="url"
+                      placeholder="https://clientdomain.com"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="tenant-seo-title">SEO Title</label
+                    ><input id="tenant-seo-title" placeholder="Website title" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="tenant-seo-description">SEO Description</label
+                  ><textarea
+                    id="tenant-seo-description"
+                    rows="2"
+                    placeholder="Search engine description"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="tenant-seo-keywords">SEO Keywords</label
+                  ><input
+                    id="tenant-seo-keywords"
+                    placeholder="finance, loans, payments"
+                  />
+                </div>
+                <div class="feature-flags">
+                  <label
+                    ><input type="checkbox" value="dashboard" checked />
+                    Dashboard</label
+                  ><label
+                    ><input type="checkbox" value="clients" checked />
+                    Clients</label
+                  ><label
+                    ><input type="checkbox" value="reports" checked />
+                    Reports</label
+                  ><label
+                    ><input type="checkbox" value="payments" /> Payments</label
+                  ><label
+                    ><input type="checkbox" value="staff_management" /> Staff
+                    Management</label
+                  ><label
+                    ><input type="checkbox" value="settings" /> Settings</label
+                  >
+                </div>
+                <div class="modal-actions">
+                  <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Configuration</button
+                  ><button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="visitConfiguredWebsite()"
+                  >
+                    <i class="fas fa-external-link-alt"></i> Visit Website
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section id="page-settings" class="page hidden">
+            <div class="settings-layout">
+              <div class="settings-sidebar">
+                <button
+                  class="settings-tab active"
+                  data-tab="company"
+                  onclick="switchSettingsTab('company')"
+                >
+                  <i class="fas fa-building"></i> Company
+                </button>
+                <button
+                  class="settings-tab"
+                  data-tab="branding"
+                  onclick="switchSettingsTab('branding')"
+                >
+                  <i class="fas fa-palette"></i> Branding
+                </button>
+                <button
+                  class="settings-tab"
+                  data-tab="security"
+                  onclick="switchSettingsTab('security')"
+                >
+                  <i class="fas fa-shield-alt"></i> Security
+                </button>
+                <button
+                  class="settings-tab"
+                  data-tab="notifications"
+                  onclick="switchSettingsTab('notifications')"
+                >
+                  <i class="fas fa-bell"></i> Notifications
+                </button>
+                <button
+                  class="settings-tab"
+                  data-tab="colors"
+                  onclick="switchSettingsTab('colors')"
+                >
+                  <i class="fas fa-paint-roller"></i> Colors
+                </button>
+              </div>
+              <div class="settings-content">
+                <!-- Company Tab -->
+                <div class="settings-panel active" id="settings-company">
+                  <h3>Company Details</h3>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Company Name</label>
+                      <input
+                        type="text"
+                        id="s-company-name"
+                        aria-label="Company name"
+                        value="SVL FMS"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label>Tagline</label>
+                      <input
+                        type="text"
+                        id="s-tagline"
+                        aria-label="Company tagline"
+                        value="SVL FMS"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Contact Email</label>
+                      <input
+                        type="email"
+                        id="s-email"
+                        aria-label="Company email"
+                        value="info@tdjconsultancy.com"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label>Phone</label>
+                      <input
+                        type="text"
+                        id="s-phone"
+                        aria-label="Company phone"
+                        value="+1 (555) 000-0000"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Address</label>
+                    <textarea
+                      id="s-address"
+                      rows="3"
+                      aria-label="Company address"
+                    >
+123 Finance Street, Business District, NY 10001</textarea
+                    >
+                  </div>
+                  <button class="btn-primary" onclick="saveCompanySettings()">
+                    <i class="fas fa-save"></i> Save Changes
+                  </button>
+                </div>
+
+                <!-- Branding Tab -->
+                <div class="settings-panel hidden" id="settings-branding">
+                  <h3>Branding & Appearance</h3>
+                  <div class="branding-grid">
+                    <div class="brand-item">
+                      <label>Upload Logo</label>
+                      <div
+                        class="upload-box"
+                        onclick="triggerUpload('logo-upload')"
+                      >
+                        <div id="logo-preview-area">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>Click to upload logo</span>
+                          <small>PNG, JPG up to 2MB</small>
+                        </div>
+                      </div>
+                      <input
+                        type="file"
+                        id="logo-upload"
+                        accept="image/*"
+                        class="hidden-input"
+                        onchange="previewLogo(event)"
+                        title="Company logo file"
+                      />
+                    </div>
+                    <div class="brand-item">
+                      <label>Login Background</label>
+                      <div
+                        class="upload-box"
+                        onclick="triggerUpload('bg-upload')"
+                      >
+                        <div id="bg-preview-area">
+                          <i class="fas fa-image"></i>
+                          <span>Click to upload background</span>
+                          <small>PNG, JPG up to 5MB</small>
+                        </div>
+                      </div>
+                      <input
+                        type="file"
+                        id="bg-upload"
+                        accept="image/*"
+                        class="hidden-input"
+                        onchange="previewBg(event)"
+                        title="Login background file"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Primary Color</label>
+                      <div class="color-pick-wrap">
+                        <input
+                          type="color"
+                          id="s-primary-color"
+                          aria-label="Primary color"
+                          value="#4f46e5"
+                          onchange="applyPrimaryColor(this.value)"
+                        />
+                        <input
+                          type="text"
+                          id="s-primary-color-text"
+                          aria-label="Primary color hex value"
+                          value="#4f46e5"
+                          oninput="syncColor(this.value)"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Accent Color</label>
+                      <div class="color-pick-wrap">
+                        <input
+                          type="color"
+                          id="s-accent-color"
+                          aria-label="Accent color"
+                          value="#10b981"
+                          onchange="applyAccentColor(this.value)"
+                        />
+                        <input
+                          type="text"
+                          id="s-accent-color-text"
+                          aria-label="Accent color hex value"
+                          value="#10b981"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn-primary" onclick="saveBrandingSettings()">
+                    <i class="fas fa-save"></i> Apply Branding
+                  </button>
+                </div>
+
+                <!-- Colors Tab -->
+                <div class="settings-panel hidden" id="settings-colors">
+                  <h3>Navigation Color Customizer</h3>
+
+                  <!-- Live Preview Strip -->
+                  <div class="color-preview-strip">
+                    <div class="cp-preview-label">
+                      <i class="fas fa-eye"></i> Live Preview
+                    </div>
+                    <div class="cp-preview-bar" id="cp-svc-preview">
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-item-label">Services Bar</span>
+                    </div>
+                    <div class="cp-preview-bar" id="cp-sidebar-preview">
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-item-label">Sidebar</span>
+                    </div>
+                    <div class="cp-preview-bar" id="cp-navbar-preview">
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-dot"></span>
+                      <span class="cp-preview-item-label">Top Navbar</span>
+                    </div>
+                  </div>
+
+                  <!-- SERVICES BAR -->
+                  <div class="cp-section">
+                    <div class="cp-section-header">
+                      <div class="cp-section-icon service-color-purple">
+                        <i class="fas fa-grip-horizontal"></i>
+                      </div>
+                      <div>
+                        <div class="cp-section-title">
+                          Services Navigation Bar
+                        </div>
+                        <div class="cp-section-sub">
+                          The top-most bar showing service links
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cp-preset-row">
+                      <span class="cp-preset-label">Presets:</span>
+                      <div class="cp-presets" id="svc-presets"></div>
+                    </div>
+                    <div class="cp-gradient-row">
+                      <div class="cp-picker-group">
+                        <label>Start Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="svc-color-start"
+                            aria-label="Services start color"
+                            value="#1e1b4b"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="svc-color-start-hex"
+                            aria-label="Services start color hex value"
+                            value="#1e1b4b"
+                            oninput="
+                              hexInputSync('svc-color-start', this.value)
+                            "
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Mid Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="svc-color-mid"
+                            aria-label="Services middle color"
+                            value="#312e81"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="svc-color-mid-hex"
+                            aria-label="Services middle color hex value"
+                            value="#312e81"
+                            oninput="hexInputSync('svc-color-mid', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>End Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="svc-color-end"
+                            aria-label="Services end color"
+                            value="#4338ca"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="svc-color-end-hex"
+                            aria-label="Services end color hex value"
+                            value="#4338ca"
+                            oninput="hexInputSync('svc-color-end', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Direction</label>
+                        <select
+                          id="svc-gradient-dir"
+                          onchange="previewNavColors()"
+                          title="Services gradient direction"
+                        >
+                          <option value="90deg">→ Horizontal</option>
+                          <option value="135deg">↘ Diagonal</option>
+                          <option value="180deg">↓ Vertical</option>
+                          <option value="45deg">↗ Diagonal Up</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- SIDEBAR -->
+                  <div class="cp-section">
+                    <div class="cp-section-header">
+                      <div class="cp-section-icon service-color-blue">
+                        <i class="fas fa-bars"></i>
+                      </div>
+                      <div>
+                        <div class="cp-section-title">Left Sidebar</div>
+                        <div class="cp-section-sub">
+                          Navigation sidebar background gradient
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cp-preset-row">
+                      <span class="cp-preset-label">Presets:</span>
+                      <div class="cp-presets" id="sidebar-presets"></div>
+                    </div>
+                    <div class="cp-gradient-row">
+                      <div class="cp-picker-group">
+                        <label>Top Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="sb-color-top"
+                            aria-label="Sidebar top color"
+                            value="#1e1b4b"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="sb-color-top-hex"
+                            aria-label="Sidebar top color hex value"
+                            value="#1e1b4b"
+                            oninput="hexInputSync('sb-color-top', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Mid Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="sb-color-mid"
+                            aria-label="Sidebar middle color"
+                            value="#2d2a7a"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="sb-color-mid-hex"
+                            aria-label="Sidebar middle color hex value"
+                            value="#2d2a7a"
+                            oninput="hexInputSync('sb-color-mid', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Bottom Color</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="sb-color-bot"
+                            aria-label="Sidebar bottom color"
+                            value="#312e81"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="sb-color-bot-hex"
+                            aria-label="Sidebar bottom color hex value"
+                            value="#312e81"
+                            oninput="hexInputSync('sb-color-bot', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Direction</label>
+                        <select
+                          id="sb-gradient-dir"
+                          onchange="previewNavColors()"
+                          title="Sidebar gradient direction"
+                        >
+                          <option value="180deg">↓ Vertical</option>
+                          <option value="135deg">↘ Diagonal</option>
+                          <option value="90deg">→ Horizontal</option>
+                          <option value="45deg">↗ Diagonal Up</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TOP NAVBAR -->
+                  <div class="cp-section">
+                    <div class="cp-section-header">
+                      <div class="cp-section-icon service-color-green">
+                        <i class="fas fa-window-maximize"></i>
+                      </div>
+                      <div>
+                        <div class="cp-section-title">Top Navigation Bar</div>
+                        <div class="cp-section-sub">
+                          Main navbar background and text colors
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cp-preset-row">
+                      <span class="cp-preset-label">Presets:</span>
+                      <div class="cp-presets" id="navbar-presets"></div>
+                    </div>
+                    <div class="cp-gradient-row">
+                      <div class="cp-picker-group">
+                        <label>Background</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="nb-color-bg"
+                            aria-label="Navbar background color"
+                            value="#ffffff"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="nb-color-bg-hex"
+                            aria-label="Navbar background color hex value"
+                            value="#ffffff"
+                            oninput="hexInputSync('nb-color-bg', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Text / Icons</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="nb-color-text"
+                            aria-label="Navbar text color"
+                            value="#1e293b"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="nb-color-text-hex"
+                            aria-label="Navbar text color hex value"
+                            value="#1e293b"
+                            oninput="hexInputSync('nb-color-text', this.value)"
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Border</label>
+                        <div class="cp-swatch-input">
+                          <input
+                            type="color"
+                            id="nb-color-border"
+                            aria-label="Navbar border color"
+                            value="#e2e8f0"
+                            oninput="previewNavColors()"
+                          />
+                          <input
+                            type="text"
+                            id="nb-color-border-hex"
+                            aria-label="Navbar border color hex value"
+                            value="#e2e8f0"
+                            oninput="
+                              hexInputSync('nb-color-border', this.value)
+                            "
+                            maxlength="7"
+                          />
+                        </div>
+                      </div>
+                      <div class="cp-picker-group">
+                        <label>Style</label>
+                        <select
+                          id="nb-style"
+                          onchange="previewNavColors()"
+                          title="Navbar style"
+                        >
+                          <option value="flat">Flat</option>
+                          <option value="gradient">Gradient</option>
+                          <option value="glass">Glassmorphism</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="cp-actions">
+                    <button class="btn-secondary" onclick="resetNavColors()">
+                      <i class="fas fa-undo"></i> Reset to Default
+                    </button>
+                    <button
+                      class="btn-primary"
+                      onclick="applyAndSaveNavColors()"
+                    >
+                      <i class="fas fa-check"></i> Apply &amp; Save
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="settings-panel hidden" id="settings-security">
+                  <h3>Security Settings</h3>
+                  <div class="form-group">
+                    <label>Current Password</label>
+                    <input
+                      type="password"
+                      id="s-curr-pw"
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>New Password</label>
+                    <input
+                      type="password"
+                      id="s-new-pw"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input
+                      type="password"
+                      id="s-conf-pw"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  <button class="btn-primary" onclick="changePassword()">
+                    <i class="fas fa-key"></i> Change Password
+                  </button>
+                  <hr class="settings-divider" />
+                  <h4>Session Settings</h4>
+                  <div class="toggle-row">
+                    <span>Auto-logout after inactivity (30 min)</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        checked
+                        aria-label="Auto logout setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="toggle-row">
+                    <span>Two-factor authentication</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        aria-label="Two-factor authentication setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div class="settings-panel hidden" id="settings-notifications">
+                  <h3>Notification Preferences</h3>
+                  <div class="toggle-row">
+                    <span>Payment received alerts</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        checked
+                        aria-label="Payment alerts setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="toggle-row">
+                    <span>Overdue loan alerts</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        checked
+                        aria-label="Overdue alerts setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="toggle-row">
+                    <span>New client registration</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        checked
+                        aria-label="New client alerts setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="toggle-row">
+                    <span>Monthly report email</span>
+                    <label class="toggle-switch"
+                      ><input
+                        type="checkbox"
+                        aria-label="Monthly report setting" /><span
+                        class="slider"
+                      ></span
+                    ></label>
+                  </div>
+                  <button
+                    class="btn-primary preferences-save"
+                    onclick="
+                      showToast('Notification preferences saved!', 'success')
+                    "
+                  >
+                    <i class="fas fa-save"></i> Save Preferences
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- ═══════ ADMIN SIDE PANEL ═══════ -->
+      <aside class="admin-panel" id="admin-panel">
+        <div class="admin-panel-header">
+          <h3>Admin Panel</h3>
+          <button
+            class="close-admin-panel"
+            onclick="toggleAdminPanel()"
+            title="Close admin panel"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="admin-profile-section">
+          <div class="admin-avatar-wrap">
+            <div class="admin-avatar" id="admin-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div
+              class="admin-avatar-overlay"
+              onclick="triggerUpload('profile-photo-upload')"
+            >
+              <i class="fas fa-camera"></i>
+            </div>
+          </div>
+          <input
+            type="file"
+            id="profile-photo-upload"
+            accept="image/*"
+            class="hidden-input"
+            onchange="updateProfilePhoto(event)"
+            title="Profile photo file"
+          />
+          <h4 id="admin-panel-name">Software Vala Liberia</h4>
+          <span class="admin-panel-role" id="admin-panel-role"
+            >Super Admin</span
+          >
+          <span class="admin-panel-email" id="admin-panel-email"
+            >superadmin</span
+          >
+          <div class="admin-stats">
+            <div class="admin-stat">
+              <span id="ap-last-login">Today</span><small>Last Login</small>
+            </div>
+            <div class="admin-stat">
+              <span id="ap-total-clients">8</span><small>Clients</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-panel-section">
+          <div class="admin-panel-label">Quick Actions</div>
+          <button
+            class="admin-action-btn"
+            onclick="
+              navigateTo('licenses');
+              toggleAdminPanel();
+            "
+          >
+            <i class="fas fa-key"></i> Licenses
+          </button>
+          <button
+            class="admin-action-btn"
+            onclick="
+              navigateTo('settings');
+              toggleAdminPanel();
+            "
+          >
+            <i class="fas fa-cog"></i> Settings
+          </button>
+          <button class="admin-action-btn" onclick="openProfileEditModal()">
+            <i class="fas fa-user-edit"></i> Edit Profile
+          </button>
+          <button class="admin-action-btn" onclick="openUploadLogoPanel()">
+            <i class="fas fa-upload"></i> Upload Logo
+          </button>
+          <button class="admin-action-btn" onclick="openLoginBgPanel()">
+            <i class="fas fa-image"></i> Login Background
+          </button>
+          <button class="admin-action-btn danger" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+
+        <!-- Online Staff -->
+        <div class="admin-panel-section">
+          <div class="admin-panel-label">Staff Online</div>
+          <div id="online-staff-list"></div>
+        </div>
+
+        <div class="admin-panel-footer">
+          Powered by <strong>Software Vala Liberia</strong>
+        </div>
+      </aside>
+    </div>
+    <!-- end main-app -->
+
+    <!-- ═══════════════════ MODALS ═══════════════════ -->
+
+    <!-- ── LICENSE GATE SCREEN (for business users) ── -->
+    <div id="license-gate-screen" class="license-gate-screen hidden">
+      <div class="lg-card">
+        <div class="lg-logo">
+          <div class="lg-logo-icon"><i class="fas fa-shield-alt"></i></div>
+          <span>SVL FMS</span>
+        </div>
+        <div class="lg-badge"><i class="fas fa-lock"></i> License Required</div>
+        <h2>Enter Your License Key</h2>
+        <p>
+          A valid license is required to access this system. Please enter the
+          license key provided by SVL FMS
+        </p>
+        <div class="lg-input-wrap">
+          <i class="fas fa-key lg-input-icon"></i>
+          <input
+            type="text"
+            id="lg-key-input"
+            placeholder="TDJ-XXXX-XXXX-XXXX"
+            maxlength="16"
+            oninput="
+              this.value = this.value
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '')
+                .replace(/(.{3})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4')
+                .substring(0, 16)
+            "
+          />
+        </div>
+        <div class="lg-error hidden" id="lg-error"></div>
+        <button
+          class="lg-verify-btn"
+          id="lg-verify-btn"
+          onclick="verifyLicenseGate()"
+        >
+          <i class="fas fa-check-circle"></i> Verify License
+        </button>
+        <div class="lg-footer">
+          Need a license? Contact <strong>SVL FMS</strong><br />
+          <a href="mailto:info@tdjconsultancy.com">info@tdjconsultancy.com</a>
+        </div>
+        <div class="lg-powered">
+          Powered by <strong>Software Vala Liberia</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ISSUE / EDIT LICENSE MODAL ── -->
+    <div class="modal-overlay hidden" id="license-form-modal">
+      <div class="modal-box large">
+        <div class="modal-header">
+          <div class="modal-header-group">
+            <div class="modal-icon modal-icon-license">
+              <i class="fas fa-key modal-icon-content"></i>
+            </div>
+            <h3 id="lf-modal-title">Issue New License</h3>
+          </div>
+          <button
+            class="modal-close"
+            onclick="closeModal('license-form-modal')"
+            title="Close license form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="license-form" onsubmit="saveLicense(event)">
+            <div class="cf-section-header">
+              <i class="fas fa-building"></i> Business Information
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Business Name *</label>
+                <input
+                  type="text"
+                  id="lf-business-name"
+                  required
+                  placeholder="e.g. Acme Corp Ltd."
+                />
+              </div>
+              <div class="form-group">
+                <label>Business Email *</label>
+                <input
+                  type="email"
+                  id="lf-business-email"
+                  required
+                  placeholder="owner@business.com"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="text"
+                  id="lf-business-phone"
+                  placeholder="+1 555 000 0000"
+                />
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="lf-status" title="License status">
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="cf-section-header">
+              <i class="fas fa-tag"></i> License Plan
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Plan *</label>
+                <select
+                  id="lf-plan"
+                  onchange="updateExpiryPreview()"
+                  title="License plan"
+                >
+                  <option value="Monthly">Monthly — $29.99 / 30 days</option>
+                  <option value="Quarterly">
+                    Quarterly — $79.99 / 90 days
+                  </option>
+                  <option value="Yearly">Yearly — $279.99 / 365 days</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="lf-issue-date">Issue Date *</label>
+                <input
+                  type="date"
+                  id="lf-issue-date"
+                  required
+                  title="License issue date"
+                  placeholder="YYYY-MM-DD"
+                  onchange="updateExpiryPreview()"
+                />
+              </div>
+            </div>
+            <div class="lic-expiry-preview-box">
+              <i class="fas fa-calendar-times"></i>
+              Calculated Expiry: <strong id="lf-expiry-preview">—</strong>
+            </div>
+
+            <div class="cf-section-header">
+              <i class="fas fa-sticky-note"></i> Notes (Optional)
+            </div>
+            <div class="form-group">
+              <textarea
+                id="lf-notes"
+                rows="2"
+                placeholder="Any notes about this license…"
+              ></textarea>
+            </div>
+
+            <div class="modal-footer-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('license-form-modal')"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary" id="lf-submit-btn">
+                <i class="fas fa-key"></i> Generate &amp; Issue License
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RENEW LICENSE MODAL ── -->
+    <div class="modal-overlay hidden" id="license-renew-modal">
+      <div class="modal-box license-modal-box">
+        <div class="modal-header">
+          <h3><i class="fas fa-sync-alt"></i> Renew License</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('license-renew-modal')"
+            title="Close renewal form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="renew-lic-id" />
+          <div class="lic-renew-info">
+            <div class="lic-renew-row">
+              <span>Business:</span><strong id="renew-business-name">—</strong>
+            </div>
+            <div class="lic-renew-row">
+              <span>License Key:</span><code id="renew-current-key">—</code>
+            </div>
+            <div class="lic-renew-row">
+              <span>Current Expiry:</span
+              ><strong id="renew-current-expiry">—</strong>
+            </div>
+          </div>
+          <div class="form-group form-group-spaced">
+            <label>Renew With Plan</label>
+            <select
+              id="renew-plan"
+              onchange="updateRenewPreview()"
+              title="Renewal plan"
+            >
+              <option value="Monthly">Monthly — $29.99 / 30 days</option>
+              <option value="Quarterly">Quarterly — $79.99 / 90 days</option>
+              <option value="Yearly">Yearly — $279.99 / 365 days</option>
+            </select>
+          </div>
+          <div class="lic-expiry-preview-box">
+            <i class="fas fa-calendar-check"></i>
+            New Expiry: <strong id="renew-new-expiry">—</strong>
+          </div>
+          <div class="modal-footer-actions">
+            <button
+              class="btn-secondary"
+              onclick="closeModal('license-renew-modal')"
+            >
+              Cancel
+            </button>
+            <button class="btn-primary" onclick="confirmRenew()">
+              <i class="fas fa-sync-alt"></i> Confirm Renewal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LICENSE DETAIL MODAL ── -->
+    <div class="modal-overlay hidden" id="license-detail-modal">
+      <div class="modal-box large">
+        <div class="modal-header">
+          <h3><i class="fas fa-id-card"></i> License Details</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('license-detail-modal')"
+            title="Close license details"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body" id="lic-detail-body"></div>
+      </div>
+    </div>
+
+    <!-- Client Detail Modal -->
+    <div class="modal-overlay hidden" id="client-detail-modal">
+      <div class="modal-box large">
+        <div class="modal-header">
+          <h3 id="client-detail-title">Client Account</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('client-detail-modal')"
+            title="Close client details"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body" id="client-detail-body"></div>
+      </div>
+    </div>
+
+    <!-- Notification Message Modal -->
+    <div class="modal-overlay hidden" id="notification-message-modal">
+      <div class="modal-box notification-message-box">
+        <div class="modal-header">
+          <h3 id="notification-message-title">Notification</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('notification-message-modal')"
+            title="Close notification message"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div
+            id="notification-message-content"
+            class="notification-message-content"
+          ></div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-primary"
+              onclick="closeModal('notification-message-modal')"
+            >
+              <i class="fas fa-check"></i> Mark as Read
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div class="modal-overlay hidden" id="invoice-modal">
+      <div class="modal-box invoice-modal-box">
+        <div class="modal-header">
+          <h3><i class="fas fa-file-invoice-dollar"></i> Client Invoice</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('invoice-modal')"
+            title="Close invoice"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="invoice-preview" class="invoice-preview"></div>
+          <div class="modal-footer-actions invoice-actions">
+            <button class="btn-secondary" onclick="downloadInvoice()">
+              <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+            <button class="btn-primary" onclick="printInvoice()">
+              <i class="fas fa-print"></i> Print Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Invoice Modal -->
+    <div class="modal-overlay hidden" id="invoice-editor-modal">
+      <div class="modal-box invoice-editor-box">
+        <div class="modal-header">
+          <h3 id="invoice-editor-title">
+            <i class="fas fa-file-invoice-dollar"></i> Add Invoice
+          </h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('invoice-editor-modal')"
+            title="Close invoice editor"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="invoice-editor-form" onsubmit="saveInvoice(event)">
+            <input type="hidden" id="invoice-edit-id" />
+            <div class="form-group">
+              <label for="invoice-client-id">Client *</label>
+              <select
+                id="invoice-client-id"
+                required
+                title="Invoice client"
+              ></select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="invoice-number">Invoice Number *</label>
+                <input
+                  id="invoice-number"
+                  required
+                  title="Invoice number"
+                  placeholder="INV-20260911-001"
+                />
+              </div>
+              <div class="form-group">
+                <label for="invoice-status">Status</label>
+                <select id="invoice-status" title="Invoice status">
+                  <option>Issued</option>
+                  <option>Pending</option>
+                  <option>Paid</option>
+                  <option>Cancelled</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="invoice-issue-date">Issue Date *</label>
+                <input
+                  type="date"
+                  id="invoice-issue-date"
+                  required
+                  title="Invoice issue date"
+                />
+              </div>
+              <div class="form-group">
+                <label for="invoice-due-date">Due Date</label>
+                <input
+                  type="date"
+                  id="invoice-due-date"
+                  title="Invoice due date"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="invoice-notes">Notes</label>
+              <textarea
+                id="invoice-notes"
+                rows="3"
+                placeholder="Optional invoice notes"
+              ></textarea>
+            </div>
+            <div class="modal-footer-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('invoice-editor-modal')"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Save Invoice
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="payment-modal">
+      <div class="modal-box payment-modal-box">
+        <div class="modal-header">
+          <h3><i class="fas fa-wallet"></i> Make a Payment</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('payment-modal')"
+            title="Close payment form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="payment-methods">
+            <button
+              type="button"
+              class="payment-method active"
+              data-method="Bank"
+              onclick="selectPaymentMethod('Bank')"
+            >
+              <i class="fas fa-university"></i><span>Bank Payment</span></button
+            ><button
+              type="button"
+              class="payment-method"
+              data-method="Mobile Money"
+              onclick="selectPaymentMethod('Mobile Money')"
+            >
+              <i class="fas fa-mobile-alt"></i><span>Mobile Money</span></button
+            ><button
+              type="button"
+              class="payment-method"
+              data-method="Orange Money"
+              onclick="selectPaymentMethod('Orange Money')"
+            >
+              <i class="fas fa-mobile-alt"></i><span>Orange Money</span>
+            </button>
+          </div>
+          <div
+            id="payment-method-instructions"
+            class="payment-instructions"
+          ></div>
+          <form id="payment-form" onsubmit="submitPayment(event)">
+            <div class="form-group">
+              <label for="payment-client-id">Client *</label
+              ><select
+                id="payment-client-id"
+                required
+                title="Payment client"
+              ></select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="payment-amount">Amount (USD) *</label
+                ><input
+                  type="number"
+                  id="payment-amount"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  title="Payment amount"
+                  placeholder="0.00"
+                />
+              </div>
+              <div class="form-group">
+                <label for="payment-reference">Transaction Reference *</label
+                ><input
+                  id="payment-reference"
+                  required
+                  title="Payment reference"
+                  placeholder="Bank or mobile transaction ID"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="payment-account-reference"
+                >Account / Phone Reference</label
+              ><input
+                id="payment-account-reference"
+                title="Payment account reference"
+                placeholder="Account number or mobile number"
+              />
+            </div>
+            <div class="form-group">
+              <label for="payment-notes">Notes</label
+              ><textarea
+                id="payment-notes"
+                rows="2"
+                placeholder="Optional payment note"
+              ></textarea>
+            </div>
+            <div class="modal-footer-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('payment-modal')"
+              >
+                Cancel</button
+              ><button type="submit" class="btn-primary">
+                <i class="fas fa-check"></i> Submit Payment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Client CSV Import Modal -->
+    <div class="modal-overlay hidden" id="client-import-modal">
+      <div class="modal-box large">
+        <div class="modal-header">
+          <h3><i class="fas fa-file-import"></i> Bulk Upload Clients</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('client-import-modal')"
+            title="Close bulk client upload"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            Upload a CSV with the client loan dataset. Rows with missing names,
+            dates, or invalid numeric values will not be imported.
+          </p>
+          <div id="client-import-summary" class="import-summary"></div>
+          <div class="portfolio-table-wrap import-preview-wrap">
+            <table class="portfolio-table" id="client-import-preview">
+              <thead>
+                <tr>
+                  <th>Row</th>
+                  <th>Client</th>
+                  <th>Disb. Date</th>
+                  <th>Loan Amount</th>
+                  <th>Rate / Month</th>
+                  <th>Duration</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="modal-footer-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="closeModal('client-import-modal')"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              id="client-import-confirm"
+              onclick="importClientsFromCsv()"
+              disabled
+            >
+              <i class="fas fa-upload"></i> Import Valid Rows
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Client Modal -->
+    <div class="modal-overlay hidden" id="client-form-modal">
+      <div class="modal-box large">
+        <div class="modal-header">
+          <div class="modal-header-group">
+            <div class="modal-icon modal-icon-client">
+              <i class="fas fa-user-plus modal-icon-content"></i>
+            </div>
+            <h3 id="client-form-title">Add New Client</h3>
+          </div>
+          <button
+            class="modal-close"
+            onclick="closeModal('client-form-modal')"
+            title="Close client form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="client-form" onsubmit="saveClient(event)">
+            <input type="hidden" id="cf-id" />
+
+            <!-- Section: Client Information -->
+            <div class="cf-section-header">
+              <i class="fas fa-id-card"></i> Client Information
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Client Name *</label>
+                <input
+                  type="text"
+                  id="cf-name"
+                  required
+                  placeholder="Full name or company name"
+                />
+              </div>
+              <div class="form-group">
+                <label>Client Type *</label>
+                <select id="cf-type" title="Client type">
+                  <option>Individual</option>
+                  <option>Corporation</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Loan Date *</label>
+                <input type="date" id="cf-date" required title="Loan date" />
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="cf-status" title="Client status">
+                  <option>Active</option>
+                  <option>Completed</option>
+                  <option>Overdue</option>
+                  <option>Pending</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Section: Loan Parameters -->
+            <div class="cf-section-header">
+              <i class="fas fa-sliders-h"></i> Loan Parameters
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Loan Amount (USD) *</label>
+                <div class="input-prefix-wrap">
+                  <span class="input-prefix">$</span>
+                  <input
+                    type="number"
+                    id="cf-loan"
+                    required
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label
+                  >Flat Rate (% per month) *
+                  <span
+                    class="field-hint"
+                    title="Monthly flat interest rate applied to the principal"
+                  >
+                    <i class="fas fa-info-circle"></i>
+                  </span>
+                </label>
+                <div class="input-suffix-wrap">
+                  <input
+                    type="number"
+                    id="cf-rate"
+                    required
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="0.00"
+                  />
+                  <span class="input-suffix">%/mo</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Duration (Months) *</label>
+                <div class="input-suffix-wrap">
+                  <input
+                    type="number"
+                    id="cf-duration"
+                    required
+                    min="1"
+                    placeholder="e.g. 12"
+                  />
+                  <span class="input-suffix">mo</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Amount Paid (USD)</label>
+                <div class="input-prefix-wrap">
+                  <span class="input-prefix">$</span>
+                  <input
+                    type="number"
+                    id="cf-paid"
+                    step="0.01"
+                    value="0"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: Auto-Calculated Fields -->
+            <div class="cf-section-header">
+              <i class="fas fa-calculator"></i> Calculated Summary
+              <span class="cf-auto-badge">Auto-computed</span>
+            </div>
+            <div class="calculated-preview" id="calc-preview">
+              <div class="calc-empty-state">
+                <i class="fas fa-calculator"></i>
+                <span
+                  >Enter loan amount, rate, and duration above to see calculated
+                  values</span
+                >
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('client-form-modal')"
+              >
+                <i class="fas fa-times"></i> Cancel
+              </button>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Save Client
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Form Modal -->
+    <div class="modal-overlay hidden" id="staff-form-modal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="staff-form-title">Add Staff Member</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('staff-form-modal')"
+            title="Close staff form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="staff-form" onsubmit="saveStaff(event)">
+            <input type="hidden" id="sf-id" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name *</label
+                ><input
+                  type="text"
+                  id="sf-name"
+                  required
+                  aria-label="Staff full name"
+                />
+              </div>
+              <div class="form-group">
+                <label>Email *</label
+                ><input
+                  type="email"
+                  id="sf-email"
+                  required
+                  aria-label="Staff email"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Password *</label
+                ><input
+                  type="password"
+                  id="sf-password"
+                  aria-label="Staff password"
+                />
+              </div>
+              <div class="form-group">
+                <label>Role *</label>
+                <select id="sf-role" title="Staff role">
+                  <option>Admin</option>
+                  <option>Loan Officer</option>
+                  <option>Manager</option>
+                  <option>Accountant</option>
+                  <option>Viewer</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="sf-license-id">License Workspace</label>
+              <select id="sf-license-id" title="Staff license workspace">
+                <option value="">No assigned license</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assign Permissions</label>
+              <small id="staff-license-permission-hint" class="field-hint-text"
+                >Select a license to apply plan permissions.</small
+              >
+              <div class="permissions-grid" id="permissions-grid">
+                <label class="perm-item"
+                  ><input type="checkbox" value="dashboard" checked /><i
+                    class="fas fa-tachometer-alt"
+                  ></i>
+                  Dashboard</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="clients" /><i
+                    class="fas fa-users"
+                  ></i>
+                  Clients</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="reports" /><i
+                    class="fas fa-chart-bar"
+                  ></i>
+                  Reports</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="activities" /><i
+                    class="fas fa-history"
+                  ></i>
+                  Activities</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="invoices" /><i
+                    class="fas fa-file-invoice-dollar"
+                  ></i>
+                  Invoices</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="payments" /><i
+                    class="fas fa-money-check-alt"
+                  ></i>
+                  Payments</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="staff_management" /><i
+                    class="fas fa-user-shield"
+                  ></i>
+                  Staff Mgmt</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="settings" /><i
+                    class="fas fa-cog"
+                  ></i>
+                  Settings</label
+                >
+                <label class="perm-item"
+                  ><input type="checkbox" value="payment_details" /><i
+                    class="fas fa-university"
+                  ></i>
+                  Payment Details</label
+                >
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="toggle-label">
+                <span>Account Active</span>
+                <label class="toggle-switch"
+                  ><input
+                    type="checkbox"
+                    id="sf-active"
+                    checked
+                    aria-label="Staff account active" /><span
+                    class="slider"
+                  ></span
+                ></label>
+              </label>
+            </div>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('staff-form-modal')"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">Save Staff</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Permissions Modal -->
+    <div class="modal-overlay hidden" id="permissions-modal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Manage Permissions — <span id="perm-modal-name"></span></h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('permissions-modal')"
+            title="Close permissions"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            Choose which features this staff member can access:
+          </p>
+          <div class="permissions-grid large" id="perm-modal-grid"></div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="closeModal('permissions-modal')"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              onclick="savePermissions()"
+            >
+              Save Permissions
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div class="modal-overlay hidden" id="profile-edit-modal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Edit Profile</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('profile-edit-modal')"
+            title="Close profile editor"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="pe-name">Full Name</label
+            ><input type="text" id="pe-name" placeholder="Full name" />
+          </div>
+          <div class="form-group">
+            <label for="pe-email">Email</label
+            ><input type="email" id="pe-email" placeholder="Email address" />
+          </div>
+          <div class="form-group">
+            <label for="pe-phone">Phone</label
+            ><input type="text" id="pe-phone" placeholder="Phone number" />
+          </div>
+          <div class="modal-actions">
+            <button
+              class="btn-secondary"
+              onclick="closeModal('profile-edit-modal')"
+            >
+              Cancel
+            </button>
+            <button class="btn-primary" onclick="saveProfileEdit()">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log Modal -->
+    <div class="modal-overlay hidden" id="activity-form-modal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Log New Activity</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('activity-form-modal')"
+            title="Close activity form"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="activity-form" onsubmit="saveActivity(event)">
+            <div class="form-group">
+              <label>Client</label>
+              <select
+                id="af-client"
+                onchange="fillClientId(this)"
+                title="Activity client"
+              ></select>
+            </div>
+            <div class="form-group">
+              <label>Action Description</label
+              ><input
+                type="text"
+                id="af-action"
+                required
+                placeholder="e.g. Payment Received"
+              />
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="af-status" title="Activity status">
+                <option>Approved</option>
+                <option>Pending</option>
+                <option>Rejected</option>
+                <option>Completed</option>
+              </select>
+            </div>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('activity-form-modal')"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">Log Activity</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Enquiry Modal -->
+    <div class="modal-overlay hidden" id="service-enquiry-modal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-envelope modal-footer-brand"></i>
+            Service Enquiry
+          </h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('service-enquiry-modal')"
+            title="Close service enquiry"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc" id="service-enquiry-desc">
+            Fill in your details and we'll get back to you shortly.
+          </p>
+          <form
+            id="service-enquiry-form"
+            onsubmit="submitServiceEnquiry(event)"
+          >
+            <input type="hidden" id="se-service-name" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name *</label
+                ><input
+                  type="text"
+                  id="se-name"
+                  placeholder="Your full name"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Organization</label
+                ><input
+                  type="text"
+                  id="se-org"
+                  placeholder="Company / Organization"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email Address *</label
+                ><input
+                  type="email"
+                  id="se-email"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label
+                ><input
+                  type="tel"
+                  id="se-phone"
+                  placeholder="+231 xxx xxx xxx"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Message / Requirements</label>
+              <textarea
+                id="se-message"
+                rows="4"
+                placeholder="Briefly describe what you need..."
+              ></textarea>
+            </div>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeModal('service-enquiry-modal')"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-paper-plane"></i> Submit Enquiry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+      <i class="toast-icon fas fa-check-circle"></i>
+      <span id="toast-msg">Success!</span>
+    </div>
+
+    <!-- Overlay backdrop for admin panel -->
+    <div
+      class="panel-backdrop hidden"
+      id="panel-backdrop"
+      onclick="toggleAdminPanel()"
+    ></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/license.js"></script>
+    <script src="js/finreports.js"></script>
+    <script src="js/services.js"></script>
+
+    <script src="js/dashboard.js"></script>
+    <script src="js/clients.js"></script>
+    <script src="js/staff.js"></script>
+    <script src="js/charts.js"></script>
+  </body>
+</html>
