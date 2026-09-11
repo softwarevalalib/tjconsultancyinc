@@ -1,4 +1,4 @@
-# TDJ Consultancy Inc. — Financial Management Dashboard
+# TJ Consultancy Inc. — Financial Management Dashboard
 
 > A full-featured, browser-based financial management, staff administration, and **license management** system. Built with vanilla HTML/CSS/JavaScript and backed by the RESTful Table API.
 
