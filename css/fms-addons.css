@@ -1,0 +1,391 @@
+/* ============================================================
+   css/fms-addons.css — TJ Consultancy FMS Additive Styles
+   No existing styles are overwritten — every rule uses
+   fms- prefixes or :where() so it never collides with the theme.
+   ============================================================ */
+
+/* ── Greeting + KPI strip on Dashboard ───────────────────── */
+.fms-greeting {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:18px; flex-wrap:wrap;
+  background: linear-gradient(135deg, rgba(79,195,247,0.10), rgba(99,102,241,0.07));
+  border:1px solid rgba(79,195,247,0.22);
+  border-radius:16px;
+  padding:18px 22px;
+  margin-bottom:22px;
+}
+.fms-greet-pill {
+  display:inline-block;
+  font-size:10px; letter-spacing:1.2px; font-weight:700;
+  padding:3px 9px; border-radius:999px;
+  background:rgba(79,195,247,0.18); color:#7dd3fc;
+  border:1px solid rgba(79,195,247,0.4);
+  margin-bottom:6px;
+}
+.fms-greet-left h2 { font-size:20px; font-weight:700; margin:2px 0 4px 0; color:#e2e8f0; }
+.fms-greet-left p  { font-size:13px; color:#94a3b8; margin:0; }
+.fms-kpi-strip { display:flex; gap:10px; flex-wrap:wrap; }
+.fms-kpi {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:10px 14px;
+  min-width:96px;
+}
+.fms-kpi .lbl { font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:#94a3b8; display:block; }
+.fms-kpi b { font-size:18px; font-weight:700; color:#e2e8f0; }
+
+/* ── Quick-action tiles on Dashboard ─────────────────────── */
+.fms-quick-actions {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+  margin-bottom:22px;
+}
+.fms-qa-tile {
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,247,0.08);
+  border-radius:14px;
+  padding:14px 16px;
+  cursor:pointer; user-select:none;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease;
+}
+.fms-qa-tile:hover { background:rgba(79,195,247,0.10); border-color:rgba(79,195,247,0.4); transform: translateY(-2px); }
+.fms-qa-icon {
+  width:42px; height:42px; flex-shrink:0;
+  background: linear-gradient(135deg,#0277bd,#01579b);
+  display:flex; align-items:center; justify-content:center;
+  border-radius:10px; color:#fff; font-size:16px;
+  box-shadow: 0 6px 18px rgba(2,119,189,0.35);
+}
+.fms-qa-tile > div { flex:1; }
+.fms-qa-tile b { display:block; font-size:13.5px; color:#e2e8f0; }
+.fms-qa-tile span { font-size:11.5px; color:#94a3b8; line-height:1.45; }
+.fms-qa-arrow { color:#94a3b8; font-size:13px; }
+.fms-qa-tile:hover .fms-qa-arrow { color:#4fc3f7; }
+
+/* ── Team Chat – composer + clickable messages ───────────── */
+.fms-chat-row { gap:8px; }
+.fms-note-composer {
+  margin:0 16px;
+  padding:14px;
+  color:#e2e8f0;
+  background:linear-gradient(135deg, rgba(2,119,189,0.14), rgba(79,195,247,0.05));
+  border:1px solid rgba(79,195,247,0.18);
+  border-radius:12px;
+}
+.fms-message-center-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.fms-message-center-label { display:inline-flex; align-items:center; gap:6px; color:#7dd3fc; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.fms-message-center-head h3 { margin:4px 0 0; color:#f8fafc; font-size:15px; }
+.fms-message-live { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; color:#bbf7d0; background:rgba(34,197,94,.12); border:1px solid rgba(74,222,128,.24); border-radius:999px; font-size:10px; font-weight:700; white-space:nowrap; }
+.fms-message-live i { color:#4ade80; font-size:7px; }
+.fms-note-tabs {
+  display:flex; gap:6px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  margin-bottom:10px;
+}
+.fms-note-tab {
+  background:none; border:none;
+  padding:7px 12px;
+  color:#94a3b8;
+  font-size:12.5px; font-weight:600;
+  cursor:pointer;
+  border-radius:8px 8px 0 0;
+  border-bottom:2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.fms-note-tab:hover { color:#4fc3f7; }
+.fms-note-tab.active { color:#4fc3f7; border-color:#4fc3f7; }
+.fms-note-panel { padding:8px 0 10px; }
+.fms-note-help { font-size:11.5px; color:#64748b; margin:0 0 4px; font-style:italic; }
+.fms-note-row { display:flex; flex-direction:column; gap:4px; margin-bottom:8px; }
+.fms-note-row label {
+  font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
+  color:#94a3b8; font-weight:600;
+}
+.fms-contact-grid {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:0 10px;
+}
+.fms-contact-grid .fms-note-row { min-width:0; }
+.fms-note-composer input,
+.fms-note-composer textarea {
+  width:100%; box-sizing:border-box;
+  color:#e2e8f0; background:rgba(255,255,255,0.05);
+  border:1px solid rgba(148,163,184,0.28); border-radius:8px;
+  padding:8px 10px; font:inherit; font-size:12.5px;
+}
+.fms-note-composer textarea { resize:vertical; min-height:88px; }
+.fms-note-composer input:focus,
+.fms-note-composer textarea:focus { outline:none; border-color:#4fc3f7; box-shadow:0 0 0 3px rgba(79,195,247,0.12); }
+.fms-note-actions { display:flex; justify-content:flex-end; gap:8px; padding:6px 0 10px; }
+.fms-note-actions { flex-wrap:wrap; }
+.fms-note-actions .btn-secondary,
+.fms-note-actions .btn-primary {
+  border-radius:8px; padding:8px 14px;
+  font-family:'Inter',sans-serif;
+  font-size:12.5px; font-weight:600;
+  border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.fms-note-actions .btn-secondary { background:rgba(255,255,255,0.08); color:#cbd5e1; }
+.fms-note-actions .btn-primary   { background:#4fc3f7; color:#0d1b2e; }
+.fms-note-actions .fms-send-email { background:#60a5fa; }
+.fms-note-actions .fms-send-sms { background:#fbbf24; }
+.fms-note-actions .fms-send-whatsapp { background:#4ade80; }
+.fms-note-log {
+  margin:12px 16px 0;
+  padding:10px 14px 4px;
+  font-size:12px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;
+}
+.fms-note-log strong { font-size:11px; text-transform:uppercase; color:#94a3b8; letter-spacing:0.6px; }
+.fms-note-log ul { list-style:none; margin:6px 0 0; padding:0; max-height:160px; overflow:auto; }
+.fms-note-log li {
+  padding:6px 8px; border-radius:6px;
+  background:rgba(255,255,255,0.03);
+  margin-bottom:5px; line-height:1.5;
+}
+.fms-note-mini { font-size:10.5px; color:#64748b; }
+.fms-channel-badge {
+  display:inline-block; margin-left:5px; padding:1px 6px;
+  color:#bae6fd; background:rgba(56,189,248,0.13); border-radius:99px;
+  font-size:9px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;
+}
+.fms-note-empty { color:#64748b; font-style:italic; background:transparent !important; }
+@media (max-width:560px) {
+  .fms-message-center-head { flex-direction:column; }
+  .fms-contact-grid { grid-template-columns:1fr; }
+  .fms-note-actions { justify-content:stretch; }
+  .fms-note-actions .btn-primary,
+  .fms-note-actions .btn-secondary { flex:1 1 calc(50% - 8px); justify-content:center; }
+}
+
+/* make chat messages clickable */
+.chat-msg { cursor: pointer; transition: transform .12s ease, background .15s ease; }
+.chat-msg:hover { background:rgba(79,195,247,0.06); transform: translateX(2px); }
+
+/* ── Mini modal (Add to Invoice / Reset PW) ──────────────── */
+.fms-mini-overlay {
+  position: fixed; inset: 0; z-index: 4000;
+  background: rgba(2,15,30,0.78); backdrop-filter: blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  padding:30px; animation: fmsMiniFade .2s ease both;
+}
+.fms-mini-modal {
+  background:#162032;
+  border:1px solid rgba(79,195,247,0.4);
+  border-radius:14px;
+  width:100%; max-width:500px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.6);
+  overflow:hidden;
+}
+.fms-mini-head {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 18px; border-bottom:1px solid rgba(79,195,247,0.2);
+  background:rgba(79,195,247,0.06);
+  color:#fff;
+}
+.fms-mini-head i { color:#4fc3f7; }
+.fms-mini-head b  { flex:1; font-size:14.5px; }
+.fms-mini-x {
+  background:none; border:none; color:#94a3b8;
+  font-size:18px; cursor:pointer; padding:0 4px;
+}
+.fms-mini-x:hover { color:#f87171; }
+.fms-mini-body { padding:18px; }
+.fms-mini-foot { display:flex; justify-content:flex-end; gap:10px; padding:14px 18px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.20); }
+.fms-mini-foot .btn-secondary,
+.fms-mini-foot .btn-primary {
+  border-radius:8px; padding:9px 18px;
+  font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+  border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+}
+.fms-mini-foot .btn-secondary { background:rgba(255,255,255,0.08); color:#cbd5e1; }
+.fms-mini-foot .btn-primary   { background:#4fc3f7; color:#0d1b2e; }
+@keyframes fmsMiniFade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Print stylesheet: ALL CLIENTS & RECORDS ─────────────── */
+#printArea {
+  display:none;
+}
+@media print {
+  body.printing-clients * { visibility: hidden !important; }
+  body.printing-clients #printArea,
+  body.printing-clients #printArea * { visibility: visible !important; }
+  #printArea { display:block !important; position:absolute; left:0; top:0; width:100%; }
+}
+
+/* The full printable page itself */
+.fms-print-page {
+  background:#fff !important; color:#0d1b2e !important;
+  padding:32px; font-family:'Inter',Arial,sans-serif;
+}
+.fms-print-head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #0277bd; padding-bottom:14px; margin-bottom:18px; }
+.fms-print-head h1 { font-size:20px; margin:0; color:#0d1b2e; }
+.fms-print-head p  { font-size:12px; color:#475569; margin:4px 0 0; }
+.fms-print-totals { text-align:right; }
+.fms-print-totals span { display:block; font-size:12px; color:#475569; }
+.fms-print-totals strong { font-size:22px; color:#0277bd; }
+.fms-print-table { width:100%; border-collapse:collapse; font-size:12px; }
+.fms-print-table th { background:#e0e7ff; color:#0d1b2e; padding:8px 10px; text-align:left; border:1px solid #cbd5e1; font-size:11px; text-transform:uppercase; letter-spacing:0.4px; }
+.fms-print-table td { padding:8px 10px; border:1px solid #e2e8f0; vertical-align:top; }
+.fms-print-table .num { text-align:right; font-variant-numeric: tabular-nums; }
+.fms-print-foot { margin-top:18px; font-size:11px; color:#475569; text-align:center; border-top:1px solid #e2e8f0; padding-top:12px; }
+
+/* ── Login page: bg picker (Default + 3 presets) ─────────── */
+.fms-bg-picker-btn {
+  position:absolute; top:14px; right:14px;
+  width:34px; height:34px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+  backdrop-filter: blur(6px);
+  transition: background .15s, transform .15s;
+  z-index:3;
+}
+.fms-bg-picker-btn:hover { background:rgba(255,255,255,0.18); transform: scale(1.06); }
+.fms-bg-picker-panel {
+  position:absolute; top:54px; right:14px;
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  width:280px;
+  box-shadow: var(--shadow-card);
+  display:none;
+  z-index:4;
+}
+.fms-bg-picker-panel.open { display:block; animation: fmsMiniFade .2s ease both; }
+.fms-bg-picker-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; color:var(--white); font-size:13px; }
+.fms-bg-close { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; }
+.fms-bg-picker-help { color:var(--text-muted); font-size:11px; margin:0 0 12px; line-height:1.5; }
+.fms-bg-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.fms-bg-swatch {
+  height:48px; border:none; cursor:pointer;
+  border-radius:8px; padding:0;
+  display:flex; align-items:flex-end; justify-content:flex-start;
+  padding:6px 8px;
+  color:#fff;
+  font-size:10.5px; font-weight:600;
+  border:2px solid transparent;
+  transition: border-color .15s, transform .12s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.fms-bg-swatch:hover { border-color: var(--accent); transform: translateY(-1px); }
+.fms-bg-upload {
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,0.10);
+}
+.fms-bg-upload-label {
+  display:block;
+  margin-bottom:7px;
+  color:#cbd5e1;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.03em;
+}
+.fms-bg-upload-button {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  border:1px solid rgba(79,195,247,.42);
+  border-radius:7px;
+  color:#e0f2fe;
+  background:rgba(2,119,189,.16);
+  cursor:pointer;
+  font-size:11.5px;
+  font-weight:600;
+}
+.fms-bg-upload-button:hover { background:rgba(2,119,189,.30); }
+#fmsBgImageInput { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; }
+.fms-bg-upload-help { margin:7px 0 0; color:#94a3b8; font-size:10.5px; line-height:1.4; }
+.fms-bg-image-preview {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:9px;
+  color:#bae6fd;
+  font-size:10.5px;
+}
+.fms-bg-image-preview[hidden] { display:none; }
+.fms-bg-image-preview img {
+  width:42px;
+  height:28px;
+  object-fit:cover;
+  border-radius:5px;
+  border:1px solid rgba(79,195,247,.4);
+}
+.fms-bg-foot { margin-top:12px; text-align:center; }
+.fms-bg-reset {
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+  color:#cbd5e1;
+  padding:6px 12px; border-radius:7px; font-size:11.5px;
+  cursor:pointer; font-family:'Inter',sans-serif;
+}
+.fms-bg-reset:hover { background:rgba(255,255,255,0.15); color:#fff; }
+
+/* ensure login card is position:relative so popup drops correctly */
+#loginCard { position: relative; }
+
+/* ── FEATURE 12 — White background for Add New Client Loan + Loan Report + Invoice + Clients list ─ */
+#loanAddModal .loan-add-panel,
+#loanAddModal .loan-add-header,
+#loanAddModal .loan-add-body,
+#loanAddModal .loan-add-actions,
+#loanReportModal .loan-report-panel,
+#loanReportModal .loan-report-header,
+#loanReportModal .loan-report-summary,
+#loanReportModal .table-responsive,
+.invoice-toolbar-title,
+.invoice-modal-toolbar,
+.invoice-modal-scroll,
+#view-clients .card.svc-list-card,
+#view-clients .data-table,
+.loan-report-stat {
+  background: #ffffff !important;
+  color: #0d1b2e !important;
+}
+#loanAddModal .loan-add-panel .form-label,
+#loanAddModal .loan-add-panel .loan-calc-label { color:#0d1b2e !important; }
+#loanAddModal .loan-add-panel .form-input {
+  background:#ffffff !important;
+  color:#0d1b2e !important;
+  border:1px solid #cbd5e1 !important;
+}
+#loanAddModal .loan-add-panel .form-input:focus {
+  border-color:#0277bd !important;
+  box-shadow:0 0 0 3px rgba(2,119,189,0.18) !important;
+}
+#loanAddModal .loan-add-panel .loan-calc-input {
+  background:#ffffff !important; color:#0d1b2e !important; font-weight:600;
+}
+#loanAddModal .loan-add-close { color:#475569 !important; background:#f1f5f9 !important; }
+#loanAddModal .loan-add-close:hover { background:#fee2e2 !important; color:#b91c1c !important; }
+#loanAddModal .loan-add-icon { background:#e0f2fe !important; color:#0277bd !important; }
+
+.loan-report-panel,
+.loan-report-modal.open .loan-report-panel { background: #ffffff !important; color:#0d1b2e !important; }
+.loan-report-header { background:#f8fafc !important; border-bottom:1px solid #e2e8f0 !important; }
+.loan-report-title  { color:#0d1b2e !important; }
+.loan-report-sub    { color:#475569 !important; }
+.loan-report-summary { background:#f8fafc !important; }
+.loan-report-stat-label { color:#475569 !important; }
+
+#view-clients .data-table tr:nth-child(even) td { background:#f8fafc !important; }
+#view-clients .data-table td, #view-clients .data-table th { color:#0d1b2e !important; border-color:#e2e8f0 !important; }
+
+/* responsive */
+@media (max-width:680px) {
+  .fms-greeting { flex-direction:column; align-items:flex-start; }
+  .fms-bg-picker-panel { right:0; width:calc(100% - 28px); }
+}

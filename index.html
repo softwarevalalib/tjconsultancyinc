@@ -1,0 +1,4226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TJ Consultancy Inc – FMS Dashboard</title>
+    <!-- Default favicon — replaced by uploaded favicon (stored permanently) -->
+    <link
+      id="faviconSvg"
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2e'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='28' font-weight='bold' fill='%234fc3f7' text-anchor='middle'%3ETJ%3C/text%3E%3C/svg%3E"
+    />
+    <!-- ╔══════════════════════════════════════════════════════╗
+       ║  AUTH GUARD — runs before any CSS or content loads  ║
+       ║  Redirects to login.html if session token is absent ║
+       ╚══════════════════════════════════════════════════════╝ -->
+    <script>
+      (function () {
+        "use strict";
+        if (!window.FMSCheckAuth) {
+          /* compat.js hasn't loaded yet — fall back to inline check */
+          window.FMSCheckAuth = function () {
+            try {
+              return !!sessionStorage.getItem("fms_auth_token");
+            } catch (_) {
+              return false;
+            }
+          };
+        }
+        if (!window.FMSCheckAuth()) {
+          /* Replace history entry so Back button doesn't bypass login */
+          window.location.replace("login.html");
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/pwa-install.css" />
+    <link rel="stylesheet" href="css/notifications.css" />
+    <link rel="stylesheet" href="css/workforce.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0d1b2e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="TJ FMS" />
+    <link
+      id="appleTouchIcon"
+      rel="apple-touch-icon"
+      href="icons/icon-192.png"
+    />
+  </head>
+  <body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand" id="sidebarBrand">
+        <div class="brand-icon" id="brandIconWrap">
+          <img
+            id="sidebarLogo"
+            alt=""
+            style="
+              display: none;
+              width: 36px;
+              height: 36px;
+              border-radius: 8px;
+              object-fit: cover;
+            "
+          />
+          <i class="fas fa-building" id="brandIconDefault"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">TJ Consultancy Inc</span>
+          <span class="brand-sub">Finance Management</span>
+        </div>
+      </div>
+
+      <div class="sidebar-status">
+        <span class="status-dot"></span>
+        <span class="status-label">System Online</span>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <ul>
+          <li>
+            <a href="#" class="nav-link active" data-view="dashboard">
+              <i class="fas fa-th-large nav-icon"></i>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="reports">
+              <i class="fas fa-chart-bar nav-icon"></i>
+              <span class="nav-label">Reports</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="staff">
+              <i class="fas fa-users nav-icon"></i>
+              <span class="nav-label">Staff</span>
+            </a>
+          </li>
+          <li class="nav-divider">
+            <span class="nav-divider-label">System</span>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="settings">
+              <i class="fas fa-cog nav-icon"></i>
+              <span class="nav-label">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Simplified sidebar footer — info display only, non-clickable -->
+      <div class="sidebar-footer sidebar-footer--info">
+        <div class="sidebar-footer-avatar" id="sidebarFooterAvatar">
+          <span class="sidebar-footer-initials" id="sidebarFooterInitials"
+            >TJ</span
+          >
+        </div>
+        <div class="sidebar-footer-text">
+          <span class="sidebar-footer-name" id="sidebarFooterName"
+            >Admin User</span
+          >
+          <span class="sidebar-footer-role" id="sidebarFooterRole"
+            >Finance Manager</span
+          >
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== MAIN WRAPPER ===== -->
+    <div class="main-wrapper" id="mainWrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button
+            class="sidebar-toggle"
+            id="sidebarToggle"
+            aria-label="Toggle sidebar"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="page-title-area">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <span>TJ FMS</span>
+              <i class="fas fa-chevron-right"></i>
+              <span id="breadcrumbCurrent">Dashboard</span>
+            </nav>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div
+            class="topbar-datetime"
+            aria-live="polite"
+            aria-label="Current date and time"
+          >
+            <time class="topbar-date" id="topbarDate"></time>
+            <span class="topbar-datetime-divider" aria-hidden="true">•</span>
+            <time class="topbar-time" id="topbarTime"></time>
+          </div>
+          <!-- Cross-platform PWA install control, populated by pwa-register.js -->
+          <div
+            class="pwa-install-slot"
+            id="pwaInstallSlot"
+            aria-live="polite"
+          ></div>
+          <!-- Live notification centre: populated by notifications.js -->
+          <div class="notification-center" id="notificationCenter">
+            <button
+              class="topbar-btn notification-trigger"
+              id="notificationButton"
+              type="button"
+              aria-label="Open notifications"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="notificationPanel"
+            >
+              <i class="fas fa-bell" aria-hidden="true"></i>
+              <span
+                class="badge notification-badge"
+                id="notificationBadge"
+                hidden
+                >0</span
+              >
+            </button>
+            <section
+              class="notification-panel"
+              id="notificationPanel"
+              role="dialog"
+              aria-label="System notifications"
+              hidden
+            >
+              <header class="notification-panel-header">
+                <div>
+                  <h2>Notifications</h2>
+                  <span
+                    class="notification-live-status"
+                    id="notificationLiveStatus"
+                    >Preparing live updates...</span
+                  >
+                </div>
+                <button
+                  class="notification-mark-read"
+                  id="notificationMarkRead"
+                  type="button"
+                >
+                  Mark all read
+                </button>
+              </header>
+              <div
+                class="notification-list"
+                id="notificationList"
+                aria-live="polite"
+              ></div>
+            </section>
+          </div>
+          <!-- Website button — href set dynamically from localStorage by app.js -->
+          <a
+            class="topbar-web-btn"
+            id="topbarWebBtn"
+            href="https://tjconsultancy.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit TJ Consultancy website"
+            title="Visit TJ Consultancy Website"
+          >
+            <i class="fas fa-globe"></i>
+            <span class="topbar-web-btn-label">Our Website</span>
+          </a>
+          <!-- Topbar Admin Trigger (replaces the old TJ avatar) -->
+          <div class="topbar-admin-wrap" id="topbarAdminWrap">
+            <!-- Admin Panel Popup — drops DOWN from topbar -->
+            <div
+              class="admin-panel-popup"
+              id="adminPanelPopup"
+              aria-hidden="true"
+            >
+              <!-- Profile Photo Upload Zone -->
+              <div
+                class="admin-profile-upload-zone"
+                id="adminProfileUploadZone"
+                title="Click or drag to upload profile photo"
+              >
+                <div class="admin-profile-avatar-wrap">
+                  <div class="admin-avatar-display" id="adminAvatarDisplay">
+                    <div class="admin-avatar-initials" id="adminAvatarInitials">
+                      TJ
+                    </div>
+                    <img
+                      class="admin-avatar-img"
+                      id="adminAvatarImg"
+                      alt="Profile photo"
+                      style="display: none"
+                    />
+                  </div>
+                  <button
+                    class="admin-avatar-edit-btn"
+                    id="adminAvatarEditBtn"
+                    aria-label="Upload profile photo"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </button>
+                </div>
+                <div class="admin-profile-info">
+                  <span class="admin-profile-name">Admin User</span>
+                  <span class="admin-profile-role">Finance Manager</span>
+                  <label class="admin-upload-photo-label" for="adminPhotoInput">
+                    <i class="fas fa-upload"></i> Upload Photo
+                  </label>
+                </div>
+                <input
+                  type="file"
+                  id="adminPhotoInput"
+                  accept="image/*"
+                  class="admin-file-hidden"
+                  aria-label="Upload profile photo"
+                />
+              </div>
+
+              <div class="admin-panel-divider"></div>
+
+              <!-- Menu Items -->
+              <ul class="admin-menu-list" role="menu">
+                <li role="none">
+                  <button
+                    class="admin-menu-item"
+                    id="adminMenuSettings"
+                    role="menuitem"
+                  >
+                    <span class="admin-menu-icon"
+                      ><i class="fas fa-cog"></i
+                    ></span>
+                    <span class="admin-menu-label">Settings</span>
+                    <i class="fas fa-chevron-right admin-menu-arrow"></i>
+                  </button>
+                </li>
+                <li role="none">
+                  <button
+                    class="admin-menu-item"
+                    id="adminMenuEditProfile"
+                    role="menuitem"
+                  >
+                    <span class="admin-menu-icon"
+                      ><i class="fas fa-user-edit"></i
+                    ></span>
+                    <span class="admin-menu-label">Edit Profile</span>
+                    <i class="fas fa-chevron-right admin-menu-arrow"></i>
+                  </button>
+                </li>
+                <li role="none">
+                  <button
+                    class="admin-menu-item"
+                    id="adminMenuUploadLogo"
+                    role="menuitem"
+                  >
+                    <span class="admin-menu-icon"
+                      ><i class="fas fa-image"></i
+                    ></span>
+                    <span class="admin-menu-label">Upload Logo</span>
+                    <i class="fas fa-chevron-right admin-menu-arrow"></i>
+                  </button>
+                </li>
+                <li role="none">
+                  <button
+                    class="admin-menu-item"
+                    id="adminMenuUploadBg"
+                    role="menuitem"
+                  >
+                    <span class="admin-menu-icon"
+                      ><i class="fas fa-panorama"></i
+                    ></span>
+                    <span class="admin-menu-label">Upload Background</span>
+                    <i class="fas fa-chevron-right admin-menu-arrow"></i>
+                  </button>
+                </li>
+                <li role="none">
+                  <button
+                    class="admin-menu-item admin-menu-item--danger"
+                    id="adminMenuSignOut"
+                    role="menuitem"
+                  >
+                    <span class="admin-menu-icon"
+                      ><i class="fas fa-sign-out-alt"></i
+                    ></span>
+                    <span class="admin-menu-label">Sign Out</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <!-- Trigger button -->
+            <button
+              class="topbar-admin-trigger"
+              id="topbarAdminTrigger"
+              role="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="adminPanelPopup"
+              title="Admin menu"
+            >
+              <div class="topbar-admin-avatar" id="adminAvatar">
+                <span
+                  class="admin-avatar-initials-foot"
+                  id="adminAvatarInitialsFoot"
+                  >TJ</span
+                >
+                <img
+                  class="admin-avatar-img-foot"
+                  id="adminAvatarImgFoot"
+                  alt="Profile photo"
+                  style="display: none"
+                />
+              </div>
+              <div class="topbar-admin-info">
+                <span class="user-name">Admin User</span>
+                <span class="user-role">Finance Manager</span>
+              </div>
+              <i
+                class="fas fa-chevron-down admin-chevron"
+                id="adminChevron"
+              ></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- ══════════════════════════════════════════════════════════
+         DASHBOARD – single unified view
+    ══════════════════════════════════════════════════════════ -->
+        <section class="view active" id="view-dashboard">
+          <!-- ╔══════════════════════════════════════════════════════╗
+           ║  SERVICES BLOCK  (above KPIs)                       ║
+           ╚══════════════════════════════════════════════════════╝ -->
+          <div class="services-block">
+            <!-- Section heading -->
+            <div class="services-heading-row">
+              <h2 class="services-main-title">
+                <i class="fas fa-layer-group"></i> Our Services
+              </h2>
+              <p class="services-main-sub">
+                Select a service to manage clients, add records and track
+                activity
+              </p>
+            </div>
+
+            <!-- Service tab switcher -->
+            <div class="svc-tabs" role="tablist" aria-label="Service sections">
+              <button
+                class="svc-tab active"
+                role="tab"
+                data-svc="financial"
+                aria-selected="true"
+                aria-controls="svc-panel-financial"
+              >
+                <span class="svc-tab-icon svc-icon-blue"
+                  ><i class="fas fa-coins"></i
+                ></span>
+                <span class="svc-tab-label">Financial Management</span>
+                <span class="svc-tab-count" id="tab-count-financial">3</span>
+              </button>
+              <button
+                class="svc-tab"
+                role="tab"
+                data-svc="research"
+                aria-selected="false"
+                aria-controls="svc-panel-research"
+              >
+                <span class="svc-tab-icon svc-icon-green"
+                  ><i class="fas fa-flask"></i
+                ></span>
+                <span class="svc-tab-label">Research &amp; Consulting</span>
+                <span class="svc-tab-count" id="tab-count-research">0</span>
+              </button>
+              <button
+                class="svc-tab"
+                role="tab"
+                data-svc="assets"
+                aria-selected="false"
+                aria-controls="svc-panel-assets"
+              >
+                <span class="svc-tab-icon svc-icon-amber"
+                  ><i class="fas fa-boxes"></i
+                ></span>
+                <span class="svc-tab-label">Asset Management</span>
+                <span class="svc-tab-count" id="tab-count-assets">0</span>
+              </button>
+              <button
+                class="svc-tab"
+                role="tab"
+                data-svc="bizdev"
+                aria-selected="false"
+                aria-controls="svc-panel-bizdev"
+              >
+                <span class="svc-tab-icon svc-icon-purple"
+                  ><i class="fas fa-rocket"></i
+                ></span>
+                <span class="svc-tab-label">Business Development</span>
+                <span class="svc-tab-count" id="tab-count-bizdev">0</span>
+              </button>
+              <button
+                class="svc-tab"
+                role="tab"
+                data-svc="vehicles"
+                aria-selected="false"
+                aria-controls="svc-panel-vehicles"
+              >
+                <span class="svc-tab-icon svc-icon-teal"
+                  ><i class="fas fa-car"></i
+                ></span>
+                <span class="svc-tab-label">Vehicle Hire</span>
+                <span class="svc-tab-count" id="tab-count-vehicles">0</span>
+              </button>
+              <button
+                class="svc-tab"
+                role="tab"
+                data-svc="printing"
+                aria-selected="false"
+                aria-controls="svc-panel-printing"
+              >
+                <span class="svc-tab-icon svc-icon-red"
+                  ><i class="fas fa-print"></i
+                ></span>
+                <span class="svc-tab-label">Printing</span>
+                <span class="svc-tab-count" id="tab-count-printing">0</span>
+              </button>
+            </div>
+
+            <!-- ── FINANCIAL MANAGEMENT panel ── -->
+            <div
+              class="svc-panel active"
+              id="svc-panel-financial"
+              role="tabpanel"
+              aria-labelledby=""
+            >
+              <!-- Sub-tab switcher -->
+              <div
+                class="loan-subtabs"
+                role="tablist"
+                aria-label="Financial Management sub-sections"
+              >
+                <button
+                  class="loan-subtab active"
+                  data-loan-tab="summary"
+                  role="tab"
+                  aria-selected="true"
+                >
+                  <i class="fas fa-chart-pie"></i> Loan Summary
+                </button>
+                <button
+                  class="loan-subtab"
+                  data-loan-tab="entry"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i class="fas fa-table"></i> Loan Entry
+                </button>
+                <button
+                  class="loan-subtab"
+                  data-loan-tab="schedule"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i class="fas fa-calendar-alt"></i> Monthly Schedule
+                </button>
+              </div>
+
+              <!-- ── SUB-TAB: Loan Summary ── -->
+              <div class="loan-subpanel active" id="loan-tab-summary">
+                <section
+                  class="loan-summary-panel"
+                  id="loanSummaryPanel"
+                  aria-live="polite"
+                ></section>
+                <div class="svc-panel-inner">
+                  <!-- Loan entry form card -->
+                  <div class="card svc-form-card loan-form-card">
+                    <div class="svc-form-header svc-hdr-blue">
+                      <i class="fas fa-hand-holding-usd"></i>
+                      <div>
+                        <h3 class="svc-form-title">New Loan Record</h3>
+                        <p class="svc-form-sub">
+                          Enter loan details — interest &amp; repayment
+                          calculated automatically
+                        </p>
+                      </div>
+                    </div>
+                    <form class="svc-form" id="loanForm" novalidate>
+                      <!-- Row 1: Client Name + Date -->
+                      <div class="form-row-2">
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Client Name <span class="req">*</span></label
+                          >
+                          <input
+                            type="text"
+                            class="form-input"
+                            id="loan-client"
+                            placeholder="Full name or company"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Loan Start Date <span class="req">*</span></label
+                          >
+                          <input
+                            type="date"
+                            class="form-input"
+                            id="loan-date"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Row 2: Loan Amount + monthly rate + payment term -->
+                      <div class="form-row-3">
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Loan Amount (USD) <span class="req">*</span></label
+                          >
+                          <input
+                            type="number"
+                            class="form-input"
+                            id="loan-amount"
+                            placeholder="e.g. 10000"
+                            min="0"
+                            step="0.01"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Rate (% p.m.) <span class="req">*</span></label
+                          >
+                          <select class="form-input" id="loan-rate" required>
+                            <option value="">Select monthly rate</option>
+                            <option value="5">5% per month</option>
+                            <option value="8">8% per month</option>
+                            <option value="10">10% per month</option>
+                            <option value="11">11% per month</option>
+                            <option value="12">12% per month</option>
+                            <option value="12.5">12.50% per month</option>
+                            <option value="15">15% per month</option>
+                            <option value="18">18% per month</option>
+                            <option value="20">20% per month</option>
+                            <option value="25">25% per month</option>
+                            <option value="30">30% per month</option>
+                            <option value="35">35% per month</option>
+                            <option value="40">40% per month</option>
+                            <option value="50">50% per month</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Duration <span class="req">*</span></label
+                          >
+                          <input
+                            type="number"
+                            class="form-input"
+                            id="loan-duration"
+                            list="loan-duration-options"
+                            placeholder="Type months or choose a term"
+                            min="1"
+                            step="1"
+                            required
+                          />
+                          <datalist id="loan-duration-options">
+                            <option value="">Select months</option>
+                            <option value="1">1 month</option>
+                            <option value="3">3 months</option>
+                            <option value="6">6 months</option>
+                            <option value="12">12 months</option>
+                            <option value="18">18 months</option>
+                            <option value="24">24 months</option>
+                            <option value="36">36 months</option>
+                            <option value="48">48 months</option>
+                            <option value="60">60 months</option>
+                            <option value="72">72 months</option>
+                            <option value="84">84 months</option>
+                            <option value="120">120 months</option>
+                            <option value="180">180 months</option>
+                            <option value="240">240 months</option>
+                            <option value="360">360 months</option>
+                          </datalist>
+                        </div>
+                      </div>
+                      <!-- Row 3: payment collection fields -->
+                      <div class="form-row-2">
+                        <div class="form-group">
+                          <label class="form-label">Amount Paid (USD)</label>
+                          <input
+                            type="number"
+                            class="form-input loan-user-value"
+                            id="loan-amount-paid"
+                            placeholder="Enter amount received, if any"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Next Payment Month
+                            <span class="req">*</span></label
+                          >
+                          <select
+                            class="form-input loan-user-value"
+                            id="loan-next-payment-month"
+                            required
+                          >
+                            <option value="">Select a month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                          </select>
+                        </div>
+                      </div>
+                      <!-- Row 4: Auto-calculated read-only fields -->
+                      <div class="loan-calc-row">
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-calculator"></i> Interest Amount
+                            (USD)</span
+                          >
+                          <span class="loan-calc-value" id="calc-interest"
+                            >—</span
+                          >
+                        </div>
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-sigma"></i> Total Repayment
+                            (USD)</span
+                          >
+                          <span class="loan-calc-value" id="calc-total">—</span>
+                        </div>
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-calendar-week"></i> Monthly
+                            Principal (USD)</span
+                          >
+                          <span
+                            class="loan-calc-value"
+                            id="calc-monthly-principal"
+                            >—</span
+                          >
+                        </div>
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-percentage"></i> Monthly Interest
+                            (USD)</span
+                          >
+                          <span
+                            class="loan-calc-value"
+                            id="calc-monthly-interest"
+                            >—</span
+                          >
+                        </div>
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-money-bill-wave"></i> Monthly
+                            Amount Due (USD)</span
+                          >
+                          <span class="loan-calc-value" id="calc-amount-pay"
+                            >—</span
+                          >
+                        </div>
+                        <div class="loan-calc-field">
+                          <span class="loan-calc-label"
+                            ><i class="fas fa-calendar-check"></i> First Payment
+                            Date</span
+                          >
+                          <span class="loan-calc-value" id="calc-next-payment"
+                            >—</span
+                          >
+                        </div>
+                      </div>
+                      <div class="loan-form-actions">
+                        <button type="submit" class="btn-svc-submit btn-blue">
+                          <i class="fas fa-plus-circle"></i> Add Loan Record
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-loan-clear"
+                          id="loanFormClearBtn"
+                        >
+                          <i class="fas fa-times"></i> Clear
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <!-- Recent loans mini-list -->
+                  <div class="card svc-list-card">
+                    <div class="card-header">
+                      <h3 class="card-title">
+                        Loan Records
+                        <span
+                          class="count-badge count-blue"
+                          id="fin-client-count"
+                          >0</span
+                        >
+                      </h3>
+                      <div class="loan-list-actions">
+                        <input
+                          type="search"
+                          class="search-input"
+                          id="fin-search"
+                          placeholder="Search clients…"
+                        />
+                        <button
+                          class="btn-loan-export"
+                          id="loanExportBtn"
+                          title="Export CSV"
+                        >
+                          <i class="fas fa-file-csv"></i> Export
+                        </button>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="data-table loan-entry-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Client Name</th>
+                            <th>Date</th>
+                            <th>Loan Amount (USD)</th>
+                            <th>Rate (% p.m.)</th>
+                            <th>Duration</th>
+                            <th class="col-calc-hdr">Interest Amount (USD)</th>
+                            <th class="col-calc-hdr">Total Repayment (USD)</th>
+                            <th class="col-calc-hdr">
+                              Monthly Principal (USD)
+                            </th>
+                            <th class="col-calc-hdr">Monthly Interest (USD)</th>
+                            <th class="col-calc-hdr">
+                              Monthly Amount Due (USD)
+                            </th>
+                            <th class="col-calc-hdr">Amount Paid (USD)</th>
+                            <th>Next Payment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody id="fin-tbody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── SUB-TAB: Loan Entry ── -->
+              <div class="loan-subpanel" id="loan-tab-entry">
+                <div class="card loan-sheet-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      <i
+                        class="fas fa-table"
+                        style="color: #4fc3f7; margin-right: 6px"
+                      ></i
+                      >Loan Entry
+                    </h3>
+                    <div class="loan-list-actions">
+                      <!-- filter bar -->
+                      <input
+                        type="search"
+                        class="search-input"
+                        id="sheet-search"
+                        placeholder="Filter by client…"
+                      />
+                      <!-- Add client (Sub-task 3: first after filter) -->
+                      <button
+                        class="btn-add-client-icon"
+                        id="addClientSheetBtn"
+                        title="Add New Loan"
+                      >
+                        <i class="fas fa-user-plus"></i
+                        ><span class="btn-add-client-label">Add Loan</span>
+                      </button>
+                      <!-- Export -->
+                      <button
+                        class="btn-loan-export"
+                        id="sheetExportBtn"
+                        title="Export Loan Entry CSV"
+                      >
+                        <i class="fas fa-file-csv"></i> Export
+                      </button>
+                      <button
+                        class="btn-loan-bulk-delete"
+                        id="loanBulkDeleteBtn"
+                        type="button"
+                        title="Select one or more loan records first"
+                        disabled
+                      >
+                        <i class="fas fa-trash"></i> Delete Selected
+                      </button>
+                      <!-- Import -->
+                      <button
+                        class="btn-loan-import"
+                        id="sheetImportBtn"
+                        title="Import Loan Entry CSV"
+                      >
+                        <i class="fas fa-file-import"></i> Import
+                      </button>
+                      <!-- Invoice -->
+                      <button
+                        class="btn-loan-invoice"
+                        id="sheetInvoiceBtn"
+                        title="Generate Invoice"
+                      >
+                        <i class="fas fa-file-invoice-dollar"></i> Invoice
+                      </button>
+                      <!-- Print -->
+                      <button
+                        class="btn-loan-print"
+                        id="sheetPrintBtn"
+                        title="Print Loan Entry"
+                      >
+                        <i class="fas fa-print"></i> Print
+                      </button>
+                      <!-- Download -->
+                      <button
+                        class="btn-loan-download"
+                        id="sheetDownloadBtn"
+                        title="Download PDF"
+                      >
+                        <i class="fas fa-file-download"></i> Download
+                      </button>
+                    </div>
+                  </div>
+                  <div class="table-responsive loan-datasheet-scroll">
+                    <table
+                      class="data-table loan-datasheet-table"
+                      id="loanDataSheetTable"
+                    >
+                      <thead>
+                        <tr>
+                          <th class="loan-select-col">
+                            <input
+                              id="loanSelectAll"
+                              type="checkbox"
+                              aria-label="Select all loan records"
+                              title="Select all visible loan records"
+                            />
+                          </th>
+                          <th class="col-num">#</th>
+                          <th>Client Name</th>
+                          <th>Date</th>
+                          <th class="col-money">Loan Amount (USD)</th>
+                          <th class="col-pct">Rate (% p.m.)</th>
+                          <th class="col-dur">Duration (mo)</th>
+                          <th class="col-money col-calc">
+                            Interest Amount (USD)
+                          </th>
+                          <th class="col-money col-calc">
+                            Total Repayment (USD)
+                          </th>
+                          <th class="col-money col-calc">
+                            Monthly Principal (USD)
+                          </th>
+                          <th class="col-money col-calc">
+                            Monthly Interest (USD)
+                          </th>
+                          <th class="col-money col-calc">
+                            Monthly Amount Due (USD)
+                          </th>
+                          <th class="col-money col-calc">Amount Paid (USD)</th>
+                          <th class="col-money col-calc">Outstanding (USD)</th>
+                          <th>Next Payment</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="loan-sheet-tbody">
+                        <tr class="loan-empty-row">
+                          <td colspan="16">
+                            <span class="empty-state-msg"
+                              >No loan records yet. Use
+                              <strong>Add Loan</strong> to create the first
+                              entry.</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot id="loan-sheet-tfoot"></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── SUB-TAB: Monthly Schedule ── -->
+              <div class="loan-subpanel" id="loan-tab-schedule">
+                <div class="card loan-sheet-card">
+                  <div class="card-header loan-sched-header">
+                    <h3 class="card-title">
+                      <i
+                        class="fas fa-calendar-alt"
+                        style="color: #4fc3f7; margin-right: 6px"
+                      ></i
+                      >Monthly Repayment Schedule
+                    </h3>
+                    <div class="loan-list-actions">
+                      <select
+                        class="form-input loan-client-select"
+                        id="schedClientSelect"
+                      >
+                        <option value="">— Select a client —</option>
+                      </select>
+                      <button
+                        class="btn-loan-export"
+                        id="schedExportBtn"
+                        title="Export Schedule CSV"
+                      >
+                        <i class="fas fa-file-csv"></i> Export
+                      </button>
+                      <button
+                        class="btn-loan-print"
+                        id="schedPrintBtn"
+                        title="Print Schedule"
+                      >
+                        <i class="fas fa-print"></i> Print
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Client summary banner (shown when client selected) -->
+                  <div
+                    class="loan-client-banner"
+                    id="loanClientBanner"
+                    style="display: none"
+                  >
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Client</span
+                      ><span class="loan-banner-val" id="bannerClient">—</span>
+                    </div>
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Loan Amount</span
+                      ><span class="loan-banner-val" id="bannerAmount">—</span>
+                    </div>
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Interest Amount</span
+                      ><span class="loan-banner-val" id="bannerInterest"
+                        >—</span
+                      >
+                    </div>
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Total Repayment</span
+                      ><span class="loan-banner-val" id="bannerTotal">—</span>
+                    </div>
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Duration</span
+                      ><span class="loan-banner-val" id="bannerDuration"
+                        >—</span
+                      >
+                    </div>
+                    <div class="loan-banner-item">
+                      <span class="loan-banner-label">Progress</span
+                      ><span class="loan-banner-val" id="bannerProgress"
+                        >—</span
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Progress bar -->
+                  <div
+                    class="loan-progress-wrap"
+                    id="loanProgressWrap"
+                    style="display: none"
+                  >
+                    <div class="loan-progress-bar">
+                      <div
+                        class="loan-progress-fill"
+                        id="loanProgressFill"
+                      ></div>
+                    </div>
+                    <span
+                      class="loan-progress-label"
+                      id="loanProgressLabel"
+                    ></span>
+                  </div>
+
+                  <!-- Schedule table -->
+                  <div
+                    class="table-responsive loan-datasheet-scroll"
+                    id="schedTableWrap"
+                  >
+                    <div class="loan-sched-placeholder" id="schedPlaceholder">
+                      <i class="fas fa-calendar-alt"></i>
+                      <p>
+                        Select a client from the dropdown above to view their
+                        monthly repayment schedule.
+                      </p>
+                    </div>
+                    <table
+                      class="data-table loan-schedule-table"
+                      id="loanScheduleTable"
+                      style="display: none"
+                    >
+                      <thead>
+                        <tr>
+                          <th class="col-num">Payment #</th>
+                          <th>Due Date</th>
+                          <th class="col-money">Principal Payment</th>
+                          <th class="col-money">Interest Payment</th>
+                          <th class="col-money">Total Payment</th>
+                          <th class="col-money">Amount Paid</th>
+                          <th class="col-money">Remaining</th>
+                          <th>Status</th>
+                          <th class="col-money">Loan Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody id="loan-sched-tbody"></tbody>
+                      <tfoot id="loan-sched-tfoot"></tfoot>
+                    </table>
+                  </div>
+                  <section
+                    class="loan-payment-history"
+                    id="loanPaymentHistory"
+                    style="display: none"
+                    aria-live="polite"
+                  >
+                    <h4>Payments for this client loan</h4>
+                    <div class="table-responsive loan-datasheet-scroll">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Payment Date</th>
+                            <th>Schedule Month</th>
+                            <th>Payment Type</th>
+                            <th class="col-money">Amount (USD)</th>
+                          </tr>
+                        </thead>
+                        <tbody id="loan-payment-history-body"></tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              <!-- ── Add New Client Modal (triggered from Loan Entry) ── -->
+              <div
+                class="loan-add-modal"
+                id="loanAddModal"
+                aria-hidden="true"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="loanAddModalTitle"
+              >
+                <div class="loan-add-backdrop" id="loanAddBackdrop"></div>
+                <div class="loan-add-panel">
+                  <!-- Header -->
+                  <div class="loan-add-header">
+                    <div class="loan-add-header-left">
+                      <span class="loan-add-icon"
+                        ><i class="fas fa-user-plus"></i
+                      ></span>
+                      <div>
+                        <h3 class="loan-add-title" id="loanAddModalTitle">
+                          Add New Client Loan
+                        </h3>
+                        <p class="loan-add-sub">
+                          Enter loan details — calculated fields update
+                          automatically
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      class="loan-add-close"
+                      id="loanAddClose"
+                      aria-label="Close form"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+
+                  <!-- Form body -->
+                  <div class="loan-add-body">
+                    <form id="loanFormModal" novalidate autocomplete="off">
+                      <!-- Row 1: Client Name + Date -->
+                      <div class="form-row-2">
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Client Name <span class="req">*</span></label
+                          >
+                          <input
+                            type="text"
+                            class="form-input"
+                            id="modal-loan-client"
+                            placeholder="Full name or company"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Loan Start Date <span class="req">*</span></label
+                          >
+                          <input
+                            type="date"
+                            class="form-input"
+                            id="modal-loan-date"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Row 2: Amount + Rate + Duration -->
+                      <div class="form-row-3">
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Loan Amount (USD) <span class="req">*</span></label
+                          >
+                          <input
+                            type="number"
+                            class="form-input"
+                            id="modal-loan-amount"
+                            placeholder="e.g. 10000"
+                            min="0"
+                            step="0.01"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Rate (% p.m.) <span class="req">*</span></label
+                          >
+                          <!-- Sub-task 2: combo — type in OR pick from dropdown -->
+                          <select
+                            class="form-input"
+                            id="modal-loan-rate"
+                            required
+                          >
+                            <option value="">Select monthly rate</option>
+                            <option value="5">5% per month</option>
+                            <option value="8">8% per month</option>
+                            <option value="10">10% per month</option>
+                            <option value="11">11% per month</option>
+                            <option value="12">12% per month</option>
+                            <option value="12.5">12.50% per month</option>
+                            <option value="15">15% per month</option>
+                            <option value="18">18% per month</option>
+                            <option value="20">20% per month</option>
+                            <option value="25">25% per month</option>
+                            <option value="30">30% per month</option>
+                            <option value="35">35% per month</option>
+                            <option value="40">40% per month</option>
+                            <option value="50">50% per month</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Duration <span class="req">*</span></label
+                          >
+                          <input
+                            type="number"
+                            class="form-input"
+                            id="modal-loan-duration"
+                            list="modal-loan-duration-options"
+                            placeholder="Type months or choose a term"
+                            min="1"
+                            step="1"
+                            required
+                          />
+                          <datalist id="modal-loan-duration-options">
+                            <option value="">Select months</option>
+                            <option value="1">1 month</option>
+                            <option value="3">3 months</option>
+                            <option value="6">6 months</option>
+                            <option value="12">12 months</option>
+                            <option value="18">18 months</option>
+                            <option value="24">24 months</option>
+                            <option value="36">36 months</option>
+                            <option value="48">48 months</option>
+                            <option value="60">60 months</option>
+                            <option value="72">72 months</option>
+                            <option value="84">84 months</option>
+                            <option value="120">120 months</option>
+                            <option value="180">180 months</option>
+                            <option value="240">240 months</option>
+                            <option value="360">360 months</option>
+                          </datalist>
+                        </div>
+                      </div>
+
+                      <!-- Row 3: payment collection fields -->
+                      <div class="form-row-2">
+                        <div class="form-group">
+                          <label class="form-label">Amount Paid (USD)</label>
+                          <input
+                            type="number"
+                            class="form-input loan-user-value"
+                            id="modal-loan-amount-paid"
+                            placeholder="Enter amount received, if any"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Next Payment Month
+                            <span class="req">*</span></label
+                          >
+                          <select
+                            class="form-input loan-user-value"
+                            id="modal-loan-next-payment-month"
+                            required
+                          >
+                            <option value="">Select a month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Row 4: Auto-calculated read-only form fields -->
+                      <div class="loan-calc-row modal-calc-row">
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-calculator"></i> Interest Amount
+                            (USD)</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-interest"
+                            placeholder="Auto-calculated"
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-sigma"></i> Total Repayment
+                            (USD)</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-total"
+                            placeholder="Auto-calculated"
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-calendar-week"></i> Monthly
+                            Principal (USD)</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-monthly-principal"
+                            placeholder="Auto-calculated"
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-percentage"></i> Monthly Interest
+                            (USD)</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-monthly-interest"
+                            placeholder="Auto-calculated"
+                          />
+                        </div>
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-money-bill-wave"></i> Monthly
+                            Amount Due (USD)</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-amount-pay"
+                            placeholder="Auto-calculated"
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group loan-calc-field">
+                          <label class="form-label loan-calc-label"
+                            ><i class="fas fa-calendar-check"></i> First Payment
+                            Date</label
+                          >
+                          <input
+                            type="text"
+                            class="form-input loan-calc-input"
+                            id="modal-calc-next-payment"
+                            placeholder="Auto-calculated"
+                            readonly
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="loan-add-actions">
+                        <button type="submit" class="btn-svc-submit btn-blue">
+                          <i class="fas fa-plus-circle"></i> Save Loan Record
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-loan-clear"
+                          id="loanModalClearBtn"
+                        >
+                          <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-loan-modal-cancel"
+                          id="loanModalCancelBtn"
+                        >
+                          <i class="fas fa-times"></i> Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                  <!-- /.loan-add-body -->
+                </div>
+                <!-- /.loan-add-panel -->
+              </div>
+              <!-- /#loanAddModal -->
+
+              <!-- Per-client report modal -->
+              <div
+                class="loan-report-modal"
+                id="loanReportModal"
+                aria-hidden="true"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="loanReportTitle"
+              >
+                <div class="loan-report-backdrop" id="loanReportBackdrop"></div>
+                <div class="loan-report-panel">
+                  <div class="loan-report-header">
+                    <div>
+                      <h3 class="loan-report-title" id="loanReportTitle">
+                        Client Loan Report
+                      </h3>
+                      <p class="loan-report-sub" id="loanReportSub"></p>
+                    </div>
+                    <div class="loan-report-header-actions">
+                      <!-- ── Record navigation (Prev / Next) — visually isolated ── -->
+                      <div
+                        class="loan-nav-group"
+                        id="loanNavGroup"
+                        aria-label="Record navigation"
+                      >
+                        <button
+                          class="btn-loan-nav"
+                          id="reportPrevBtn"
+                          title="Previous record"
+                          aria-label="Previous client record"
+                          disabled
+                        >
+                          <i class="fas fa-chevron-left"></i> Prev
+                        </button>
+                        <span
+                          class="loan-nav-counter"
+                          id="loanNavCounter"
+                          aria-live="polite"
+                          >—</span
+                        >
+                        <button
+                          class="btn-loan-nav"
+                          id="reportNextBtn"
+                          title="Next record"
+                          aria-label="Next client record"
+                          disabled
+                        >
+                          Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                      </div>
+                      <!-- ── Report actions ── -->
+                      <button class="btn-loan-print" id="reportPrintBtn">
+                        <i class="fas fa-print"></i> Print
+                      </button>
+                      <button
+                        class="btn-view-invoice"
+                        id="reportInvoiceBtn"
+                        style="margin-left: 6px"
+                        title="View Invoice"
+                      >
+                        <i class="fas fa-file-invoice-dollar"></i> Invoice
+                      </button>
+                      <button
+                        class="loan-report-close"
+                        id="loanReportClose"
+                        aria-label="Close report"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="loan-report-summary" id="loanReportSummary"></div>
+                  <div class="table-responsive">
+                    <table
+                      class="data-table loan-report-table"
+                      id="loanReportTable"
+                    >
+                      <thead>
+                        <tr>
+                          <th class="col-num">Payment #</th>
+                          <th>Due Date</th>
+                          <th class="col-money">Principal Payment</th>
+                          <th class="col-money">Interest Payment</th>
+                          <th class="col-money">Total Payment</th>
+                          <th class="col-money">Amount Paid</th>
+                          <th class="col-money">Remaining</th>
+                          <th>Status</th>
+                          <th class="col-money">Loan Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody id="loan-report-tbody"></tbody>
+                      <tfoot id="loan-report-tfoot"></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── ASSET MANAGEMENT panel ── -->
+            <!-- ── RESEARCH & CONSULTING panel ── -->
+            <div class="svc-panel" id="svc-panel-research" role="tabpanel">
+              <div class="svc-panel-inner">
+                <div class="card svc-form-card">
+                  <div class="svc-form-header svc-hdr-green">
+                    <i class="fas fa-flask"></i>
+                    <div>
+                      <h3 class="svc-form-title">
+                        New Research / Consulting Engagement
+                      </h3>
+                      <p class="svc-form-sub">
+                        Register a client engagement — saved permanently to the
+                        database
+                      </p>
+                    </div>
+                  </div>
+                  <form class="svc-form" id="researchForm" novalidate>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Client Name <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="res-client"
+                          placeholder="Full name or company"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Project / Engagement
+                          <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="res-project"
+                          placeholder="e.g. Market Entry Study"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-3">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Service Type <span class="req">*</span></label
+                        >
+                        <select class="form-input" id="res-type" required>
+                          <option value="">Select type…</option>
+                          <option>Market Research</option>
+                          <option>Consulting</option>
+                          <option>Advisory &amp; Strategy</option>
+                          <option>Feasibility Study</option>
+                          <option>Policy Research</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Contract Value (USD)</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="res-value"
+                          placeholder="e.g. 45000"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-input" id="res-date" />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-input" id="res-status">
+                          <option value="ongoing">Ongoing</option>
+                          <option value="completed">Completed</option>
+                          <option value="pending">Pending</option>
+                          <option value="draft">Draft</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="res-notes"
+                          placeholder="Optional notes"
+                        />
+                      </div>
+                    </div>
+                    <div class="loan-form-actions">
+                      <button type="submit" class="btn-svc-submit btn-green">
+                        <i class="fas fa-plus-circle"></i> Add Record
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <div class="card svc-list-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      Engagement Records
+                      <span
+                        class="count-badge count-green"
+                        id="research-client-count"
+                        >0</span
+                      >
+                    </h3>
+                    <input
+                      type="search"
+                      class="search-input"
+                      id="research-search"
+                      placeholder="Search clients…"
+                    />
+                  </div>
+                  <div class="table-responsive">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Client</th>
+                          <th>Project</th>
+                          <th>Value</th>
+                          <th>Start Date</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="research-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="svc-panel" id="svc-panel-assets" role="tabpanel">
+              <div class="svc-panel-inner">
+                <div class="card svc-form-card">
+                  <div class="svc-form-header svc-hdr-amber">
+                    <i class="fas fa-plus-square"></i>
+                    <div>
+                      <h3 class="svc-form-title">Register Asset / Client</h3>
+                      <p class="svc-form-sub">
+                        Real estate, equipment, vehicles &amp; investments
+                      </p>
+                    </div>
+                  </div>
+                  <form class="svc-form" id="assetForm" novalidate>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Client / Owner <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="asset-owner"
+                          placeholder="Owner name"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Asset Name <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="asset-name"
+                          placeholder="e.g. Office Building A"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Asset Type <span class="req">*</span></label
+                        >
+                        <select class="form-input" id="asset-type">
+                          <option value="">Select type…</option>
+                          <option>Real Estate</option>
+                          <option>Equipment</option>
+                          <option>Vehicle</option>
+                          <option>Intellectual Property</option>
+                          <option>Investments</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Estimated Value (USD)</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="asset-value"
+                          placeholder="e.g. 250000"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-3">
+                      <div class="form-group">
+                        <label class="form-label">Acquisition Date</label>
+                        <input type="date" class="form-input" id="asset-date" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="asset-location"
+                          placeholder="City / Address"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-input" id="asset-status">
+                          <option value="active">Active</option>
+                          <option value="under review">Under Review</option>
+                          <option value="disposed">Disposed</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Description</label>
+                      <textarea
+                        class="form-input"
+                        id="asset-desc"
+                        rows="2"
+                        placeholder="Brief description…"
+                      ></textarea>
+                    </div>
+                    <button type="submit" class="btn-svc-submit btn-amber">
+                      <i class="fas fa-plus-circle"></i> Register Asset
+                    </button>
+                  </form>
+                </div>
+
+                <div class="card svc-list-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      Asset Register
+                      <span
+                        class="count-badge count-amber"
+                        id="asset-client-count"
+                        >0</span
+                      >
+                    </h3>
+                    <input
+                      type="search"
+                      class="search-input"
+                      id="asset-search"
+                      placeholder="Search assets…"
+                    />
+                  </div>
+                  <div class="table-responsive">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Owner</th>
+                          <th>Asset</th>
+                          <th>Type</th>
+                          <th>Value</th>
+                          <th>Status</th>
+                          <th>Permissions</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="asset-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── BUSINESS DEVELOPMENT panel ── -->
+            <div class="svc-panel" id="svc-panel-bizdev" role="tabpanel">
+              <div class="svc-panel-inner">
+                <div class="card svc-form-card">
+                  <div class="svc-form-header svc-hdr-purple">
+                    <i class="fas fa-user-tie"></i>
+                    <div>
+                      <h3 class="svc-form-title">Add Prospect / Client</h3>
+                      <p class="svc-form-sub">
+                        Pipeline, deals &amp; business relationships
+                      </p>
+                    </div>
+                  </div>
+                  <form class="svc-form" id="bizdevForm" novalidate>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Company Name <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="biz-company"
+                          placeholder="Company name"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Contact Person <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="biz-contact"
+                          placeholder="Full name"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Email <span class="req">*</span></label
+                        >
+                        <input
+                          type="email"
+                          class="form-input"
+                          id="biz-email"
+                          placeholder="contact@company.com"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input
+                          type="tel"
+                          class="form-input"
+                          id="biz-phone"
+                          placeholder="+44 7000 000000"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-3">
+                      <div class="form-group">
+                        <label class="form-label">Industry</label>
+                        <select class="form-input" id="biz-industry">
+                          <option value="">Select industry…</option>
+                          <option>Finance &amp; Banking</option>
+                          <option>Technology</option>
+                          <option>Healthcare</option>
+                          <option>Manufacturing</option>
+                          <option>Retail</option>
+                          <option>Real Estate</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Deal Value (USD)</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="biz-value"
+                          placeholder="Estimated value"
+                          min="0"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Pipeline Stage</label>
+                        <select class="form-input" id="biz-stage">
+                          <option>Lead</option>
+                          <option>Qualified</option>
+                          <option>Proposal</option>
+                          <option>Negotiation</option>
+                          <option>Closed Won</option>
+                          <option>Closed Lost</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Expected Close</label>
+                        <input type="date" class="form-input" id="biz-close" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea
+                          class="form-input"
+                          id="biz-notes"
+                          rows="1"
+                          placeholder="Key details…"
+                        ></textarea>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn-svc-submit btn-purple">
+                      <i class="fas fa-plus-circle"></i> Add Prospect
+                    </button>
+                  </form>
+                </div>
+
+                <div class="card svc-list-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      Pipeline
+                      <span
+                        class="count-badge count-purple"
+                        id="bizdev-client-count"
+                        >0</span
+                      >
+                    </h3>
+                    <input
+                      type="search"
+                      class="search-input"
+                      id="biz-search"
+                      placeholder="Search prospects…"
+                    />
+                  </div>
+                  <div class="table-responsive">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Company</th>
+                          <th>Contact</th>
+                          <th>Stage</th>
+                          <th>Deal Value</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="biz-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── VEHICLE HIRE panel ── -->
+            <div class="svc-panel" id="svc-panel-vehicles" role="tabpanel">
+              <div class="svc-panel-inner">
+                <div class="card svc-form-card">
+                  <div class="svc-form-header svc-hdr-teal">
+                    <i class="fas fa-car"></i>
+                    <div>
+                      <h3 class="svc-form-title">New Hire Booking</h3>
+                      <p class="svc-form-sub">
+                        Executive, SUV, minibus &amp; cargo vehicles
+                      </p>
+                    </div>
+                  </div>
+                  <form class="svc-form" id="vehicleForm" novalidate>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Client Name <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="veh-name"
+                          placeholder="Full name"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Email <span class="req">*</span></label
+                        >
+                        <input
+                          type="email"
+                          class="form-input"
+                          id="veh-email"
+                          placeholder="client@email.com"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input
+                          type="tel"
+                          class="form-input"
+                          id="veh-phone"
+                          placeholder="+44 7000 000000"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Vehicle Type <span class="req">*</span></label
+                        >
+                        <select class="form-input" id="veh-type">
+                          <option value="">Select vehicle…</option>
+                          <option>Saloon / Sedan</option>
+                          <option>Estate / Wagon</option>
+                          <option>SUV / 4x4</option>
+                          <option>Minivan / MPV</option>
+                          <option>Executive Limo</option>
+                          <option>Minibus (9-seater)</option>
+                          <option>Van / Cargo</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row-3">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Pickup Date <span class="req">*</span></label
+                        >
+                        <input
+                          type="date"
+                          class="form-input"
+                          id="veh-pickup"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Return Date</label>
+                        <input type="date" class="form-input" id="veh-return" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Daily Rate (USD)</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="veh-rate"
+                          placeholder="e.g. 150"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Pickup Location</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="veh-location"
+                          placeholder="Address / Airport"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Booking Status</label>
+                        <select class="form-input" id="veh-status">
+                          <option value="confirmed">Confirmed</option>
+                          <option value="pending">Pending</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Special Requirements</label>
+                      <textarea
+                        class="form-input"
+                        id="veh-notes"
+                        rows="2"
+                        placeholder="Driver needed, child seat, etc."
+                      ></textarea>
+                    </div>
+                    <button type="submit" class="btn-svc-submit btn-teal">
+                      <i class="fas fa-plus-circle"></i> Book Vehicle
+                    </button>
+                  </form>
+                </div>
+
+                <div class="card svc-list-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      Bookings
+                      <span class="count-badge count-teal" id="veh-client-count"
+                        >0</span
+                      >
+                    </h3>
+                    <input
+                      type="search"
+                      class="search-input"
+                      id="veh-search"
+                      placeholder="Search bookings…"
+                    />
+                  </div>
+                  <div class="table-responsive">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Client</th>
+                          <th>Vehicle</th>
+                          <th>Pickup</th>
+                          <th>Return</th>
+                          <th>Rate/Day</th>
+                          <th>Status</th>
+                          <th>Permissions</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="veh-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── PRINTING panel ── -->
+            <div class="svc-panel" id="svc-panel-printing" role="tabpanel">
+              <div class="svc-panel-inner">
+                <div class="card svc-form-card">
+                  <div class="svc-form-header svc-hdr-red">
+                    <i class="fas fa-print"></i>
+                    <div>
+                      <h3 class="svc-form-title">New Print Order</h3>
+                      <p class="svc-form-sub">
+                        Cards, brochures, banners &amp; branded merchandise
+                      </p>
+                    </div>
+                  </div>
+                  <form class="svc-form" id="printingForm" novalidate>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Client Name <span class="req">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-input"
+                          id="prnt-name"
+                          placeholder="Full name or company"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Email <span class="req">*</span></label
+                        >
+                        <input
+                          type="email"
+                          class="form-input"
+                          id="prnt-email"
+                          placeholder="client@email.com"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input
+                          type="tel"
+                          class="form-input"
+                          id="prnt-phone"
+                          placeholder="+44 7000 000000"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Print Type <span class="req">*</span></label
+                        >
+                        <select class="form-input" id="prnt-type">
+                          <option value="">Select type…</option>
+                          <option>Business Cards</option>
+                          <option>Flyers / Leaflets</option>
+                          <option>Brochures</option>
+                          <option>Banners / Signage</option>
+                          <option>Stationery</option>
+                          <option>Branded Merchandise</option>
+                          <option>Large Format</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row-3">
+                      <div class="form-group">
+                        <label class="form-label">Quantity</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="prnt-qty"
+                          placeholder="e.g. 500"
+                          min="1"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Paper / Material</label>
+                        <select class="form-input" id="prnt-paper">
+                          <option>Standard 80gsm</option>
+                          <option>Premium 120gsm</option>
+                          <option>Gloss Coated</option>
+                          <option>Matte Coated</option>
+                          <option>Recycled</option>
+                          <option>Vinyl / PVC</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Quote (USD)</label>
+                        <input
+                          type="number"
+                          class="form-input"
+                          id="prnt-quote"
+                          placeholder="e.g. 350"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input
+                          type="date"
+                          class="form-input"
+                          id="prnt-deadline"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Order Status</label>
+                        <select class="form-input" id="prnt-status">
+                          <option value="received">Received</option>
+                          <option value="in production">In Production</option>
+                          <option value="ready">Ready for Collection</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Design Notes / Specs</label>
+                      <textarea
+                        class="form-input"
+                        id="prnt-notes"
+                        rows="2"
+                        placeholder="Colour scheme, fonts, file format…"
+                      ></textarea>
+                    </div>
+                    <button type="submit" class="btn-svc-submit btn-red">
+                      <i class="fas fa-plus-circle"></i> Place Order
+                    </button>
+                  </form>
+                </div>
+
+                <div class="card svc-list-card">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      Print Orders
+                      <span
+                        class="count-badge count-red"
+                        id="print-client-count"
+                        >0</span
+                      >
+                    </h3>
+                    <input
+                      type="search"
+                      class="search-input"
+                      id="prnt-search"
+                      placeholder="Search orders…"
+                    />
+                  </div>
+                  <div class="table-responsive">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Client</th>
+                          <th>Type</th>
+                          <th>Qty</th>
+                          <th>Quote</th>
+                          <th>Deadline</th>
+                          <th>Status</th>
+                          <th>Permissions</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="prnt-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /services-block -->
+
+          <!-- ╔══════════════════════════════════════════════════════╗
+           ║  KPI CARDS                                          ║
+           ╚══════════════════════════════════════════════════════╝ -->
+          <div id="dashboardFinancialOverview" hidden>
+          <div class="section-divider-label">
+            <span
+              ><i class="fas fa-chart-line"></i> Financial Metrics &amp;
+              Overview</span
+            >
+          </div>
+
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-blue">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Total Recorded Value</p>
+                <p class="kpi-value" id="kpi-revenue">$0</p>
+                <p class="kpi-change positive" id="kpi-revenue-change">
+                  <i class="fas fa-sync-alt"></i> Loading live records…
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-green">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Net Position</p>
+                <p class="kpi-value" id="kpi-profit">$0</p>
+                <p class="kpi-change positive" id="kpi-profit-change">
+                  <i class="fas fa-sync-alt"></i> Loading live records…
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-orange">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Recorded Expenses</p>
+                <p class="kpi-value" id="kpi-expenses">$0</p>
+                <p class="kpi-change negative" id="kpi-expenses-change">
+                  <i class="fas fa-sync-alt"></i> Loading live records…
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-purple">
+                <i class="fas fa-handshake"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Active Clients</p>
+                <p class="kpi-value" id="kpi-clients">0</p>
+                <p class="kpi-change positive" id="kpi-clients-change">
+                  <i class="fas fa-sync-alt"></i> Loading live records…
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="dashboard-mid-grid">
+            <div class="card chart-card">
+              <div class="card-header">
+                <h2 class="card-title">Revenue Overview</h2>
+                <div class="card-actions">
+                  <select
+                    class="chart-filter"
+                    id="revenueFilter"
+                    aria-label="Revenue period"
+                  >
+                    <option value="6">Latest 6 Recorded Months</option>
+                    <option value="12">Latest 12 Recorded Months</option>
+                    <option value="3">Latest 3 Recorded Months</option>
+                  </select>
+                  <button
+                    type="button"
+                    class="chart-collapse-toggle"
+                    data-collapse-target="revenueChartContent"
+                    aria-controls="revenueChartContent"
+                    aria-expanded="false"
+                    aria-label="Show Revenue Overview chart"
+                    title="Show chart"
+                  >
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+              <div
+                class="chart-collapse-content"
+                id="revenueChartContent"
+                hidden
+              >
+                <div class="chart-container">
+                  <canvas id="revenueChart" aria-label="Revenue chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-header">
+                <h2 class="card-title">Record Value by Service</h2>
+                <button
+                  type="button"
+                  class="chart-collapse-toggle"
+                  data-collapse-target="serviceChartContent"
+                  aria-controls="serviceChartContent"
+                  aria-expanded="false"
+                  aria-label="Show Record Value by Service chart"
+                  title="Show chart"
+                >
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div
+                class="chart-collapse-content"
+                id="serviceChartContent"
+                hidden
+              >
+                <div class="chart-container chart-container--donut">
+                  <canvas
+                    id="expenseChart"
+                    aria-label="Record value by service chart"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <!-- Transactions + Quick Stats -->
+          <div class="dashboard-bottom-grid dashboard-bottom-grid--transactions">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Recent Transactions</h2>
+                <button class="btn-text" data-view="reports">View All</button>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table" id="recentTxTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Description</th>
+                      <th>Category</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentTxBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- /view-dashboard -->
+
+        <!-- ══════════════════════════════════════════
+         REPORTS VIEW
+    ══════════════════════════════════════════ -->
+        <section class="view" id="view-reports">
+          <div class="view-header">
+            <h2 class="view-heading">Financial Reports</h2>
+          </div>
+
+          <!-- Financial Statements -->
+          <div class="card" style="margin-bottom: 1.5rem">
+            <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+              <h2 class="card-title">
+                <i
+                  class="fas fa-file-invoice-dollar"
+                  style="color: var(--active-color)"
+                ></i>
+                Service Financial Reports
+              </h2>
+              <div class="stmt-tabs">
+                <button class="stmt-tab active" data-stmt="income">
+                  Income Statement
+                </button>
+                <button class="stmt-tab" data-stmt="balance">
+                  Balance Sheet
+                </button>
+                <button class="stmt-tab" data-stmt="cashflow">Cash Flow</button>
+                <button class="stmt-tab" data-stmt="pnl">F&amp;L</button>
+              </div>
+              <button
+                class="btn-secondary"
+                id="stmtPrintBtn"
+                style="padding: 5px 14px; font-size: 0.8rem"
+              >
+                <i class="fas fa-print"></i> Print
+              </button>
+            </div>
+            <section
+              class="reports-service-summary"
+              id="reportsServiceSummary"
+              aria-live="polite"
+            ></section>
+            <div class="stmt-body">
+              <div class="stmt-panel active" id="stmt-income"></div>
+              <div class="stmt-panel" id="stmt-balance"></div>
+              <div class="stmt-panel" id="stmt-cashflow"></div>
+              <div class="stmt-panel" id="stmt-pnl"></div>
+            </div>
+          </div>
+          <div class="card filter-card reports-legacy">
+            <div class="filter-row">
+              <label class="filter-label">Period</label>
+              <select
+                class="filter-select"
+                id="reportPeriod"
+                aria-label="Report period"
+              >
+                <option>Q1 2024</option>
+                <option>Q2 2024</option>
+                <option selected>Q3 2024</option>
+                <option>Q4 2024</option>
+                <option>Full Year 2024</option>
+              </select>
+              <label class="filter-label">Type</label>
+              <select class="filter-select" aria-label="Report type">
+                <option>All Transactions</option>
+                <option>Income Only</option>
+                <option>Expenses Only</option>
+              </select>
+              <label class="filter-label">Category</label>
+              <select class="filter-select" aria-label="Category">
+                <option>All Categories</option>
+                <option>Consulting</option>
+                <option>Operations</option>
+                <option>Marketing</option>
+              </select>
+              <button class="btn-primary" style="align-self: flex-end">
+                <i class="fas fa-filter"></i> Apply
+              </button>
+            </div>
+          </div>
+          <div class="kpi-grid reports-legacy">
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-blue">
+                <i class="fas fa-arrow-circle-down"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Total Income</p>
+                <p class="kpi-value">$284,500</p>
+                <p class="kpi-change positive">
+                  <i class="fas fa-arrow-up"></i> 9.2%
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-orange">
+                <i class="fas fa-arrow-circle-up"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Total Expenses</p>
+                <p class="kpi-value">$142,800</p>
+                <p class="kpi-change negative">
+                  <i class="fas fa-arrow-down"></i> 2.4%
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-green">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Net Balance</p>
+                <p class="kpi-value">$141,700</p>
+                <p class="kpi-change positive">
+                  <i class="fas fa-arrow-up"></i> 18.1%
+                </p>
+              </div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-icon kpi-purple">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="kpi-body">
+                <p class="kpi-label">Profit Margin</p>
+                <p class="kpi-value">49.8%</p>
+                <p class="kpi-change positive">
+                  <i class="fas fa-arrow-up"></i> 4.3%
+                </p>
+              </div>
+            </article>
+          </div>
+          <div
+            class="card chart-card reports-legacy"
+            style="margin-bottom: 1.5rem"
+          >
+            <div class="card-header">
+              <h2 class="card-title">Income vs Expenses – Monthly</h2>
+            </div>
+            <div class="chart-container" style="height: 320px">
+              <canvas
+                id="reportBarChart"
+                aria-label="Monthly income vs expenses"
+              ></canvas>
+            </div>
+          </div>
+          <div class="card reports-legacy" style="margin-bottom: 1.5rem">
+            <div class="card-header">
+              <h2 class="card-title">All Transactions</h2>
+              <input
+                type="search"
+                class="search-input"
+                placeholder="Search transactions…"
+                aria-label="Search transactions"
+                id="txSearch"
+              />
+            </div>
+            <div class="table-responsive">
+              <table class="data-table" id="fullTxTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="fullTxBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="txPagination"></div>
+          </div>
+          <!-- Invoices -->
+          <div class="card invoice-card reports-legacy" id="invoiceSection">
+            <div class="card-header invoice-card-header">
+              <div class="invoice-header-left">
+                <i class="fas fa-file-invoice invoice-section-icon"></i>
+                <div>
+                  <h2 class="card-title">Invoices</h2>
+                  <p class="invoice-section-sub">
+                    Manage, download and print client invoices
+                  </p>
+                </div>
+              </div>
+              <div class="invoice-actions">
+                <button class="btn-invoice-secondary" id="printInvoiceBtn">
+                  <i class="fas fa-print"></i><span>Print Invoice</span>
+                </button>
+                <button class="btn-invoice-primary" id="downloadInvoiceBtn">
+                  <i class="fas fa-download"></i><span>Download Invoice</span>
+                </button>
+              </div>
+            </div>
+            <div class="invoice-filter-bar">
+              <input
+                type="search"
+                class="search-input"
+                id="invoiceSearch"
+                placeholder="Search invoices…"
+              />
+              <select class="filter-select" id="invoiceStatusFilter">
+                <option value="">All Statuses</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <span
+                class="invoice-selected-label"
+                id="invoiceSelectedLabel"
+              ></span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table invoice-table" id="invoiceTable">
+                <thead>
+                  <tr>
+                    <th class="col-check">
+                      <input type="checkbox" id="invoiceSelectAll" />
+                    </th>
+                    <th>Invoice #</th>
+                    <th>Client</th>
+                    <th>Description</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="invoicePagination"></div>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         CLIENTS VIEW — all records across every service
+    ══════════════════════════════════════════ -->
+        <section class="view" id="view-clients">
+          <div class="view-header">
+            <h2 class="view-heading">All Clients &amp; Records</h2>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">
+                <i
+                  class="fas fa-address-book"
+                  style="color: var(--active-color)"
+                ></i>
+                Master Client Database
+                <span class="count-badge count-blue" id="clientsTotalCount"
+                  >0</span
+                >
+              </h2>
+              <input
+                type="search"
+                class="search-input"
+                id="clientsSearch"
+                placeholder="Search all clients…"
+              />
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Service / Department</th>
+                    <th>Details</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="clients-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         INVENTORY VIEW
+    ══════════════════════════════════════════ -->
+        <section class="view" id="view-inventory">
+          <div class="view-header">
+            <div>
+              <h2 class="view-heading">Office Inventory</h2>
+              <p class="view-subhint">
+                Track office supplies, equipment and stock levels in real time.
+              </p>
+            </div>
+            <button class="btn-primary" id="addInventoryBtn">
+              <i class="fas fa-plus"></i> Add Inventory Item
+            </button>
+          </div>
+          <div class="card inventory-card">
+            <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+              <h2 class="card-title">
+                <i
+                  class="fas fa-boxes-stacked"
+                  style="color: var(--active-color)"
+                ></i>
+                Inventory Register
+              </h2>
+              <input
+                type="search"
+                class="search-input"
+                id="inventorySearch"
+                placeholder="Search inventory…"
+                aria-label="Search inventory"
+              />
+            </div>
+            <section
+              class="inventory-summary"
+              aria-label="Live inventory summary"
+              aria-live="polite"
+            >
+              <div class="inventory-summary-stat">
+                <span>Inventory items</span>
+                <strong id="inventorySummaryItems">0</strong>
+              </div>
+              <div class="inventory-summary-stat">
+                <span>Units on hand</span>
+                <strong id="inventorySummaryUnits">0</strong>
+              </div>
+              <div class="inventory-summary-stat inventory-summary-stat--value">
+                <span>Total inventory value</span>
+                <strong id="inventorySummaryValue">$0.00</strong>
+              </div>
+              <div class="inventory-summary-stat">
+                <span>Needs attention</span>
+                <strong id="inventorySummaryAttention">0</strong>
+              </div>
+            </section>
+            <div class="table-responsive">
+              <table class="data-table inventory-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                    <th>Unit Cost</th>
+                    <th>Stock Value</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTableBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3">All inventory totals</td>
+                    <td id="inventoryTableUnits">0</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td id="inventoryTableValue">$0.00</td>
+                    <td id="inventoryTableAttention">0 need attention</td>
+                    <td>—</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         STAFF VIEW
+    ══════════════════════════════════════════ -->
+        <section class="view" id="view-staff">
+          <div class="view-header">
+            <h2 class="view-heading">Staff Management</h2>
+            <button class="btn-primary" id="addStaffBtn">
+              <i class="fas fa-user-plus"></i> Add Staff
+            </button>
+          </div>
+          <div class="card filter-card">
+            <div class="filter-row">
+              <input
+                type="search"
+                class="search-input"
+                placeholder="Search staff…"
+                id="staffSearch"
+                aria-label="Search staff"
+              />
+              <select
+                class="filter-select"
+                id="deptFilter"
+                aria-label="Department filter"
+              >
+                <option value="">All Departments</option>
+                <option>Finance</option>
+                <option>Consulting</option>
+                <option>Operations</option>
+                <option>HR</option>
+                <option>Marketing</option>
+              </select>
+              <select
+                class="filter-select"
+                id="statusFilter"
+                aria-label="Status filter"
+              >
+                <option value="">All Statuses</option>
+                <option>Active</option>
+                <option>On Leave</option>
+                <option>Remote</option>
+              </select>
+            </div>
+          </div>
+          <!-- Excel-style staff spreadsheet -->
+          <div class="card sheet-card" style="margin-bottom: 1.5rem">
+            <div class="card-header">
+              <h2 class="card-title">
+                <i class="fas fa-table" style="color: #22c55e"></i> Staff
+                Spreadsheet
+              </h2>
+              <div class="staff-sheet-actions">
+                <button
+                  class="btn-bulk-delete"
+                  id="staffBulkDeleteBtn"
+                  type="button"
+                  title="Select one or more staff records first"
+                  disabled
+                >
+                  <i class="fas fa-trash"></i> Delete Selected
+                </button>
+                <button
+                  class="btn-secondary"
+                  id="staffSheetExportBtn"
+                  style="padding: 5px 14px; font-size: 0.8rem"
+                >
+                  <i class="fas fa-file-csv"></i> Export CSV
+                </button>
+              </div>
+            </div>
+            <p class="sheet-hint">
+              <i class="fas fa-circle-info"></i>
+              Use <strong>Edit</strong> to unlock a row; changes save
+              automatically. The <strong>Username</strong> and
+              <strong>Password</strong> columns create a real staff login
+              instantly.
+            </p>
+            <div class="sheet-scroll">
+              <table class="sheet-table">
+                <thead>
+                  <tr>
+                    <th class="sheet-select-col">
+                      <input
+                        id="staffSelectAll"
+                        type="checkbox"
+                        aria-label="Select all staff records"
+                        title="Select all staff records"
+                      />
+                    </th>
+                    <th class="sheet-rownum">#</th>
+                    <th>Full Name</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Status</th>
+                    <th>Permissions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="staffSheetBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="staff-grid" id="staffGrid"></div>
+          <div
+            id="staffAccessMount"
+            aria-label="Staff login access management"
+          ></div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+         STAFF ACCESS SOURCE (relocated into Staff Management at startup)
+    ══════════════════════════════════════════ -->
+        <div id="staffAccessSource" hidden>
+          <div class="staff-access-layout">
+            <!-- Staff access management (admin only) -->
+            <div class="card staff-access-card" id="staffAccessCard">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i
+                    class="fas fa-user-shield"
+                    style="color: var(--active-color)"
+                  ></i>
+                  Staff Access
+                </h2>
+                <span class="settings-badge">Admin</span>
+              </div>
+              <div class="settings-form" style="padding: 0 4px">
+                <div class="form-group">
+                  <label class="form-label" for="saName">Full Name</label
+                  ><input
+                    class="form-input"
+                    id="saName"
+                    type="text"
+                    placeholder="e.g. Mary Johnson"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="saUsername"
+                    >Login Username</label
+                  ><input
+                    class="form-input"
+                    id="saUsername"
+                    type="text"
+                    placeholder="e.g. mary.johnson"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="saPassword"
+                    >Login Password</label
+                  ><input
+                    class="form-input"
+                    id="saPassword"
+                    type="password"
+                    placeholder="Minimum 6 characters"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <div class="form-group">
+                  <span class="form-label">Granted Permissions</span>
+                  <div class="perm-grid" id="saPerms">
+                    <label class="perm-item"
+                      ><input type="checkbox" value="dashboard" checked />
+                      Dashboard</label
+                    >
+                    <label class="perm-item"
+                      ><input type="checkbox" value="reports" /> Reports</label
+                    >
+                    <label class="perm-item"
+                      ><input type="checkbox" value="inventory" />
+                      Inventory</label
+                    >
+                    <label class="perm-item"
+                      ><input type="checkbox" value="staff" /> Staff</label
+                    >
+                    <label class="perm-item"
+                      ><input type="checkbox" value="clients" /> Clients</label
+                    >
+                    <label class="perm-item"
+                      ><input type="checkbox" value="settings" />
+                      Settings</label
+                    >
+                  </div>
+                </div>
+                <button class="btn-primary" id="saCreateBtn">
+                  <i class="fas fa-user-plus"></i> Create Staff Login
+                </button>
+              </div>
+              <div class="staff-access-list" id="staffAccessList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+         SETTINGS VIEW  (only separate view)
+    ══════════════════════════════════════════ -->
+        <section class="view workforce" id="view-salary">
+          <div id="hr-salary"></div>
+        </section>
+        <section class="view workforce" id="view-attendance">
+          <div id="hr-attendance"></div>
+        </section>
+        <section class="view workforce" id="view-leave">
+          <div id="hr-leave"></div>
+        </section>
+        <section class="view" id="view-settings">
+          <div class="view-header">
+            <h2 class="view-heading">Settings</h2>
+            <button class="btn-primary" id="saveSettingsBtn">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </div>
+          <p
+            class="view-subhint"
+            style="
+              margin: -8px 0 16px;
+              color: var(--text-muted, #64748b);
+              font-size: 0.9rem;
+            "
+          >
+            Single-click the options below, or use the sidebar to navigate to
+            other sections.
+          </p>
+          <div class="settings-grid">
+            <!-- Branding Upload -->
+            <div
+              class="card settings-card branding-card"
+              style="grid-column: 1/-1"
+            >
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i
+                    class="fas fa-paint-brush"
+                    style="color: var(--active-color)"
+                  ></i>
+                  Branding &amp; Appearance
+                </h2>
+                <span class="settings-badge">Admin</span>
+              </div>
+              <div class="branding-form">
+                <div class="upload-group">
+                  <div class="upload-label-row">
+                    <span class="form-label">Company Logo</span>
+                    <span class="upload-hint"
+                      >PNG, JPG, SVG · max 2 MB · Shown in sidebar &amp;
+                      reports</span
+                    >
+                  </div>
+                  <div
+                    class="upload-dropzone"
+                    id="logoDropzone"
+                    tabindex="0"
+                    role="button"
+                    aria-label="Upload company logo"
+                  >
+                    <div
+                      class="upload-preview-wrap"
+                      id="logoPreviewWrap"
+                      style="display: none"
+                    >
+                      <img
+                        id="logoPreview"
+                        alt="Logo preview"
+                        class="upload-preview-img"
+                      />
+                      <button
+                        class="upload-remove-btn"
+                        id="logoRemoveBtn"
+                        aria-label="Remove logo"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="upload-placeholder" id="logoPlaceholder">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <p class="upload-text">
+                        Drag &amp; drop or
+                        <span class="upload-link">click to browse</span>
+                      </p>
+                      <p class="upload-sub">Recommended: 240×60 px or square</p>
+                    </div>
+                    <input
+                      type="file"
+                      id="logoFileInput"
+                      accept="image/*"
+                      class="upload-file-input"
+                      aria-label="Choose logo file"
+                    />
+                  </div>
+                </div>
+                <div class="branding-divider"></div>
+                <div class="upload-group">
+                  <div class="upload-label-row">
+                    <span class="form-label">Dashboard Background</span>
+                    <span class="upload-hint"
+                      >PNG, JPG, WebP · max 5 MB · Applied to main content
+                      area</span
+                    >
+                  </div>
+                  <div
+                    class="upload-dropzone upload-dropzone--wide"
+                    id="bgDropzone"
+                    tabindex="0"
+                    role="button"
+                    aria-label="Upload background image"
+                  >
+                    <div
+                      class="upload-preview-wrap upload-preview-wrap--bg"
+                      id="bgPreviewWrap"
+                      style="display: none"
+                    >
+                      <img
+                        id="bgPreview"
+                        alt="Background preview"
+                        class="upload-preview-img upload-preview-img--bg"
+                      />
+                      <button
+                        class="upload-remove-btn"
+                        id="bgRemoveBtn"
+                        aria-label="Remove background"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="upload-placeholder" id="bgPlaceholder">
+                      <i class="fas fa-image upload-icon"></i>
+                      <p class="upload-text">
+                        Drag &amp; drop or
+                        <span class="upload-link">click to browse</span>
+                      </p>
+                      <p class="upload-sub">
+                        Recommended: 1920×1080 px · will be blurred/dimmed
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      id="bgFileInput"
+                      accept="image/*"
+                      class="upload-file-input"
+                      aria-label="Choose background file"
+                    />
+                  </div>
+                </div>
+                <div class="branding-divider"></div>
+                <div class="upload-group">
+                  <div class="upload-label-row">
+                    <span class="form-label">Site Favicon</span>
+                    <span class="upload-hint"
+                      >PNG, JPG, ICO, SVG · shown in the browser tab &amp;
+                      sign-in page · stored permanently</span
+                    >
+                  </div>
+                  <div
+                    class="upload-dropzone"
+                    id="faviconDropzone"
+                    tabindex="0"
+                    role="button"
+                    aria-label="Upload site favicon"
+                  >
+                    <div
+                      class="upload-preview-wrap"
+                      id="favPreviewWrap"
+                      style="display: none"
+                    >
+                      <img
+                        id="favPreview"
+                        alt="Favicon preview"
+                        class="upload-preview-img fav-preview-img"
+                      />
+                      <button
+                        class="upload-remove-btn"
+                        id="favRemoveBtn"
+                        aria-label="Remove favicon"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="upload-placeholder" id="favPlaceholder">
+                      <i class="fas fa-star upload-icon"></i>
+                      <p class="upload-text">
+                        Drag &amp; drop or
+                        <span class="upload-link">click to browse</span>
+                      </p>
+                      <p class="upload-sub">Recommended: 64×64 px</p>
+                    </div>
+                    <input
+                      type="file"
+                      id="faviconFileInput"
+                      accept=".png,.jpg,.jpeg,.ico,.svg,image/png,image/jpeg,image/x-icon,image/vnd.microsoft.icon,image/svg+xml"
+                      class="upload-file-input"
+                      aria-label="Choose favicon file"
+                    />
+                  </div>
+                  <div
+                    class="bg-controls"
+                    id="bgControls"
+                    style="display: none"
+                  >
+                    <label class="form-label" style="font-size: 12px"
+                      >Overlay Opacity</label
+                    >
+                    <div class="bg-slider-row">
+                      <input
+                        type="range"
+                        id="bgOpacity"
+                        min="0"
+                        max="90"
+                        value="40"
+                        class="bg-slider"
+                      /><span class="bg-slider-val" id="bgOpacityVal">40%</span>
+                    </div>
+                    <label
+                      class="form-label"
+                      style="font-size: 12px; margin-top: 8px"
+                      >Blur Strength</label
+                    >
+                    <div class="bg-slider-row">
+                      <input
+                        type="range"
+                        id="bgBlur"
+                        min="0"
+                        max="20"
+                        value="4"
+                        class="bg-slider"
+                      /><span class="bg-slider-val" id="bgBlurVal">4px</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Database & Backup -->
+            <div class="card settings-card" style="grid-column: 1/-1">
+              <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+                <h2 class="card-title">
+                  <i class="fas fa-database" style="color: #0277bd"></i>
+                  Database &amp; Backup
+                </h2>
+                <span
+                  class="settings-badge"
+                  style="
+                    background: rgba(2, 119, 189, 0.12);
+                    color: #4fc3f7;
+                    border: 1px solid rgba(2, 119, 189, 0.3);
+                  "
+                  >Auto-save</span
+                >
+              </div>
+              <p
+                style="
+                  color: #94a3b8;
+                  font-size: 0.84rem;
+                  margin-bottom: 14px;
+                  line-height: 1.55;
+                "
+              >
+                Every client record, staff login, loan, logo, background and
+                favicon is stored permanently in the built-in database
+                (IndexedDB + local storage) and backed up automatically.
+                Download a full backup to move the system to your live domain,
+                then import it there — everything carries over exactly.
+              </p>
+              <div class="db-stats" id="dbStats"></div>
+              <div class="db-actions">
+                <button
+                  class="btn-primary"
+                  id="dbExportBtn"
+                  style="padding: 7px 16px; font-size: 0.82rem"
+                >
+                  <i class="fas fa-download"></i> Download Full Backup
+                </button>
+                <label
+                  class="btn-secondary"
+                  style="padding: 7px 16px; font-size: 0.82rem; cursor: pointer"
+                  ><i class="fas fa-upload"></i> Import Backup<input
+                    type="file"
+                    id="dbImportInput"
+                    accept="application/json"
+                    style="display: none"
+                /></label>
+                <button
+                  class="btn-secondary"
+                  id="dbSnapshotBtn"
+                  style="padding: 7px 16px; font-size: 0.82rem"
+                >
+                  <i class="fas fa-camera"></i> Snapshot Now
+                </button>
+              </div>
+              <div id="dbBackupList"></div>
+            </div>
+
+            <!-- General -->
+            <div class="card settings-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-sliders-h"></i> General
+                </h2>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label class="form-label">Company Name</label
+                  ><input
+                    type="text"
+                    id="companyNameInput"
+                    class="form-input"
+                    placeholder="TJ Consultancy"
+                    autocomplete="off"
+                  /><small style="font-size: 0.74rem; color: #64748b"
+                    >Updates the sidebar, dashboard, reports and invoices
+                    instantly.</small
+                  >
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Financial Year Start</label
+                  ><select class="form-input">
+                    <option>January</option>
+                    <option>April</option>
+                    <option>July</option>
+                    <option>October</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Default Currency</label
+                  ><select class="form-input">
+                    <option>USD ($)</option>
+                    <option>LRD ($)</option>
+                    <option>GBP (£)</option>
+                    <option>EUR (€)</option>
+                    <option>NGN (₦)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Time Zone</label
+                  ><select class="form-input">
+                    <option>UTC+0 (London)</option>
+                    <option>UTC+1 (Lagos/Paris)</option>
+                    <option>UTC-5 (New York)</option>
+                  </select>
+                </div>
+                <!-- Website URL setting -->
+                <div class="form-group" id="websiteUrlGroup">
+                  <label class="form-label" for="websiteUrlInput">
+                    <i
+                      class="fas fa-globe"
+                      style="color: var(--active-color); margin-right: 5px"
+                    ></i>
+                    Institution Website URL
+                  </label>
+                  <div style="display: flex; gap: 8px; align-items: center">
+                    <input
+                      type="url"
+                      id="websiteUrlInput"
+                      class="form-input"
+                      placeholder="https://tjconsultancy.com"
+                      autocomplete="off"
+                      spellcheck="false"
+                      style="flex: 1"
+                    />
+                    <button
+                      type="button"
+                      id="websiteUrlSaveBtn"
+                      class="btn-primary"
+                      style="
+                        padding: 8px 16px;
+                        font-size: 0.82rem;
+                        white-space: nowrap;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <i class="fas fa-save"></i> Save
+                    </button>
+                  </div>
+                  <p
+                    style="
+                      font-size: 0.78rem;
+                      color: #64748b;
+                      margin-top: 5px;
+                      line-height: 1.4;
+                    "
+                  >
+                    Displayed on the sign-in page and the topbar
+                    <strong style="color: #94a3b8">Our Website</strong> button.
+                    Changes apply immediately.
+                  </p>
+                  <div
+                    id="websiteUrlStatus"
+                    style="
+                      display: none;
+                      font-size: 0.8rem;
+                      margin-top: 6px;
+                      padding: 6px 10px;
+                      border-radius: 7px;
+                    "
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Institution Info (used in Invoices) -->
+            <div class="card settings-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i
+                    class="fas fa-university"
+                    style="color: var(--active-color)"
+                  ></i>
+                  Institution Details
+                </h2>
+                <span
+                  class="settings-badge"
+                  style="
+                    background: rgba(99, 102, 241, 0.15);
+                    color: #a5b4fc;
+                    border: 1px solid rgba(99, 102, 241, 0.3);
+                  "
+                  >Invoice</span
+                >
+              </div>
+              <p
+                style="
+                  color: #94a3b8;
+                  font-size: 0.83rem;
+                  margin-bottom: 14px;
+                  line-height: 1.5;
+                "
+              >
+                These details appear on every printed invoice: institution name,
+                address, and the authorised signatory.
+              </p>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label class="form-label" for="instNameInput">
+                    <i
+                      class="fas fa-building"
+                      style="color: var(--active-color); margin-right: 4px"
+                    ></i>
+                    Institution Name
+                  </label>
+                  <input
+                    type="text"
+                    id="instNameInput"
+                    class="form-input"
+                    placeholder="e.g. TJ Consultancy Ltd"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="instLocationInput">
+                    <i
+                      class="fas fa-map-marker-alt"
+                      style="color: #f87171; margin-right: 4px"
+                    ></i>
+                    Location / Address
+                  </label>
+                  <input
+                    type="text"
+                    id="instLocationInput"
+                    class="form-input"
+                    placeholder="e.g. 123 Finance Street, Lagos, Nigeria"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="presidentNameInput">
+                    <i
+                      class="fas fa-user-tie"
+                      style="color: #fbbf24; margin-right: 4px"
+                    ></i>
+                    President / Authorised Signatory
+                  </label>
+                  <input
+                    type="text"
+                    id="presidentNameInput"
+                    class="form-input"
+                    placeholder="e.g. Mr. John Doe"
+                  />
+                </div>
+                <button
+                  class="btn-primary"
+                  id="saveInstDetailsBtn"
+                  style="margin-top: 4px"
+                >
+                  <i class="fas fa-save"></i> Save Institution Details
+                </button>
+                <div
+                  id="instSaveStatus"
+                  style="
+                    display: none;
+                    font-size: 0.8rem;
+                    margin-top: 8px;
+                    padding: 7px 12px;
+                    border-radius: 8px;
+                  "
+                ></div>
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card settings-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-bell"></i> Notifications
+                </h2>
+              </div>
+              <div class="settings-form">
+                <div class="toggle-row">
+                  <span class="toggle-label">Browser Alerts</span
+                  ><label class="toggle-switch"
+                    ><input
+                      type="checkbox"
+                      id="notificationBrowserAlerts"
+                      checked /><span class="toggle-slider"></span
+                  ></label>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-label">Invoice Reminders</span
+                  ><label class="toggle-switch"
+                    ><input
+                      type="checkbox"
+                      id="notificationInvoiceAlerts"
+                      checked /><span class="toggle-slider"></span
+                  ></label>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-label">Budget Threshold Alerts</span
+                  ><label class="toggle-switch"
+                    ><input
+                      type="checkbox"
+                      id="notificationBudgetAlerts" /><span
+                      class="toggle-slider"
+                    ></span
+                  ></label>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-label">Weekly Summary Report</span
+                  ><label class="toggle-switch"
+                    ><input
+                      type="checkbox"
+                      id="notificationWeeklyAlerts"
+                      checked /><span class="toggle-slider"></span
+                  ></label>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-label">Staff Activity Notifications</span
+                  ><label class="toggle-switch"
+                    ><input type="checkbox" id="notificationStaffAlerts" /><span
+                      class="toggle-slider"
+                    ></span
+                  ></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security: Change Password -->
+            <div class="card settings-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-key" style="color: var(--active-color)"></i>
+                  Change Password
+                </h2>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label class="form-label">Current Password</label
+                  ><input
+                    type="password"
+                    class="form-input"
+                    id="chpwCurrent"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Password</label
+                  ><input
+                    type="password"
+                    class="form-input"
+                    id="chpwNew"
+                    placeholder="Min 8 chars · A–Z · 0–9 · !@#$"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Confirm New Password</label
+                  ><input
+                    type="password"
+                    class="form-input"
+                    id="chpwConfirm"
+                    placeholder="Repeat new password"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <div
+                  id="chpwError"
+                  style="
+                    display: none;
+                    color: #f87171;
+                    font-size: 0.82rem;
+                    margin-top: 4px;
+                    padding: 8px 12px;
+                    background: rgba(239, 68, 68, 0.1);
+                    border-radius: 8px;
+                    border: 1px solid rgba(239, 68, 68, 0.25);
+                  "
+                ></div>
+                <div
+                  id="chpwSuccess"
+                  style="
+                    display: none;
+                    color: #4ade80;
+                    font-size: 0.82rem;
+                    margin-top: 4px;
+                    padding: 8px 12px;
+                    background: rgba(34, 197, 94, 0.1);
+                    border-radius: 8px;
+                    border: 1px solid rgba(34, 197, 94, 0.25);
+                  "
+                ></div>
+                <button
+                  class="btn-primary"
+                  id="chpwBtn"
+                  style="margin-top: 8px"
+                >
+                  <i class="fas fa-save"></i> Update Password
+                </button>
+              </div>
+            </div>
+
+            <!-- Security Policy Settings (from DB) -->
+            <div
+              class="card settings-card sec-policy-card"
+              style="grid-column: 1/-1"
+              id="secPolicyCard"
+            >
+              <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+                <h2 class="card-title">
+                  <i class="fas fa-shield-halved" style="color: #f59e0b"></i>
+                  Security Policy Settings
+                </h2>
+                <div
+                  style="
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <span
+                    class="settings-badge"
+                    style="
+                      background: rgba(245, 158, 11, 0.15);
+                      color: #fbbf24;
+                      border: 1px solid rgba(245, 158, 11, 0.3);
+                    "
+                    >Live DB</span
+                  >
+                  <button
+                    class="btn-secondary"
+                    id="btnReloadSecPolicy"
+                    style="padding: 5px 12px; font-size: 0.8rem"
+                  >
+                    <i class="fas fa-rotate"></i> Reload
+                  </button>
+                  <button
+                    class="btn-primary"
+                    id="btnSaveSecPolicy"
+                    style="padding: 5px 14px; font-size: 0.8rem"
+                  >
+                    <i class="fas fa-save"></i> Save All
+                  </button>
+                </div>
+              </div>
+              <p
+                style="
+                  color: #94a3b8;
+                  font-size: 0.84rem;
+                  margin-bottom: 16px;
+                  line-height: 1.55;
+                "
+              >
+                These policies are stored in
+                <code style="color: var(--active-color); font-size: 0.8em"
+                  >fms_security_settings</code
+                >
+                and are enforced by the authentication engine on every login.
+                Changes take effect immediately after saving.
+              </p>
+              <div
+                id="secPolicyLoading"
+                style="
+                  padding: 20px;
+                  text-align: center;
+                  color: #94a3b8;
+                  font-size: 0.88rem;
+                "
+              >
+                <i class="fas fa-circle-notch fa-spin"></i> Loading security
+                settings from database…
+              </div>
+              <div id="secPolicyGrid" style="display: none"></div>
+            </div>
+
+            <!-- Audit Log -->
+            <div
+              class="card settings-card"
+              style="grid-column: 1/-1"
+              id="auditLogCard"
+            >
+              <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+                <h2 class="card-title">
+                  <i class="fas fa-list-check" style="color: #a78bfa"></i> Audit
+                  Log
+                </h2>
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <span
+                    class="settings-badge"
+                    style="
+                      background: rgba(167, 139, 250, 0.15);
+                      color: #c4b5fd;
+                      border: 1px solid rgba(167, 139, 250, 0.3);
+                    "
+                    >Live DB</span
+                  >
+                  <button
+                    class="btn-secondary"
+                    id="btnReloadAudit"
+                    style="padding: 5px 12px; font-size: 0.8rem"
+                  >
+                    <i class="fas fa-rotate"></i> Refresh
+                  </button>
+                </div>
+              </div>
+              <p
+                style="color: #94a3b8; font-size: 0.84rem; margin-bottom: 16px"
+              >
+                Every login attempt, logout, lockout, and settings change is
+                recorded here.
+              </p>
+              <div
+                id="auditLogLoading"
+                style="
+                  padding: 20px;
+                  text-align: center;
+                  color: #94a3b8;
+                  font-size: 0.88rem;
+                "
+              >
+                <i class="fas fa-circle-notch fa-spin"></i> Loading audit log…
+              </div>
+              <div id="auditLogWrap" style="display: none; overflow-x: auto">
+                <table
+                  class="data-table"
+                  id="auditLogTable"
+                  style="min-width: 700px"
+                >
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Action</th>
+                      <th>User</th>
+                      <th>Severity</th>
+                      <th>IP</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditLogBody"></tbody>
+                </table>
+              </div>
+              <div
+                id="auditLogPager"
+                style="
+                  display: none;
+                  margin-top: 12px;
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                "
+              >
+                <button
+                  class="btn-secondary"
+                  id="auditPrevBtn"
+                  style="padding: 5px 12px; font-size: 0.8rem"
+                  disabled
+                >
+                  <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                <span
+                  id="auditPageInfo"
+                  style="color: #94a3b8; font-size: 0.82rem"
+                ></span>
+                <button
+                  class="btn-secondary"
+                  id="auditNextBtn"
+                  style="padding: 5px 12px; font-size: 0.8rem"
+                >
+                  <i class="fas fa-chevron-right"></i> Next
+                </button>
+              </div>
+            </div>
+
+            <!-- Display -->
+            <div class="card settings-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-palette"></i> Display
+                </h2>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label class="form-label">Theme</label
+                  ><select class="form-input">
+                    <option>Light</option>
+                    <option>Dark</option>
+                    <option>System Default</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date Format</label
+                  ><select class="form-input">
+                    <option>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                    <option>YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Number Format</label
+                  ><select class="form-input">
+                    <option>1,000,000.00</option>
+                    <option>1.000.000,00</option>
+                    <option>1 000 000.00</option>
+                  </select>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-label">Compact Sidebar</span
+                  ><label class="toggle-switch"
+                    ><input type="checkbox" id="compactToggle" /><span
+                      class="toggle-slider"
+                    ></span
+                  ></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div class="modal-overlay" id="inventoryModal">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="inventoryModalTitle"
+      >
+        <div class="modal-header">
+          <h3 id="inventoryModalTitle">Add Inventory Item</h3>
+          <button class="modal-close" id="closeInventoryModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label"
+              >Item Name <span class="req">*</span></label
+            ><input
+              type="text"
+              class="form-input"
+              id="inventoryName"
+              placeholder="e.g. Printer paper A4"
+            />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label"
+                >Category <span class="req">*</span></label
+              >
+              <select class="form-input" id="inventoryCategory">
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Technology">Technology</option>
+                <option value="Documents">Documents</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Storage Location</label>
+              <input
+                type="text"
+                class="form-input"
+                id="inventoryLocation"
+                placeholder="e.g. Store Room A"
+              />
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label"
+                >Quantity <span class="req">*</span></label
+              >
+              <input
+                type="number"
+                class="form-input"
+                id="inventoryQuantity"
+                min="0"
+                step="1"
+                value="1"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reorder Level</label>
+              <input
+                type="number"
+                class="form-input"
+                id="inventoryReorderLevel"
+                min="0"
+                step="1"
+                value="0"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unit Cost (USD)</label>
+              <input
+                type="number"
+                class="form-input"
+                id="inventoryUnitCost"
+                min="0"
+                step="0.01"
+                value="0"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelInventory">Cancel</button
+          ><button class="btn-primary" id="saveInventory">Save Item</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="staffModal">
+      <div
+        class="modal staff-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="staffModalTitle"
+      >
+        <div class="modal-header">
+          <h3 id="staffModalTitle">Add Staff Member</h3>
+          <button class="modal-close" id="closeStaffModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body staff-modal-body">
+          <p class="staff-modal-intro">
+            Add one staff record and its login access. It will appear
+            immediately in the Staff Spreadsheet.
+          </p>
+          <div class="staff-modal-grid">
+            <div class="form-group">
+              <label class="form-label" for="staffName"
+                >Full Name <span class="req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                id="staffName"
+                placeholder="Full name"
+                autocomplete="name"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffRole"
+                >Role <span class="req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                id="staffRole"
+                placeholder="Job title"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffDept"
+                >Department <span class="req">*</span></label
+              >
+              <select class="form-input" id="staffDept">
+                <option>Finance</option>
+                <option>Consulting</option>
+                <option>Operations</option>
+                <option>HR</option>
+                <option>Marketing</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffEmail"
+                >Email <span class="req">*</span></label
+              >
+              <input
+                type="email"
+                class="form-input"
+                id="staffEmail"
+                placeholder="email@tjconsultancy.com"
+                autocomplete="email"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffUsername"
+                >Username <span class="req">*</span></label
+              >
+              <input
+                type="text"
+                class="form-input"
+                id="staffUsername"
+                placeholder="e.g. mary.johnson"
+                autocomplete="username"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffPassword"
+                >Password <span class="req">*</span></label
+              >
+              <input
+                type="password"
+                class="form-input"
+                id="staffPassword"
+                placeholder="Minimum 6 characters"
+                autocomplete="new-password"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="staffStatus"
+                >Status <span class="req">*</span></label
+              >
+              <select class="form-input" id="staffStatus">
+                <option>Active</option>
+                <option>On Leave</option>
+                <option>Remote</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group staff-permission-group">
+            <span class="form-label"
+              >Permissions <span class="req">*</span></span
+            >
+            <div class="perm-grid" id="staffPermissions">
+              <label class="perm-item"
+                ><input type="checkbox" value="dashboard" checked />
+                Dashboard</label
+              >
+              <label class="perm-item"
+                ><input type="checkbox" value="reports" /> Reports</label
+              >
+              <label class="perm-item"
+                ><input type="checkbox" value="clients" /> Clients</label
+              >
+              <label class="perm-item"
+                ><input type="checkbox" value="inventory" /> Inventory</label
+              >
+              <label class="perm-item"
+                ><input type="checkbox" value="staff" /> Staff</label
+              >
+              <label class="perm-item"
+                ><input type="checkbox" value="settings" /> Settings</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelStaff">Cancel</button
+          ><button class="btn-primary" id="saveStaff">Add Staff</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+     INVOICE MODAL  — Microsoft-style printable invoice
+══════════════════════════════════════════════════════════ -->
+    <div
+      class="invoice-modal-overlay"
+      id="invoiceModal"
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invoiceModalTitle"
+    >
+      <div class="invoice-modal-backdrop" id="invoiceModalBackdrop"></div>
+      <div class="invoice-modal-shell">
+        <!-- Toolbar -->
+        <div class="invoice-modal-toolbar">
+          <div class="invoice-toolbar-left">
+            <span class="invoice-modal-badge"
+              ><i class="fas fa-file-invoice-dollar"></i> Invoice Preview</span
+            >
+            <span id="invoiceModalTitle" class="invoice-toolbar-title"
+              >Client Invoice</span
+            >
+          </div>
+          <div class="invoice-toolbar-right">
+            <button class="invoice-btn-print" id="invoicePrintBtn">
+              <i class="fas fa-print"></i>
+              <span>Print Invoice</span>
+            </button>
+            <button
+              class="invoice-modal-close-btn"
+              id="invoiceModalClose"
+              aria-label="Close invoice"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable invoice area -->
+        <div class="invoice-modal-scroll">
+          <div id="invoiceRenderArea"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div id="printArea" style="display: none" aria-hidden="true"></div>
+
+    <!-- ══════════════════════════════════════════════
+         SCRIPT LOAD ORDER — DO NOT REORDER (dependency chain):
+           1. chart.js (external CDN)  – needed by charts.js
+           2. compat.js                – polyfills + FMSCheckAuth/FMSRedirectToLogin globals
+           3. pwa-register.js          – service worker registration (standalone)
+           4. data.js                  – seed data (needs window.FMS)
+           5. db.js                    – window.FMSDB storage layer (depends on data.js)
+           6. live-financials.js       – canonical live dashboard/report records
+           7. charts.js                – dashboard charts (needs chart.js + FMSDB)
+           8. app.js                   – core app shell, exposes window.fmsSwitchView
+           9. sections.js              – per-view section rendering (needs app.js + FMSDB)
+          10. settings-upload.js       – logo/favicon/background uploads
+          11. admin-panel.js           – admin panel (needs fmsSwitchView + AuthAPI)
+          12. loan-engine.js           – loan calculations (needs FMSDB)
+          13. invoice.js               – invoice modal/printing (needs FMSDB)
+          14. security-settings.js     – security settings view
+          15. team-chat.js             – staff access management (needs FMSDB)
+          16. staff-sheet.js           – staff management sheet
+          17. reports-statements.js    – reports & statements (needs FMSDB)
+          18. db-admin.js              – DB admin/backup UI (needs FMSDB)
+         ══════════════════════════════ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/pwa-register.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+      /* A copied/stale browser session is never enough for the shared app:
+         Supabase restores and validates the authenticated session on load. */
+      if (window.FMSCloud && window.FMSCloud.hasConfiguration()) {
+        window.FMSCloud.ready.then(function (result) {
+          if (!result || !result.authenticated) window.FMSRedirectToLogin();
+        });
+      }
+    </script>
+    <script src="js/live-financials.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/sections.js"></script>
+    <script src="js/settings-upload.js"></script>
+    <script src="js/admin-panel.js"></script>
+    <script src="js/loan-engine.js"></script>
+    <script src="js/invoice.js"></script>
+    <script src="js/security-settings.js"></script>
+    <script src="js/team-chat.js"></script>
+    <script src="js/staff-sheet.js"></script>
+    <script src="js/workforce-core.js"></script>
+    <script src="js/workforce-store.js"></script>
+    <script src="js/workforce.js"></script>
+    <script src="js/reports-statements.js"></script>
+    <script src="js/db-admin.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+      /* ── Local Session Guard: verify token + sync identity (no database) ── */
+      (function () {
+        "use strict";
+        document.addEventListener("DOMContentLoaded", function () {
+          try {
+            if (!window.FMSCheckAuth || !window.FMSCheckAuth()) {
+              window.FMSRedirectToLogin();
+              return;
+            }
+            var name = sessionStorage.getItem("fms_auth_user");
+            var role = sessionStorage.getItem("fms_auth_role");
+            if (name) {
+              var nameEls = document.querySelectorAll(
+                ".user-name, .sidebar-footer-name",
+              );
+              nameEls.forEach(function (el) {
+                if (el) el.textContent = name;
+              });
+              /* Derive initials from the session identity (e.g. "TJ") */
+              var initialsEl = document.getElementById("sidebarFooterInitials");
+              if (initialsEl) {
+                var parts = name.trim().split(/\s+/);
+                var initials =
+                  parts.length > 1
+                    ? parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+                    : name.trim().substring(0, 2);
+                initialsEl.textContent = initials.toUpperCase();
+              }
+            }
+            if (role) {
+              var roleEl = document.getElementById("sidebarFooterRole");
+              if (roleEl) roleEl.textContent = role;
+            }
+          } catch (e) {
+            console.warn("session guard failed", e);
+          }
+        });
+      })();
+    </script>
+    <script src="js/enhancements.js"></script>
+    <script src="js/fms-addons.js"></script>
+  </body>
+</html>

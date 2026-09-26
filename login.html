@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In – TJ Consultancy FMS</title>
+  <link id="faviconSvg" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2e'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='28' font-weight='bold' fill='%234fc3f7' text-anchor='middle'%3ETJ%3C/text%3E%3C/svg%3E" />
+  <script>
+    /* Restore the saved icon before the sign-in page is painted. */
+    (function () {
+      function applySavedFavicon(favicon) {
+        if (!favicon) return;
+        var link = document.getElementById('faviconSvg');
+        link.href = favicon;
+        var touchIcon = document.getElementById('appleTouchIcon');
+        if (touchIcon) touchIcon.href = favicon;
+        var mime = favicon.match(/^data:([^;,]+)/i);
+        if (mime) link.type = mime[1] === 'image/jpg' ? 'image/jpeg' : mime[1];
+        else link.removeAttribute('type');
+      }
+      try {
+        applySavedFavicon(localStorage.getItem('fms_favicon_url'));
+      } catch (_) {}
+      window.addEventListener('storage', function (event) {
+        if (event.key === 'fms_favicon_url' && event.newValue) applySavedFavicon(event.newValue);
+      });
+    })();
+  </script>
+  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/pwa-install.css" />
+  <link rel="stylesheet" href="css/fms-addons.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0d1b2e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="TJ FMS" />
+  <link id="appleTouchIcon" rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+
+  <!-- Animated background particles -->
+  <div class="login-bg" aria-hidden="true">
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+  </div>
+
+  <!-- Main sign-in card -->
+  <main class="login-wrapper" role="main">
+    <div class="login-card" id="loginCard">
+
+      <!-- Brand Header -->
+      <header class="login-brand">
+        <div class="login-logo-wrap" id="loginLogoWrap">
+          <!-- Logo loaded from sessionStorage branding if set, else default icon -->
+          <i class="fas fa-building login-logo-icon" id="loginLogoIcon"></i>
+          <img id="loginLogoImg" alt="TJ Consultancy Logo" style="display:none;" />
+        </div>
+        <h1 class="login-brand-name">TJ Consultancy</h1>
+        <p class="login-brand-sub">Finance Management System</p>
+      </header>
+
+      <!-- Welcome Message -->
+      <div class="login-welcome">
+        <h2 class="login-welcome-title">Welcome Back</h2>
+        <p class="login-welcome-msg">Sign in to access your financial dashboard</p>
+      </div>
+
+      <!-- Sign-In Form -->
+      <form class="login-form" id="loginForm" novalidate autocomplete="off">
+
+        <!-- Error Banner (hidden by default) -->
+        <div class="login-error" id="loginError" role="alert" aria-live="polite" style="display:none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="loginErrorText">Invalid username or password.</span>
+        </div>
+
+        <!-- Supabase Auth uses an email address. -->
+        <div class="login-field" id="fieldUsername">
+          <label class="login-label" for="loginUsername">
+            <i class="fas fa-user login-field-icon"></i>
+            Email address
+          </label>
+          <input
+            type="email"
+            id="loginUsername"
+            class="login-input"
+            placeholder="name@company.com"
+            autocomplete="email"
+            spellcheck="false"
+            aria-required="true"
+            aria-describedby="usernameHint"
+          />
+          <span class="field-hint" id="usernameHint" aria-live="polite"></span>
+        </div>
+
+        <!-- Password Field -->
+        <div class="login-field" id="fieldPassword">
+          <label class="login-label" for="loginPassword">
+            <i class="fas fa-lock login-field-icon"></i>
+            Password
+          </label>
+          <div class="login-input-wrap">
+            <input
+              type="password"
+              id="loginPassword"
+              class="login-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              aria-required="true"
+              aria-describedby="passwordHint"
+            />
+            <button
+              type="button"
+              class="show-pw-btn"
+              id="showPwBtn"
+              aria-label="Show password"
+              tabindex="0"
+            >
+              <i class="fas fa-eye" id="showPwIcon"></i>
+            </button>
+          </div>
+          <span class="field-hint" id="passwordHint" aria-live="polite"></span>
+        </div>
+
+        <!-- Sign In Button -->
+        <button type="submit" class="login-submit-btn" id="loginSubmitBtn">
+          <span class="login-btn-text" id="loginBtnText">
+            <i class="fas fa-sign-in-alt"></i>
+            Sign In
+          </span>
+          <span class="login-btn-spinner" id="loginBtnSpinner" style="display:none;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            Verifying…
+          </span>
+        </button>
+
+      </form>
+
+      <!-- Security note — no credentials, just UX text -->
+      <p class="login-security-note">
+        <i class="fas fa-shield-alt"></i>
+        Secured with SHA-256 encryption
+      </p>
+
+      <!-- Provides a native install prompt or device-specific install instructions. -->
+      <div class="pwa-install-slot login-install-slot" id="pwaInstallSlot" aria-live="polite"></div>
+
+      <!-- Institution Website Link -->
+      <div class="login-website-link-wrap">
+        <a id="loginWebsiteLink" href="https://tjconsultancy.com" target="_blank" rel="noopener noreferrer" class="login-website-link">
+          <i class="fas fa-globe"></i>
+          <span id="loginWebsiteLinkText">Visit our website</span>
+          <i class="fas fa-external-link-alt login-website-link-ext"></i>
+        </a>
+      </div>
+
+    </div><!-- /login-card -->
+
+    <!-- Footer -->
+    <footer class="login-footer">
+      <p>Powered by <strong>Software Vala Liberia</strong></p>
+    </footer>
+  </main>
+
+  <script src="js/compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/pwa-register.js"></script>
+  <script src="js/login.js"></script>
+  <script src="js/fms-addons.js"></script>
+</body>
+</html>
