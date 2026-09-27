@@ -110,7 +110,7 @@
   }
   /* Every shared record needs a stable key. Existing data normally has an
      `_id` or `id`; legacy rows without one are assigned an `_id` once before
-     they are written, so the shared Neon API can synchronise and protect them as an
+     they are written, so the shared Supabase API can synchronise and protect them as an
      individual database row. */
   function ensureRowIds (rows, name) {
     if (!Array.isArray(rows)) return [];
@@ -191,10 +191,10 @@
         };
       }
     } catch (_) {}
-    /* Keep a second backup in Neon so it is shared across users and devices. */
+    /* Keep a second backup in Supabase so it is shared across users and devices. */
     try {
       if (includeCloud !== false && window.FMSCloud && typeof FMSCloud.createBackup === 'function' && FMSCloud.isConfigured()) {
-        FMSCloud.createBackup(label || 'auto', readLocalSettings()).catch(err => console.warn('[FMSDB] Neon backup failed:', err));
+        FMSCloud.createBackup(label || 'auto', readLocalSettings()).catch(err => console.warn('[FMSDB] Supabase backup failed:', err));
       }
     } catch (_) {}
   }
@@ -273,10 +273,13 @@
     return true;
   }
 
-  /* Apply a server-authorised replacement without scheduling another cloud
-     write. Locally remembered deletions are never allowed back into the cache. */
-  function replaceFromRemote (name, rows) {
+  /* Apply a remote replacement without scheduling another cloud write.
+     Only an authoritative server snapshot can override local deletions. */
+  function replaceFromRemote (name, rows, authoritative = false) {
     if (!Array.isArray(rows)) rows = [];
+    // A current server snapshot can include records deliberately re-imported
+    // after deletion. Only server-confirmed rows may clear local tombstones.
+    if (authoritative) clearDeletedIds(name, rows.map(recordId));
     const nextRows = filterDeletedRows(name, rows.map(row => ({ ...row })));
     ensureRowIds(nextRows, name);
     replaceInPlace(name, nextRows);
@@ -294,6 +297,7 @@
     let nextRows;
     const next = payload && typeof payload === 'object' ? { ...payload } : null;
     if (!next) return false;
+    clearDeletedIds(name, [key]);
     ensureRowIds([next], name);
     nextRows = rows.slice();
     if (index === -1) nextRows.push(next); else nextRows[index] = next;
@@ -401,21 +405,21 @@
 
   async function downloadCloudBackup () {
     if (!window.FMSCloud || !FMSCloud.isConfigured || !FMSCloud.isConfigured() || typeof FMSCloud.createBackup !== 'function' || typeof FMSCloud.getBackup !== 'function') {
-      throw new Error('Neon backup is unavailable. Sign in and connect to the shared Neon database first.');
+      throw new Error('Supabase backup is unavailable. Sign in and connect to the shared Supabase database first.');
     }
     await FMSCloud.waitUntilConnected();
     const created = await FMSCloud.createBackup('manual', readLocalSettings());
     const row = created && created.backup;
     const id = row && row.id;
-    if (!id) throw new Error('Neon did not confirm that the backup was saved.');
+    if (!id) throw new Error('Supabase did not confirm that the backup was saved.');
     const result = await FMSCloud.getBackup(id);
     const dump = result && result.backup && result.backup.data;
-    if (!dump || !dump.tables) throw new Error('The saved Neon backup could not be downloaded.');
+    if (!dump || !dump.tables) throw new Error('The saved Supabase backup could not be downloaded.');
     const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'TJ_FMS_Neon_Backup_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = 'TJ_FMS_Supabase_Backup_' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return true;
@@ -429,7 +433,7 @@
   }
 
   async function applyCloudDump (dump, alreadyRemote) {
-    if (!dump || !dump.tables || typeof dump.tables !== 'object') throw new Error('The Neon backup is invalid.');
+    if (!dump || !dump.tables || typeof dump.tables !== 'object') throw new Error('The Supabase backup is invalid.');
     await FMSCloud.waitUntilConnected();
     const names = new Set([...Object.keys(MEM), ...Object.keys(dump.tables)]);
     const changed = [];
@@ -465,7 +469,7 @@
     if (window.FMSCloud && FMSCloud.isConfigured && FMSCloud.isConfigured()) {
       await FMSCloud.waitUntilConnected();
       const imported = await FMSCloud.importBackup(dump);
-      if (!imported || !imported.success) throw new Error('Neon did not confirm that the imported backup was applied.');
+      if (!imported || !imported.success) throw new Error('Supabase did not confirm that the imported backup was applied.');
       await applyCloudDump(imported.backup || dump, true);
       if (window.FMSWorkforceStore && typeof FMSWorkforceStore.init === 'function') await FMSWorkforceStore.init();
       return true;
@@ -499,7 +503,7 @@
 
   async function createCloudBackup (label) {
     if (!window.FMSCloud || typeof FMSCloud.createBackup !== 'function' || !FMSCloud.isConfigured || !FMSCloud.isConfigured()) {
-      throw new Error('Neon is not configured. Sign in to a connected Neon workspace first.');
+      throw new Error('Supabase is not configured. Sign in to a connected Supabase workspace first.');
     }
     await FMSCloud.waitUntilConnected();
     return FMSCloud.createBackup(label || 'manual', readLocalSettings());
@@ -519,7 +523,7 @@
         try {
           if (window.FMSCloud && typeof FMSCloud.listBackups === 'function' && FMSCloud.isConfigured()) {
             const remote = await FMSCloud.listBackups();
-            return res([...remote.map(item => ({ ...item, source: 'neon' })), ...local.map(item => ({ ...item, source: 'device' }))].sort((a, b) => b.ts - a.ts));
+            return res([...remote.map(item => ({ ...item, source: 'supabase' })), ...local.map(item => ({ ...item, source: 'device' }))].sort((a, b) => b.ts - a.ts));
           }
         } catch (_) {}
         res(local.map(item => ({ ...item, source: 'device' })));
@@ -545,7 +549,7 @@
           }).catch(() => res(false));
         } else res(false);
       };
-      if (source === 'neon' || !idb) {
+      if (source === 'supabase' || !idb) {
         restoreRemote();
         return;
       }

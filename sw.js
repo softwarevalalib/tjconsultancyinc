@@ -18,7 +18,7 @@
   'use strict';
 
   /* Bump whenever an app-shell asset changes so installed apps receive it. */
-  var CACHE = 'tj-fms-v27-neon-auth';
+  var CACHE = 'tj-fms-v29-loan-corrections';
 
   /* App shell — everything the system needs to run 100% offline */
   var SHELL = [
@@ -38,9 +38,9 @@
     './js/workforce.js',
     './js/data.js',
     './js/db.js',
-    './js/neon-auth-config.js',
-    './js/neon-auth-loader.js',
-    './js/neon-client.js',
+    './js/supabase-auth-config.js',
+    './js/supabase-auth-loader.js',
+    './js/supabase-client.js',
     './js/app.js',
     './js/live-financials.js',
     './js/charts.js',
@@ -94,12 +94,10 @@
   self.addEventListener('fetch', function (event) {
     var req = event.request;
     if (req.method !== 'GET') return;
-
-    /* Never cache Neon API polls — stale JSON would break live sync. */
-    if (/\/api\//.test(req.url)) {
-      event.respondWith(fetch(req, { cache: 'no-store' }));
-      return;
-    }
+    // Authenticated records and configuration must always come from the server.
+    // Never return an earlier user's response or an outdated change feed.
+    var url = new URL(req.url);
+    if (url.pathname.startsWith('/api/') || req.headers.has('authorization')) return;
 
     /* Network-first for navigation (login.html / index.html), so a
        user on any OS always gets the newest shell when online,

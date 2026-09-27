@@ -96,7 +96,7 @@
     let cleared = true;
     EMPTY_SERVICE_TABLES.forEach((table) => {
       /* set() also removes the old rows from the local mirror and, once the
-         shared workspace is ready, sends those removals to Neon. */
+         shared workspace is ready, sends those removals to Supabase. */
       if (FMSDB.set(table, []) === false) cleared = false;
     });
     return cleared;
@@ -127,7 +127,7 @@
       return;
     }
 
-    /* In a shared workspace, Neon first restores the remote copy. Clear
+    /* In a shared workspace, Supabase first restores the remote copy. Clear
        once more after that restoration so prior sample rows are removed from
        every authorised device, not just this browser's local cache. */
     const clearAfterCloudRestore = (event) => {

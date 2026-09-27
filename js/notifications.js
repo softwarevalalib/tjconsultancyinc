@@ -2,7 +2,7 @@
    js/notifications.js - TJ Consultancy FMS live notifications
 
    Keeps a durable notification feed, synchronises open browser tabs
-   instantly, and uses the Neon notification API for delivery to other
+   instantly, and uses the Supabase notification API for delivery to other
    authorised devices.
    ============================================================ */
 (function () {

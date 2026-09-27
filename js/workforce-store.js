@@ -1,4 +1,4 @@
-/* Administrator-only workforce data. Configured deployments use the Neon API;
+/* Administrator-only workforce data. Configured deployments use the Supabase API;
    the browser demo remains local only when shared-cloud sign-in is disabled. */
 (function () {
   'use strict';
@@ -12,9 +12,9 @@
     if (!cloud() || !admin()) return;
     try {
       records = await FMSCloud.listWorkforce();
-      ready = true; connected = true; status = 'Live • connected to Neon'; emit();
+      ready = true; connected = true; status = 'Live • connected to Supabase'; emit();
     } catch (error) {
-      connected = false; status = 'Neon unavailable • reconnect to load workforce data'; emit();
+      connected = false; status = 'Supabase unavailable • reconnect to load workforce data'; emit();
       throw error;
     }
   }
@@ -56,7 +56,7 @@
   window.addEventListener('online', () => { if (cloud()) refresh().catch(() => {}); });
   document.addEventListener('fms:cloud-status', event => {
     if (!cloud()) return;
-    if (event.detail?.connected === false) { connected = false; status = 'Neon connection interrupted'; emit(); }
+    if (event.detail?.connected === false) { connected = false; status = 'Supabase connection interrupted'; emit(); }
     else if (event.detail?.connected) refresh().catch(() => {});
   });
   window.FMSWorkforceStore = { init, save, rows: kind => records.filter(row => row.kind === kind), status: () => status, available: () => ready && admin(), live: () => connected, cloud };

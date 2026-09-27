@@ -258,7 +258,7 @@
     const paidRows = schedule.filter((row) => row.status === "paid");
     const partialRows = schedule.filter((row) => row.status === "partial");
     const unpaidRows = schedule.filter((row) => row.remainingCents > 0);
-    const paidCents = schedule.reduce((sum, row) => sum + row.paidCents, 0);
+    const paidCents = schedule.reduce((sum, row) => sum + row.paidCents, 0) + (schedule.overpaymentCents || 0);
     const outstandingCents = schedule.reduce((sum, row) => sum + row.remainingCents, 0);
     return {
       schedule,
@@ -335,13 +335,28 @@
     const payments = legacyPaid.map((paymentNo) => {
         const target = rows[Number(paymentNo) - 1];
         return target ? { paymentNo, amountCents: target.totalCents } : null;
-      }).filter(Boolean).concat(rawPayments).sort((a, b) =>
-        String(a.paidAt || "").localeCompare(String(b.paidAt || "")),
-      );
+      }).filter(Boolean).concat(rawPayments);
+    let overpaymentCents = 0;
 
     /* Named monthly payments stay on their selected due row. Opening payments
        without a row number are applied to the earliest unpaid amount. */
     payments.forEach((payment) => {
+      if (payment.source === "adjustment" && payment.amountCents < 0) {
+        let correction = -payment.amountCents;
+        const credit = Math.min(correction, overpaymentCents);
+        overpaymentCents -= credit;
+        correction -= credit;
+        for (const row of rows.slice().reverse()) {
+          for (const field of ["paidInterestCents", "paidPrincipalCents"]) {
+            const reversed = Math.min(correction, row[field]);
+            row[field] -= reversed;
+            correction -= reversed;
+          }
+          row.paidCents = row.paidPrincipalCents + row.paidInterestCents;
+          row.remainingCents = row.totalCents - row.paidCents;
+        }
+        return;
+      }
       let cents = Math.max(0, toCents(
         payment && payment.amountCents !== undefined
           ? fromCents(payment.amountCents)
@@ -369,7 +384,9 @@
         row.paidCents = row.paidPrincipalCents + row.paidInterestCents;
         row.remainingCents = row.totalCents - row.paidCents;
       }
+      if (payment.source === "adjustment") overpaymentCents += cents;
     });
+    rows.overpaymentCents = overpaymentCents;
 
     let outstandingCents = rows.reduce((sum, row) => sum + row.totalCents, 0);
     rows.forEach((row) => {
@@ -1392,7 +1409,7 @@
 
   function paymentTransactionsText(loan) {
     return paymentTransactions(loan).map((payment) => {
-      const component = payment.component === "principal" ? "Principal" : payment.component === "interest" ? "Interest" : "Opening/combined";
+      const component = payment.source === "adjustment" ? "Amount paid correction" : payment.component === "principal" ? "Principal" : payment.component === "interest" ? "Interest" : "Opening/combined";
       const amount = payment.amountCents !== undefined ? fromCents(payment.amountCents) : Number(payment.amount) || 0;
       const month = payment.paymentNo ? `Installment ${payment.paymentNo}` : "Opening";
       return `${fmtDate(payment.paidAt)} ${component} ${fmtMoney(amount)} (${month})`;
@@ -1559,7 +1576,7 @@
     section.style.display = "";
     tbody.innerHTML = transactions.length
       ? transactions.map((payment) => {
-          const type = payment.component === "principal" ? "Principal" : payment.component === "interest" ? "Interest" : "Combined / opening payment";
+          const type = payment.source === "adjustment" ? "Amount paid correction" : payment.component === "principal" ? "Principal" : payment.component === "interest" ? "Interest" : "Combined / opening payment";
           const amount = payment.amountCents !== undefined ? fromCents(payment.amountCents) : Number(payment.amount) || 0;
           const dueRow = payment.paymentNo ? buildSchedule(loan).find((row) => row.paymentNo === Number(payment.paymentNo)) : null;
           const scheduleMonth = dueRow ? `Installment ${payment.paymentNo} · Due ${fmtDate(dueRow.dueDate)}` : "Opening payment";
@@ -2295,8 +2312,8 @@
         showToastLoan("Could not calculate loan — check principal, rate, and term.");
         return;
       }
-      if (amountPaid !== "" && (+amountPaid < 0 || toCents(amountPaid) > toCents(submittedCalc.total))) {
-        showToastLoan("Amount Paid must be between $0.00 and the total repayment.");
+      if (amountPaid !== "" && (!Number.isFinite(Number(amountPaid)) || +amountPaid < 0 || !Number.isSafeInteger(toCents(amountPaid)) || (!form.dataset.editLoanId && toCents(amountPaid) > toCents(submittedCalc.total)))) {
+        showToastLoan("Enter a valid non-negative Amount Paid (new loans cannot exceed total repayment).");
         return;
       }
       const editIdForLimit = form.dataset.editLoanId;
@@ -2329,14 +2346,6 @@
 
         const paidBeforeEditCents = paymentState(existing).paidCents;
         const requestedPaidCents = amountPaid === "" ? paidBeforeEditCents : toCents(amountPaid);
-        if (requestedPaidCents < paidBeforeEditCents) {
-          showToastLoan("Amount Paid cannot be reduced here because recorded payments are retained. Add a correcting payment through the schedule if needed.");
-          return;
-        }
-        if (requestedPaidCents > toCents(calc.total)) {
-          showToastLoan("Amount Paid cannot exceed the revised total repayment.");
-          return;
-        }
 
         // Update all mutable fields; retain recorded payments as an audit trail.
         existing.clientName = clientName;
@@ -2353,11 +2362,12 @@
         existing.amountPay = calc.monthlyTotal;
         existing.nextPaymentMonth = Number(nextPaymentDate.slice(5, 7));
         existing.firstPaymentDate = nextPaymentDate;
-        if (requestedPaidCents > paidBeforeEditCents) {
+        const recalculatedPaidCents = paymentState(existing).paidCents;
+        if (requestedPaidCents !== recalculatedPaidCents) {
           existing.payments = Array.isArray(existing.payments) ? existing.payments : [];
           existing.payments.push({
             id: uid(),
-            amountCents: requestedPaidCents - paidBeforeEditCents,
+            amountCents: requestedPaidCents - recalculatedPaidCents,
             paidAt: todayISO(),
             source: "adjustment",
           });

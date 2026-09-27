@@ -47,7 +47,7 @@
         <div class="db-backup-row">
           <div>
             <div class="db-bk-label"><i class="fas fa-clock-rotate-left" style="color:#0277bd;margin-right:5px"></i>${b.label === 'daily' ? 'Daily backup' : b.label === 'manual' ? 'Manual snapshot' : 'Auto snapshot'}</div>
-            <div class="db-bk-time">${new Date(b.ts).toLocaleString('en-GB')} · ${b.source === 'neon' ? 'Neon shared backup' : 'This device'}</div>
+            <div class="db-bk-time">${new Date(b.ts).toLocaleString('en-GB')} · ${b.source === 'supabase' ? 'Supabase shared backup' : 'This device'}</div>
           </div>
           <button class="btn-secondary" style="padding:4px 12px;font-size:0.76rem" data-restore="${b.ts}" data-source="${b.source || 'device'}"><i class="fas fa-rotate-left"></i> Restore</button>
         </div>`).join('');
@@ -73,10 +73,10 @@
       try {
         if (window.FMSCloud && FMSCloud.isConfigured && FMSCloud.isConfigured()) {
           await FMSDB.downloadCloudBackup();
-          showToast('Neon backup downloaded.');
+          showToast('Supabase backup downloaded.');
         } else {
           await FMSDB.downloadBackup();
-          showToast('Local backup downloaded. Connect Neon to create shared backups.');
+          showToast('Local backup downloaded. Connect Supabase to create shared backups.');
         }
       } catch (error) { showToast(error.message || 'Backup download failed. Reconnect and try again.'); }
       finally { expBtn.disabled = false; }
@@ -88,8 +88,8 @@
       try {
         await FMSDB.createCloudBackup('manual');
         renderBackups();
-        showToast('Neon shared backup created.');
-      } catch (error) { showToast(error.message || 'Neon backup failed.'); }
+        showToast('Supabase shared backup created.');
+      } catch (error) { showToast(error.message || 'Supabase backup failed.'); }
       finally { snapBtn.disabled = false; }
     });
 
@@ -119,7 +119,7 @@
     const updateBackupStatus = detail => {
       if (!backupStatus) return;
       const connected = detail ? !!detail.connected : !!(window.FMSCloud && FMSCloud.isConfigured && FMSCloud.isConfigured());
-      backupStatus.textContent = connected ? 'Neon shared backup connected' : 'Neon backup not connected';
+      backupStatus.textContent = connected ? 'Supabase shared backup connected' : 'Supabase backup not connected';
       backupStatus.style.color = connected ? '#16a34a' : '#f59e0b';
     };
     updateBackupStatus();

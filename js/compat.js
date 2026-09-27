@@ -130,7 +130,8 @@
   global.FMSCheckAuth = function () {
     var SESSION_KEY = 'fms_auth_token';
     try {
-      return !!sessionStorage.getItem(SESSION_KEY);
+      var token = sessionStorage.getItem(SESSION_KEY) || '';
+      return !!token && (token.indexOf('local:') === 0 || !!(window.FMSCloud && window.FMSCloud.hasConfiguration && window.FMSCloud.hasConfiguration()));
     } catch (_) {
       return false;
     }

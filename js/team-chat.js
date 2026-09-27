@@ -1,4 +1,4 @@
-/* Staff access profiles stored in the shared Neon workspace. */
+/* Staff access profiles stored in the shared Supabase workspace. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -52,14 +52,14 @@
     const box = $('staffAccessList');
     if (!box) return;
     if (!window.FMSCloud || !FMSCloud.isConfigured || !FMSCloud.isConfigured()) {
-      box.innerHTML = '<p class="staff-access-empty">Connect Neon Auth to manage shared staff access.</p>';
+      box.innerHTML = '<p class="staff-access-empty">Connect Supabase Auth and Supabase to manage shared staff access.</p>';
       return;
     }
-    box.innerHTML = '<p class="staff-access-empty">Loading Neon workspace users...</p>';
+    box.innerHTML = '<p class="staff-access-empty">Loading Supabase workspace users...</p>';
     try {
       const rows = await FMSCloud.listStaffProfiles();
       if (!rows.length) {
-        box.innerHTML = '<p class="staff-access-empty" style="padding:12px 0">No staff profiles have been assigned yet. Add a name and email to create their Neon login.</p>';
+        box.innerHTML = '<p class="staff-access-empty" style="padding:12px 0">No staff profiles have been assigned yet. Create their Supabase Auth account, then add them here.</p>';
         return;
       }
       box.innerHTML = rows.map(user => {
@@ -73,7 +73,7 @@
         </div>`;
       }).join('');
     } catch (error) {
-      box.innerHTML = `<p class="staff-access-empty">Could not load Neon staff profiles: ${esc(error.message || 'connection error')}</p>`;
+      box.innerHTML = `<p class="staff-access-empty">Could not load Supabase staff profiles: ${esc(error.message || 'connection error')}</p>`;
     }
   }
 
@@ -83,19 +83,17 @@
     const email = ($('saEmail') || {}).value.trim();
     const permissions = selectedPermissions();
     if (!name) return toast('Enter the staff member’s full name.');
-    if (!email || !email.includes('@')) return toast('Enter the email they will use to sign in.');
+    if (!email || !email.includes('@')) return toast('Enter the email used for their Supabase Auth account.');
     if (!permissions.length) return toast('Grant at least one permission.');
     const button = $('saCreateBtn');
     if (button) button.disabled = true;
     try {
-      const created = await FMSCloud.saveStaffProfile({ display_name: name, email, permissions, disabled: false });
+      await FMSCloud.saveStaffProfile({ display_name: name, email, permissions, disabled: false });
       $('saName').value = '';
       $('saEmail').value = '';
       await renderStaffList();
-      toast(created && created.temporary_password
-        ? ('Access added for ' + name + '. Temporary password: ' + created.temporary_password)
-        : ('Neon workspace access added for ' + name + '.'));
-    } catch (error) { toast(error.message || 'Could not add this Neon user.'); }
+      toast('Supabase workspace access added for ' + name + '.');
+    } catch (error) { toast(error.message || 'Could not add this Supabase user.'); }
     finally { if (button) button.disabled = false; }
   }
 
@@ -105,14 +103,14 @@
     if (identity().role !== 'admin') return toast('Administrator access is required.');
     const userId = button.dataset.id;
     const action = button.dataset.act;
-    if (action === 'delete' && !confirm('Remove this user’s access to the shared FMS workspace? Their Neon login will no longer open the dashboard.')) return;
+    if (action === 'delete' && !confirm('Remove this user’s access to the shared FMS workspace? Their Supabase Auth account will remain.')) return;
     button.disabled = true;
     try {
       if (action === 'toggle') await FMSCloud.updateStaffProfile(userId, { disabled: button.textContent.trim() === 'Disable' });
       if (action === 'delete') await FMSCloud.removeStaffProfile(userId);
       await renderStaffList();
       toast(action === 'delete' ? 'Workspace access removed.' : 'Workspace access updated.');
-    } catch (error) { toast(error.message || 'Could not update this Neon profile.'); }
+    } catch (error) { toast(error.message || 'Could not update this Supabase profile.'); }
     finally { button.disabled = false; }
   }
 

@@ -22,7 +22,8 @@
           /* compat.js hasn't loaded yet — fall back to inline check */
           window.FMSCheckAuth = function () {
             try {
-              return !!sessionStorage.getItem("fms_auth_token");
+              var token = sessionStorage.getItem("fms_auth_token") || "";
+              return !!token && (token.indexOf("local:") === 0 || !!(window.FMSCloud && window.FMSCloud.hasConfiguration && window.FMSCloud.hasConfiguration()));
             } catch (_) {
               return false;
             }
@@ -2927,7 +2928,7 @@
                   </div>
                 </div>
                 <button class="btn-primary" id="saCreateBtn">
-                  <i class="fas fa-user-plus"></i> Add Neon User
+                  <i class="fas fa-user-plus"></i> Add Supabase User
                 </button>
               </div>
               <div class="staff-access-list" id="staffAccessList"></div>
@@ -3189,7 +3190,7 @@
                   "
                   >Auto-save</span
                 >
-                <span id="dbBackupStatus" style="font-size:0.8rem;font-weight:600">Checking Neon backup connection...</span>
+                <span id="dbBackupStatus" style="font-size:0.8rem;font-weight:600">Checking Supabase backup connection...</span>
               </div>
               <p
                 style="
@@ -3199,8 +3200,8 @@
                   line-height: 1.55;
                 "
               >
-                Signed-in users share business and staff records through Neon.
-                Create and download Neon snapshots here, or import a backup to
+                Signed-in users share business and staff records through Supabase.
+                Create and download Supabase snapshots here, or import a backup to
                 merge its records into the shared workspace for every signed-in user.
                 IndexedDB keeps an offline copy on this device.
               </p>
@@ -4085,15 +4086,15 @@
          ══════════════════════════════ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/compat.js"></script>
-    <script src="js/neon-auth-config.js"></script>
-    <script src="js/neon-auth-loader.js"></script>
+    <script src="js/supabase-auth-config.js"></script>
+    <script src="js/supabase-auth-loader.js"></script>
     <script src="js/pwa-register.js"></script>
     <script src="js/data.js"></script>
     <script src="js/db.js"></script>
-    <script src="js/neon-client.js"></script>
+    <script src="js/supabase-client.js"></script>
     <script>
       /* A copied/stale browser session is never enough for the shared app:
-         sign-in is restored and validated before Neon data is loaded. */
+         sign-in is restored and validated before Supabase data is loaded. */
       if (!window.FMSCloud || !window.FMSCloud.hasConfiguration || !window.FMSCloud.hasConfiguration()) {
         window.FMSRedirectToLogin();
       } else {

@@ -30,8 +30,8 @@ self-service are not implemented. Review deductions and overtime explicitly.
 
 ## Cloud deployment
 
-1. Complete `../neon/SETUP.md` and ensure Staff records have synchronized to Neon.
-2. Apply `../neon/migrations/20260926_neon_shared_fms.sql` in Neon.
+1. Complete [`../../supabase/SETUP.md`](../../supabase/SETUP.md) and confirm staff records have synchronized to Supabase.
+2. Apply the Supabase migrations under `../../supabase/migrations/` in filename order.
 3. Deploy all app assets, including the three `workforce-*.js`/`workforce.js` files
    and `css/workforce.css`. The service worker version is bumped.
 4. Sign in as an administrator. Verify the workforce badge says **Live**. HR cloud
@@ -85,7 +85,7 @@ or proprietary SDKs. A static browser cannot directly communicate with every ter
    a workspace. Rotate by replacing that entry. Disabling a terminal stops ingestion.
    Never put the token or a service-role key in app JavaScript or localStorage.
 5. Deploy the Vercel API from the repository root. The receiver authenticates each
-   POST using the device token and writes the punch to Neon.
+   POST using the device token and writes the punch to Supabase Postgres.
 6. Configure a vendor adapter on a trusted LAN gateway or vendor integration service
    to translate supported terminal events and POST to:
 
@@ -106,7 +106,7 @@ or proprietary SDKs. A static browser cannot directly communicate with every ter
    mappings/status and retry. A 409 requires checking event identity before retrying.
    A replay with the same ID and content is acknowledged without a second punch.
 
-The app checks Neon for new events every few seconds. Actual end-to-end latency
+The app checks Supabase for new events every few seconds. Actual end-to-end latency
 depends on the adapter, terminal and network. This repository includes the receiver,
 not a vendor-specific adapter.
 
@@ -124,5 +124,5 @@ not a vendor-specific adapter.
 Local automated checks: `node --test tests/workforce.test.cjs` from the repository
 root. Cloud migrations and physical terminal operation require deployment testing.
 
-References: [Neon serverless driver](https://neon.com/docs/serverless/serverless-driver),
+References: [Supabase database connection strings](https://supabase.com/docs/guides/database/connecting-to-postgres),
 [Hikvision integration documentation](https://tpp.hikvision.com/download/).
