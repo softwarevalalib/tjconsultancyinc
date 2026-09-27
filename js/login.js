@@ -1,4 +1,4 @@
-/* Supabase Auth sign-in for the TJ Consultancy FMS. */
+/* Neon Auth sign-in for the TJ Consultancy FMS. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -73,7 +73,7 @@
     if (!pass) { if (passwordHint) passwordHint.textContent = 'Password is required.'; if (passwordField) passwordField.classList.add('invalid'); invalid = true; }
     if (invalid) return;
     if (!window.FMSCloud || !window.FMSCloud.hasConfiguration || !window.FMSCloud.hasConfiguration()) {
-      error('Supabase Auth is not configured. Add the project URL and anon key, then reload.');
+      error('Neon sign-in is not available in this browser context. Open the deployed HTTPS site.');
       return;
     }
     loading(true);
@@ -83,7 +83,7 @@
       if (buttonText) buttonText.innerHTML = '<i class="fas fa-check"></i> Signed in';
       setTimeout(() => window.location.replace('index.html'), 250);
     } catch (cause) {
-      error(cause && cause.message || 'Supabase could not sign you in. Try again.');
+      error(cause && cause.message || 'Neon could not sign you in. Try again.');
       if (password) { password.value = ''; password.focus(); }
       loading(false);
     }

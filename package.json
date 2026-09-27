@@ -1,0 +1,14 @@
+{
+  "name": "tjconsultancyinc",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  },
+  "scripts": {
+    "dev": "node scripts/dev-api.js",
+    "test:api": "node scripts/test-fms-api.mjs"
+  }
+}

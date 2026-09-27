@@ -432,8 +432,9 @@ Service tabs and loan sub-tabs are **embedded within the dashboard view** — no
 - **Clients view** — new sidebar page listing every client record across all services, in real time.
 - **Real-time sync** — open the dashboard in two tabs: changes appear instantly via BroadcastChannel/storage events.
 
-There is no local fallback login. Sign-in uses the existing Supabase Auth
-account for `admin@tjconsultancyinc.com`; its password is managed by Supabase
-and must not be stored in source code. The Neon API validates each Supabase
-session, while Neon Postgres stores app records, workforce data, notifications,
-shared settings, and backups. See `../neon/SETUP.md` for configuration.
+There is no local fallback login. Sign-in uses Neon Auth for
+`admin@tjconsultancyinc.com`. The password is stored only as a bcrypt hash in
+Neon Postgres and can be changed from Settings after sign-in. The `/api/neon`
+function validates each session, while Neon Postgres stores app records,
+workforce data, notifications, shared settings, and backups. See
+`neon/SETUP.md` and `DEPLOYMENT.md` for configuration.

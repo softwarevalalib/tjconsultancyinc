@@ -1,11 +1,11 @@
-/* Supabase Auth identity + Neon Postgres shared data adapter. */
+/* Neon Auth identity + Neon Postgres shared data adapter. */
 (function (global) {
   "use strict";
-  var config = global.FMS_SUPABASE_AUTH_CONFIG || {};
-  var url = String(config.url || "").trim().replace(/\/$/, "");
-  var configured = /^https:\/\//i.test(url) && !!String(config.anonKey || "").trim();
+  var config = global.FMS_NEON_AUTH_CONFIG || {};
+  var apiOrigin = String(config.url || "").trim().replace(/\/$/, "");
+  var configured = typeof location !== "undefined" && /^https?:$/i.test(location.protocol);
   var client = null, profile = null, workspaceId = null;
-  var authClientReady = global.FMS_SUPABASE_AUTH_READY || Promise.resolve(null);
+  var authClientReady = global.FMS_NEON_AUTH_READY || Promise.resolve(null);
   var syncStarted = false, syncOnline = false, changeCursor = 0;
   var pollTimer = null, notificationTimer = null;
   var settingsTimer = null, settingsSyncTimer = null, applyingSettings = false, settingsInitialized = false;
@@ -143,7 +143,7 @@
     if (!accessToken) throw new Error("Sign in to connect to the shared Neon database.");
     var params = new URLSearchParams({ action: action });
     Object.keys(query || {}).forEach(key => params.set(key, query[key]));
-    var response = await fetch("/api/neon?" + params.toString(), {
+    var response = await fetch(apiOrigin + "/api/neon?" + params.toString(), {
       method: method || "GET",
       headers: { Authorization: "Bearer " + accessToken, ...(data ? { "Content-Type": "application/json" } : {}) },
       body: data ? JSON.stringify(data) : undefined,
@@ -156,7 +156,7 @@
   }
   async function loadProfile(user, accessToken) {
     if (!client || !user) return null;
-    var result = await fetch("/api/neon?action=profile", { headers: { Authorization: "Bearer " + accessToken }, cache: "no-store" });
+    var result = await fetch(apiOrigin + "/api/neon?action=profile", { headers: { Authorization: "Bearer " + accessToken }, cache: "no-store" });
     var payload = await result.json().catch(() => ({}));
     if (!result.ok || !payload.profile || !payload.profile.workspace_id) {
       var missing = new Error(payload.error || "Your account is not assigned to a Neon FMS workspace.");
@@ -200,7 +200,7 @@
     subscribeToAuth();
     return restoreSession();
   }).catch(function (error) {
-    status({ connected: false, error: error && error.message || "Supabase Auth could not be initialized." });
+    status({ connected: false, error: error && error.message || "Neon Auth could not be initialized." });
     return { configured: configured, authenticated: false, error: error };
   });
 
@@ -342,7 +342,7 @@
     if (result && result.error) return { success: false, error: result.error.message || "Invalid email or password." };
     try {
       var session = await currentSession();
-      if (!session) return { success: false, error: "Supabase Auth did not return a valid sign-in session." };
+      if (!session) return { success: false, error: "Neon Auth did not return a valid sign-in session." };
       profile = await loadProfile(session.user, session.access_token);
       workspaceId = profile.workspace_id;
       saveLegacySession(session, profile);
@@ -408,12 +408,16 @@
   }
 
   global.FMSCloud = {
-    getClient: function () { return null; },
+    getClient: function () { return client; },
     ready: ready,
     hasConfiguration: function () { return configured; },
     isConfigured: function () { return configured; },
     getProfile: function () { return profile; },
     signIn: signIn, signOut: signOut, changePassword: changePassword,
+    listStaffProfiles: async function () { var r = await api("staff-profiles"); return r.profiles || []; },
+    saveStaffProfile: async function (profile) { return api("staff-profiles", "POST", { profile: profile || {} }); },
+    updateStaffProfile: async function (userId, patch) { return api("staff-profile", "POST", { user_id: userId, profile: patch || {} }); },
+    removeStaffProfile: async function (userId) { return api("staff-profile", "DELETE", { user_id: userId }); },
     syncTable: scheduleTable, listNotifications: listNotifications, publishNotification: publishNotification,
     listBackups: listBackups, getBackup: getBackup, createBackup: createBackup, restoreBackup: restoreBackup,
     replaceRecords: replaceRecords, importBackup: importBackup,
