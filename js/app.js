@@ -188,8 +188,8 @@
   let currentView = "dashboard";
 
   function allowedStaffViews() {
-    const role = sessionStorage.getItem("fms_auth_role") || "staff";
-    if (role === "admin") return null;
+    const role = sessionStorage.getItem("fms_auth_role");
+    if (!role || role === "admin") return null;
     try {
       const permissions = JSON.parse(sessionStorage.getItem("fms_auth_permissions") || "[]");
       return Array.isArray(permissions) ? permissions : [];
@@ -205,10 +205,16 @@
     if (allowed && !allowed.includes(viewKey)) return;
 
     // Hide all views
-    $$(".view").forEach((v) => v.classList.remove("active"));
+    $$(".view").forEach((v) => {
+      v.classList.remove("active");
+    });
     // Show target
     const el = $("view-" + viewKey);
-    if (el) el.classList.add("active");
+    if (el) {
+      el.style.display = "";
+      el.hidden = false;
+      el.classList.add("active");
+    }
 
     // Update nav links
     $$(".nav-link").forEach((a) => {
@@ -1483,7 +1489,7 @@
     const pull = (name, seed) => (db ? db.table(name, seed) : []);
     pull("loans").forEach((l) =>
       out.push({
-        client: l.clientName,
+        client: l.clientName || l.client || l.borrower,
         service: "Financial Management",
         detail: "Loan · " + fmt(l.amount || 0) + " @ " + (l.rate || 0) + "%",
         value: l.total || l.amount || 0,
@@ -1569,9 +1575,15 @@
   if (clientsSearch) clientsSearch.addEventListener("input", renderClientsView);
   /* Real-time refresh from the database */
   if (window.FMSDB)
-    FMSDB.on(() => {
-      if (currentView === "clients") renderClientsView();
+    FMSDB.on((change) => {
+      if (!change || change.table === "*" || change.table === "loans" || change.table === "research" || change.table === "assets" || change.table === "bizdev" || change.table === "vehicles" || change.table === "printing") {
+        renderClientsView();
+      }
     });
+  document.addEventListener("fms:db-ready", renderClientsView);
+  document.addEventListener("fms:cloud-status", (event) => {
+    if (event.detail && event.detail.connected) renderClientsView();
+  });
 
   /* The financial dashboard is a read-only projection of these same tables.
      A local edit, another browser tab, a backup restore, or a cloud update

@@ -18,7 +18,7 @@
   'use strict';
 
   /* Bump whenever an app-shell asset changes so installed apps receive it. */
-  var CACHE = 'tj-fms-v34-staff-stable';
+  var CACHE = 'tj-fms-v35-clients-restore';
 
   /* App shell — everything the system needs to run 100% offline */
   var SHELL = [

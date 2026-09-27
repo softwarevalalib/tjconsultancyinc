@@ -15,6 +15,7 @@
 
   function applyPermissions() {
     const user = identity();
+    if (!sessionStorage.getItem('fms_auth_role')) return;
     const isAdmin = user.role === 'admin';
     const allowed = new Set(user.permissions);
     const fingerprint = JSON.stringify({ role: user.role, permissions: user.permissions });

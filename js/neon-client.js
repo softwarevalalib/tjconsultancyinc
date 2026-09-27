@@ -249,7 +249,7 @@
     (snapshot.records || []).forEach(function (item) { (grouped[item.table_name] ||= []).push(item.payload); });
     var names = new Set([...(snapshot.tables || []), ...Object.keys(grouped), ...(db.listTables ? db.listTables() : [])]);
     names.forEach(function (name) {
-      db.replaceFromRemote(name, grouped[name] || []);
+      db.replaceFromRemote(name, grouped[name] || [], true);
       knownRecords[name] = toMap(grouped[name] || []);
     });
     changeCursor = Number(snapshot.cursor) || changeCursor;
