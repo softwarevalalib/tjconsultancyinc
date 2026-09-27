@@ -1,21 +1,87 @@
 # Deploying TJ Consultancy FMS
 
-Production uses Supabase Auth for login and Supabase Postgres for shared business
-data, staff, workforce records, notifications, and backups. Follow
-[`../../supabase/SETUP.md`](../../supabase/SETUP.md) to connect the existing Supabase users,
-map their Supabase workspace profiles, migrate local backups, and configure Supabase.
+Production uses Neon Auth for login and Neon Postgres for shared business
+data, staff, workforce records, notifications, and backups.
+
+## Connect Neon to Vercel
+
+### 1. Neon — copy the database URL
+
+1. Open [https://console.neon.tech](https://console.neon.tech).
+2. Open project **tj-consultancy-fms**.
+3. Confirm database **tj_fms** on branch **main**.
+4. Click **Connect**.
+5. In the modal, set all four fields before Copy is enabled:
+   - Branch: **main**
+   - Compute: the primary read-write compute
+   - Database: **tj_fms**
+   - Role: **neondb_owner** (or **tj_fms_owner**)
+6. Leave **Connection pooling** on, then copy `DATABASE_URL`. It looks like:
+
+   `postgresql://neondb_owner:PASSWORD@HOST-pooler.../tj_fms?sslmode=require`
+
+The shared schema is already applied (`neon/migrations/20260927_fms_shared.sql`).
+Do not paste `DATABASE_URL` into any browser JavaScript file.
+
+### 2. Vercel — add the environment variable
+
+1. Open the existing TJ Consultancy project on [https://vercel.com](https://vercel.com).
+2. Go to **Settings → Environment Variables**.
+3. Add:
+
+   | Name | Value | Environments |
+   |---|---|---|
+   | `DATABASE_URL` | Neon pooled connection string | Production, Preview, Development |
+
+   Optional:
+
+   | Name | Value |
+   |---|---|
+   | `SESSION_HOURS` | `12` |
+   | `HR_DEVICE_KEYS` | `[]` |
+
+4. Confirm the project is connected to `softwarevalalib/tjconsultancyinc`.
+5. **Deployments → Redeploy** the latest production deployment (or push `main`).
+   Changing env vars does not apply until a new deploy finishes.
+
+### 3. Confirm the live site
+
+After deploy, open the Vercel URL (or custom domain) and sign in:
+
+- Email: `admin@tjconsultancyinc.com`
+- Password: set in Neon (not stored in this repo)
+
+Then check:
+
+- Dashboard loads after sign-in
+- Settings → Database & Backup shows a Neon connection
+- A loan or staff edit appears on a second signed-in browser within a few seconds
+- Notifications appear on the second device
+
+API routes on the same Vercel origin:
+
+- `/api/auth` — login, logout, password change
+- `/api/neon` — profile, sync, settings, backups, workforce
+- `/api/biometric-events` — optional HR terminals
 
 ## Production checklist
 
-1. Run all three Supabase migrations and create the administrator workspace/profile.
-2. Configure `SUPABASE_DB_URL`, `SUPABASE_URL`, and `SUPABASE_ANON_KEY` in Vercel.
-   Put the Supabase project URL and anon key in `js/supabase-auth-config.js`.
-3. Deploy from the repository root. `vercel.json` publishes the `app`
-   directory and the `/api/supabase` serverless function.
-4. Import full backups from PCs with unique records, then check the two-device
-   sync, account permissions, and cloud backup flow.
+1. Neon schema is applied on `tj_fms`.
+2. `DATABASE_URL` is set on Vercel and the project has been redeployed.
+3. Administrator can sign in and two devices stay in sync.
 
-The installable app works in current Edge and Chrome on Windows 10 and 11. Each
-device uses the same HTTPS Supabase API and Supabase Auth project; local IndexedDB is
-only an offline cache. Record changes are polled every 2.5 seconds, and
-notifications every 5 seconds.
+The installable app works in current Edge and Chrome on Windows 10 and 11.
+Each device uses the same HTTPS Neon API. Local IndexedDB is only an offline
+cache. Record changes are polled every 2.5 seconds, and notifications every
+5 seconds.
+
+## Local live test
+
+```bash
+npm install
+cp .env.example .env   # then set DATABASE_URL
+npm run dev
+npm run test:api
+```
+
+Open `http://localhost:4173/login.html` to sign in against the live Neon database.
