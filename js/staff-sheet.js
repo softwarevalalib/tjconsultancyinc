@@ -76,8 +76,8 @@
   const selectedStaffIds = new Set();
 
   function load () {
-    if (window.FMSDB) rows = FMSDB.table('staff', seedRows());
-    else rows = seedRows();
+    if (window.FMSDB) rows = FMSDB.table('staff', []);
+    else rows = [];
   }
   function save () {
     /* FMSDB keeps the active table as a live array. Pass a fresh copy here:

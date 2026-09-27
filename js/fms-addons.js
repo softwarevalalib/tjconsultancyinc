@@ -512,7 +512,7 @@
         const status   = ($('fmsMiniStatus')  || {}).value || 'pending';
         if (!client) { toast('Pick a client.'); return; }
         if (!(amount > 0)) { toast('Enter an amount.'); return; }
-        const iv = (window.FMS && FMS.data && FMS.data.invoices) || [];
+        const iv = (window.FMSDB && typeof FMSDB.table === 'function' ? FMSDB.table('invoices', []) : []).slice();
         const today = new Date(); const due = new Date(); due.setDate(due.getDate() + 30);
         iv.unshift({
           id: 'INV-' + Date.now().toString(36).slice(-6).toUpperCase(),

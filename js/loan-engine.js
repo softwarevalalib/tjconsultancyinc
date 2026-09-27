@@ -435,8 +435,10 @@
       ? fields.nextPaymentDate
       : firstPaymentDate(fields.date, fields.nextPaymentMonth || defaultPaymentMonth(fields.date));
     const nextPaymentMonth = Number(requestedFirstPaymentDate.slice(5, 7));
+    const loanId = uid();
     const loan = {
-      id: uid(),
+      id: loanId,
+      _id: loanId,
       number: loanCounter,
       clientName: fields.clientName,
       date: fields.date,
@@ -575,7 +577,8 @@
   }
 
   function getLoanById(id) {
-    return loanStore.find((l) => l.id === id) || null;
+    const key = String(id == null ? "" : id);
+    return loanStore.find((l) => String(l.id) === key || String(l._id) === key) || null;
   }
 
   function reconcileLoanSelection() {
@@ -1089,9 +1092,11 @@
 
     const q = (filter || $("fin-search")?.value || "").toLowerCase();
     const rows = loanStore.filter(
-      (l) => !q || l.clientName.toLowerCase().includes(q),
+      (l) => !q || String(l.clientName || "").toLowerCase().includes(q),
     ).sort((a, b) => {
-      if (a.clientName.trim().toLocaleLowerCase() === b.clientName.trim().toLocaleLowerCase() && a.customSchedule !== b.customSchedule) {
+      const left = String(a.clientName || "").trim().toLocaleLowerCase();
+      const right = String(b.clientName || "").trim().toLocaleLowerCase();
+      if (left === right && a.customSchedule !== b.customSchedule) {
         return a.customSchedule ? 1 : -1;
       }
       return 0;
@@ -1214,9 +1219,11 @@
     reconcileLoanSelection();
     const q = (filter || $("sheet-search")?.value || "").toLowerCase();
     const rows = loanStore.filter(
-      (l) => !q || l.clientName.toLowerCase().includes(q),
+      (l) => !q || String(l.clientName || "").toLowerCase().includes(q),
     ).sort((a, b) => {
-      if (a.clientName.trim().toLocaleLowerCase() === b.clientName.trim().toLocaleLowerCase() && a.customSchedule !== b.customSchedule) {
+      const left = String(a.clientName || "").trim().toLocaleLowerCase();
+      const right = String(b.clientName || "").trim().toLocaleLowerCase();
+      if (left === right && a.customSchedule !== b.customSchedule) {
         return a.customSchedule ? 1 : -1;
       }
       return 0;
@@ -2506,6 +2513,8 @@
   function serializeLoans() {
     return loanStore.map((l) =>
       Object.assign({}, l, {
+        id: l.id || l._id,
+        _id: l._id || l.id,
         paidPayments: l.paidPayments ? Array.from(l.paidPayments) : [],
       }),
     );
@@ -2517,49 +2526,61 @@
       } catch (_) {}
     }
   }
+  function adoptLoanRow(row) {
+    if (!row || typeof row !== "object") return null;
+    const id = String(row.id || row._id || "").trim();
+    if (!id) return null;
+    return normaliseLoanCalculations(
+      Object.assign({}, row, {
+        id: id,
+        _id: row._id || id,
+        clientName: String(row.clientName || row.client || row.borrower || "").trim(),
+        paidPayments: new Set(row.paidPayments || []),
+        payments: Array.isArray(row.payments) ? row.payments : [],
+      }),
+    );
+  }
+  function refreshLoanViews() {
+    try {
+      renderEntryTable();
+      renderDataSheet();
+      populateScheduleSelect();
+      syncCount();
+    } catch (error) {
+      console.warn("[FMS Loans] Could not render loan views.", error);
+    }
+  }
   function hydrateFromDB() {
     if (!window.FMSDB) return;
     try {
-      const hasSavedLoans = typeof FMSDB.hasTable === 'function' && FMSDB.hasTable("loans");
-      const rows = FMSDB.table("loans", null);
-      if (!rows || (!rows.length && !hasSavedLoans)) {
-        loadSeedData();
-        persistLoans();
-        return;
-      }
-      loanStore = rows.map((r) =>
-        normaliseLoanCalculations(
-          Object.assign({}, r, { paidPayments: new Set(r.paidPayments || []) }),
-        ),
-      );
+      const rows = FMSDB.table("loans", []);
+      loanStore = (Array.isArray(rows) ? rows : []).map(adoptLoanRow).filter(Boolean);
       loanCounter = loanStore.reduce((m, l) => Math.max(m, l.number || 0), 0);
-    } catch (_) {}
+    } catch (error) {
+      console.warn("[FMS Loans] Could not load loan records.", error);
+    }
+  }
+  function applyLoansFromDatabase() {
+    hydrateFromDB();
+    refreshLoanViews();
   }
   if (window.FMSDB) {
     FMSDB.on((d) => {
-      if (!d || (d.table !== "loans" && d.table !== "*") || !d.remote) return;
-      try {
-        const rows = FMSDB.table("loans");
-        loanStore = rows.map((r) =>
-          normaliseLoanCalculations(
-            Object.assign({}, r, { paidPayments: new Set(r.paidPayments || []) }),
-          ),
-        );
-        loanCounter = loanStore.reduce((m, l) => Math.max(m, l.number || 0), 0);
-        renderEntryTable();
-        renderDataSheet();
-        populateScheduleSelect();
-        syncCount();
-      } catch (_) {}
+      if (!d || (d.table !== "loans" && d.table !== "*")) return;
+      applyLoansFromDatabase();
     });
   }
+  document.addEventListener("fms:db-ready", applyLoansFromDatabase);
+  document.addEventListener("fms:cloud-status", function (event) {
+    if (event.detail && event.detail.connected) applyLoansFromDatabase();
+  });
 
   /* ─────────────────────────────────────────────────────────────
      INITIALISE
   ───────────────────────────────────────────────────────────── */
 
   function init() {
-    /* Load persisted loan database (seeds demo portfolio on very first run) */
+    /* Load persisted / Neon loan records. Demo seed data is never injected. */
     hydrateFromDB();
     initSubTabs();
     initLoanForm();

@@ -315,6 +315,33 @@
     return liveFinancialSnapshot().transactions;
   }
 
+  function liveInvoices() {
+    try {
+      if (window.FMSDB && typeof FMSDB.table === "function") {
+        return FMSDB.table("invoices", []);
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  function renderReportKpis() {
+    const data = liveFinancialSnapshot();
+    const margin = data.income ? (data.net / data.income) * 100 : 0;
+    setText("report-kpi-income", fmt(data.income));
+    setText("report-kpi-expenses", fmt(data.expenses));
+    setText("report-kpi-net", fmt(data.net));
+    setText("report-kpi-margin", margin.toFixed(1) + "%");
+    setText(
+      "report-kpi-income-change",
+      data.records
+        ? data.records + " live system record" + (data.records === 1 ? "" : "s")
+        : "No live records yet",
+    );
+    setText("report-kpi-expenses-change", data.expenses ? "From live expense records" : "No expense records");
+    setText("report-kpi-net-change", "Income minus expenses");
+    setText("report-kpi-margin-change", data.income ? "Net / income" : "Awaiting income records");
+  }
+
   function refreshTransactions(resetPage) {
     const query = ((txSearch && txSearch.value) || "").toLowerCase().trim();
     const transactions = liveTransactions();
@@ -333,6 +360,7 @@
   }
 
   function initReportsView() {
+    renderReportKpis();
     refreshTransactions();
     if (FMS.charts) FMS.charts.initReports();
     document.dispatchEvent(new CustomEvent("fms:reports-open"));
@@ -961,7 +989,7 @@
      ============================================================ */
   const INV_PER_PAGE = 8;
   let invPage = 1;
-  let filteredInv = [...FMS.data.invoices];
+  let filteredInv = liveInvoices();
   let selectedInvIds = new Set();
 
   function fmtInvDate(iso) {
@@ -1116,7 +1144,7 @@
   function applyInvoiceFilters() {
     const q = ($("invoiceSearch")?.value || "").toLowerCase().trim();
     const stat = $("invoiceStatusFilter")?.value || "";
-    filteredInv = FMS.data.invoices.filter(
+    filteredInv = liveInvoices().filter(
       (inv) =>
         (!q ||
           inv.id.toLowerCase().includes(q) ||
@@ -1138,7 +1166,7 @@
     downloadInvoiceBtn.classList.add("btn-disabled");
 
     downloadInvoiceBtn.addEventListener("click", () => {
-      const selected = FMS.data.invoices.filter((inv) =>
+      const selected = liveInvoices().filter((inv) =>
         selectedInvIds.has(inv.id),
       );
       if (selected.length === 0) {
@@ -1189,7 +1217,7 @@
     printInvoiceBtn.classList.add("btn-disabled");
 
     printInvoiceBtn.addEventListener("click", () => {
-      const selected = FMS.data.invoices.filter((inv) =>
+      const selected = liveInvoices().filter((inv) =>
         selectedInvIds.has(inv.id),
       );
       if (selected.length === 0) {
@@ -1282,7 +1310,7 @@
 
   /* ---- Init invoices when Reports view opens ---- */
   function initInvoiceSection() {
-    filteredInv = [...FMS.data.invoices];
+    filteredInv = liveInvoices();
     invPage = 1;
     selectedInvIds.clear();
     updateInvoiceActionState();
@@ -1538,6 +1566,7 @@
     "bizdev",
     "vehicles",
     "printing",
+    "invoices",
   ]);
   if (window.FMSDB)
     FMSDB.on((change) => {
@@ -1547,7 +1576,9 @@
       )
         return;
       initDashboardView();
+      renderReportKpis();
       refreshTransactions(false);
+      initInvoiceSection();
       if (FMS.charts) FMS.charts.initReports();
     });
 
