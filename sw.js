@@ -18,7 +18,7 @@
   'use strict';
 
   /* Bump whenever an app-shell asset changes so installed apps receive it. */
-  var CACHE = 'tj-fms-v29-loan-corrections';
+  var CACHE = 'tj-fms-v30-signin-guard';
 
   /* App shell — everything the system needs to run 100% offline */
   var SHELL = [
@@ -41,6 +41,7 @@
     './js/supabase-auth-config.js',
     './js/supabase-auth-loader.js',
     './js/supabase-client.js',
+    './js/auth-guard.js',
     './js/app.js',
     './js/live-financials.js',
     './js/charts.js',

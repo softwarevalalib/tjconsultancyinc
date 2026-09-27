@@ -101,7 +101,8 @@
     if (invalid) return;
     loading(true);
     try {
-      if (window.FMSCloud && window.FMSCloud.ready) await window.FMSCloud.ready;
+      const authState = window.FMSCloud && window.FMSCloud.ready ? await window.FMSCloud.ready : null;
+      if (authState && authState.error && !window.FMSCloud.hasConfiguration()) throw authState.error;
       const cloudConfigured = window.FMSCloud && window.FMSCloud.hasConfiguration && window.FMSCloud.hasConfiguration();
       const hosted = /^https?:$/.test(window.location.protocol) && !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
       if (hosted && !cloudConfigured) throw new Error('Shared FMS sign-in is not configured. Ask the administrator to connect this domain to the shared database.');

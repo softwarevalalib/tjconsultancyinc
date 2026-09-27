@@ -15,26 +15,7 @@
        ║  AUTH GUARD — runs before any CSS or content loads  ║
        ║  Redirects to login.html if session token is absent ║
        ╚══════════════════════════════════════════════════════╝ -->
-    <script>
-      (function () {
-        "use strict";
-        if (!window.FMSCheckAuth) {
-          /* compat.js hasn't loaded yet — fall back to inline check */
-          window.FMSCheckAuth = function () {
-            try {
-              var token = sessionStorage.getItem("fms_auth_token") || "";
-              return !!token && (token.indexOf("local:") === 0 || !!(window.FMSCloud && window.FMSCloud.hasConfiguration && window.FMSCloud.hasConfiguration()));
-            } catch (_) {
-              return false;
-            }
-          };
-        }
-        if (!window.FMSCheckAuth()) {
-          /* Replace history entry so Back button doesn't bypass login */
-          window.location.replace("login.html");
-        }
-      })();
-    </script>
+    <script>document.documentElement.style.visibility = "hidden";</script>
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/pwa-install.css" />
     <link rel="stylesheet" href="css/notifications.css" />
@@ -4092,17 +4073,7 @@
     <script src="js/data.js"></script>
     <script src="js/db.js"></script>
     <script src="js/supabase-client.js"></script>
-    <script>
-      /* A copied/stale browser session is never enough for the shared app:
-         sign-in is restored and validated before Supabase data is loaded. */
-      if (!window.FMSCloud || !window.FMSCloud.hasConfiguration || !window.FMSCloud.hasConfiguration()) {
-        window.FMSRedirectToLogin();
-      } else {
-        window.FMSCloud.ready.then(function (result) {
-          if (!result || !result.authenticated) window.FMSRedirectToLogin();
-        });
-      }
-    </script>
+    <script src="js/auth-guard.js"></script>
     <script src="js/live-financials.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/app.js"></script>
