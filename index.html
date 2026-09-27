@@ -2845,39 +2845,8 @@
               </table>
             </div>
           </div>
-          <div class="staff-grid" id="staffGrid"></div>
-          <div
-            id="staffAccessMount"
-            aria-label="Staff login access management"
-          ></div>
+          <div class="staff-grid" id="staffGrid" hidden></div>
         </section>
-
-        <!-- ══════════════════════════════════════════
-         STAFF ACCESS SOURCE (relocated into Staff Management at startup)
-    ══════════════════════════════════════════ -->
-        <div id="staffAccessSource" hidden>
-          <div class="staff-access-layout">
-            <!-- Staff access management (admin only) -->
-            <div class="card staff-access-card" id="staffAccessCard">
-              <div class="card-header">
-                <h2 class="card-title">
-                  <i
-                    class="fas fa-user-shield"
-                    style="color: var(--active-color)"
-                  ></i>
-                  Staff Logins
-                </h2>
-                <span class="settings-badge">Admin</span>
-              </div>
-              <p class="hr-muted" style="padding: 0 4px 8px">
-                These accounts can sign in with their username or email. Enable,
-                disable, or remove access here. Use <strong>Add Staff</strong>
-                to create a new login.
-              </p>
-              <div class="staff-access-list" id="staffAccessList"></div>
-            </div>
-          </div>
-        </div>
 
         <!-- ══════════════════════════════════════════
          SETTINGS VIEW  (only separate view)

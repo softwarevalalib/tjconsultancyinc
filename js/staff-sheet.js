@@ -69,7 +69,7 @@
       email: row.email || '',
       username: normalizeUsername(row.username),
       status: row.status || '',
-      permissions: permList(row),
+      permissions: permList(row).slice().sort(),
       locked: row._locked !== false
     })));
   }
@@ -87,12 +87,14 @@
     else rows = [];
   }
   function persistable (row) {
-    return {
+    const next = {
       ...row,
       password: '',
       username: normalizeUsername(row.username),
-      permissions: permList(row)
+      permissions: permList(row).slice().sort()
     };
+    delete next._locked;
+    return next;
   }
   function save () {
     if (window.FMSDB) {
@@ -336,7 +338,7 @@
         const row = rows.find(r => r._id === edit.dataset.edit);
         if (!row) return;
         row._locked = !(row._locked !== false);
-        save(); render(true);
+        render(true);
         if (row._locked === false) {
           const tr    = tbody.querySelector('tr[data-id="' + row._id + '"]');
           const first = tr && tr.querySelector('.sheet-cell');

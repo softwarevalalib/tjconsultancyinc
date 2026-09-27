@@ -18,7 +18,7 @@
   'use strict';
 
   /* Bump whenever an app-shell asset changes so installed apps receive it. */
-  var CACHE = 'tj-fms-v33-staff-access';
+  var CACHE = 'tj-fms-v34-staff-stable';
 
   /* App shell — everything the system needs to run 100% offline */
   var SHELL = [
@@ -98,7 +98,7 @@
     // Authenticated records and configuration must always come from the server.
     // Never return an earlier user's response or an outdated change feed.
     var url = new URL(req.url);
-    if (url.pathname.startsWith('/api/') || req.headers.has('authorization')) return;
+    if (url.pathname.indexOf('/api/') === 0 || url.pathname.indexOf('/api/') !== -1 || req.headers.has('authorization')) return;
 
     /* Network-first for navigation (login.html / index.html), so a
        user on any OS always gets the newest shell when online,
