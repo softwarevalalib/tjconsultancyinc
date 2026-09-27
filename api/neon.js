@@ -10,6 +10,22 @@ function requireAdmin(profile) {
   }
 }
 
+function normalizeUsername(value) {
+  const username = String(value || "").trim().toLowerCase();
+  if (!username) return "";
+  if (!/^[a-z0-9._-]{3,40}$/.test(username)) {
+    const error = new Error("Username must be 3–40 characters using letters, numbers, dots, hyphens, or underscores.");
+    error.status = 400;
+    throw error;
+  }
+  return username;
+}
+
+function allowedPermissions(list) {
+  const allowed = new Set(["dashboard", "reports", "clients", "staff", "settings"]);
+  return [...new Set((Array.isArray(list) ? list : []).map((item) => String(item || "").trim()).filter((item) => allowed.has(item)))];
+}
+
 async function requireAccess(req) {
   const user = await loadSession(req);
   if (!user) {
@@ -404,7 +420,7 @@ module.exports = async function handler(req, res) {
     if (action === "staff-profiles" && req.method === "GET") {
       requireAdmin(profile);
       const rows = await sql()`
-        SELECT p.user_id, p.role, p.display_name, p.permissions, p.disabled, u.email
+        SELECT p.user_id, p.role, p.display_name, p.permissions, p.disabled, u.email, u.username
         FROM fms_profiles p
         JOIN fms_users u ON u.id = p.user_id
         WHERE p.workspace_id = ${workspaceId} AND p.role = 'staff'
@@ -419,32 +435,62 @@ module.exports = async function handler(req, res) {
       const incoming = body.profile || body;
       const email = String(incoming.email || "").trim().toLowerCase();
       const displayName = String(incoming.display_name || "").trim();
-      const permissions = Array.isArray(incoming.permissions) ? incoming.permissions : [];
+      const username = normalizeUsername(incoming.username);
+      const permissions = allowedPermissions(incoming.permissions);
+      const disabled = incoming.disabled == null ? false : !!incoming.disabled;
       if (!email || !email.includes("@")) return send(res, 400, { error: "Enter a valid staff email." });
       if (!displayName) return send(res, 400, { error: "Enter the staff member's full name." });
-      const password = String(incoming.password || "").trim() || randomPassword();
+      if (!username) return send(res, 400, { error: "Enter a username for this staff login." });
+      if (!permissions.length) return send(res, 400, { error: "Grant at least one sidebar permission." });
+      const password = String(incoming.password || "").trim();
+      if (password && password.length < 6) return send(res, 400, { error: "Password must be at least 6 characters." });
+      const existing = await sql()`
+        SELECT u.id, u.email, u.username, p.role
+        FROM fms_users u
+        LEFT JOIN fms_profiles p ON p.user_id = u.id
+        WHERE lower(u.email) = ${email} OR (u.username IS NOT NULL AND lower(u.username) = ${username})
+      `;
+      if (existing.some((row) => row.role === "admin")) {
+        return send(res, 400, { error: "That email or username belongs to an administrator account." });
+      }
+      if (existing.some((row) => String(row.username || "").toLowerCase() === username && row.email !== email)) {
+        return send(res, 400, { error: "That username is already in use." });
+      }
+      const nextPassword = password || randomPassword();
       const created = await sql()`
-        INSERT INTO fms_users (email, password_hash, display_name)
-        VALUES (${email}, crypt(${password}, gen_salt('bf', 12)), ${displayName})
-        ON CONFLICT (email) DO UPDATE SET display_name = EXCLUDED.display_name, updated_at = now()
-        RETURNING id, email, display_name
+        INSERT INTO fms_users (email, username, password_hash, display_name)
+        VALUES (${email}, ${username}, crypt(${nextPassword}, gen_salt('bf', 12)), ${displayName})
+        ON CONFLICT (email) DO UPDATE SET
+          display_name = EXCLUDED.display_name,
+          username = EXCLUDED.username,
+          password_hash = CASE
+            WHEN ${!!password} THEN EXCLUDED.password_hash
+            ELSE fms_users.password_hash
+          END,
+          updated_at = now()
+        RETURNING id, email, username, display_name
       `;
       const staff = created[0];
       await sql()`
         INSERT INTO fms_profiles (user_id, workspace_id, role, display_name, permissions, disabled)
-        VALUES (${staff.id}, ${workspaceId}, 'staff', ${displayName}, ${JSON.stringify(permissions)}::jsonb, false)
+        VALUES (${staff.id}, ${workspaceId}, 'staff', ${displayName}, ${JSON.stringify(permissions)}::jsonb, ${disabled})
         ON CONFLICT (user_id)
-        DO UPDATE SET display_name = EXCLUDED.display_name, permissions = EXCLUDED.permissions, disabled = false
+        DO UPDATE SET
+          display_name = EXCLUDED.display_name,
+          permissions = EXCLUDED.permissions,
+          disabled = EXCLUDED.disabled,
+          workspace_id = EXCLUDED.workspace_id
       `;
       return send(res, 200, {
         profile: {
           user_id: staff.id,
           email: staff.email,
+          username: staff.username || username,
           display_name: displayName,
           permissions,
-          disabled: false,
+          disabled,
         },
-        temporary_password: incoming.password ? undefined : password,
+        temporary_password: password ? undefined : nextPassword,
       });
     }
 
@@ -455,9 +501,47 @@ module.exports = async function handler(req, res) {
       const patch = body.profile || {};
       if (!userId) return send(res, 400, { error: "Staff user id is required." });
       if (userId === profile.user_id) return send(res, 400, { error: "You cannot change your own access this way." });
+      const existing = await sql()`
+        SELECT p.role FROM fms_profiles p
+        WHERE p.user_id = ${userId} AND p.workspace_id = ${workspaceId}
+        LIMIT 1
+      `;
+      if (!existing[0] || existing[0].role !== "staff") {
+        return send(res, 404, { error: "Staff account not found." });
+      }
       const disabled = patch.disabled == null ? null : !!patch.disabled;
-      const permissions = Array.isArray(patch.permissions) ? patch.permissions : null;
+      const permissions = Array.isArray(patch.permissions) ? allowedPermissions(patch.permissions) : null;
       const displayName = patch.display_name ? String(patch.display_name).trim() : null;
+      const username = patch.username != null && String(patch.username).trim() ? normalizeUsername(patch.username) : null;
+      const password = String(patch.password || "").trim();
+      if (password && password.length < 6) return send(res, 400, { error: "Password must be at least 6 characters." });
+      if (username) {
+        const taken = await sql()`
+          SELECT id FROM fms_users
+          WHERE lower(username) = ${username} AND id <> ${userId}
+          LIMIT 1
+        `;
+        if (taken[0]) return send(res, 400, { error: "That username is already in use." });
+        await sql()`
+          UPDATE fms_users
+          SET username = ${username}, updated_at = now()
+          WHERE id = ${userId}
+        `;
+      }
+      if (password) {
+        await sql()`
+          UPDATE fms_users
+          SET password_hash = crypt(${password}, gen_salt('bf', 12)), updated_at = now()
+          WHERE id = ${userId}
+        `;
+      }
+      if (displayName) {
+        await sql()`
+          UPDATE fms_users
+          SET display_name = ${displayName}, updated_at = now()
+          WHERE id = ${userId}
+        `;
+      }
       await sql()`
         UPDATE fms_profiles
         SET
@@ -471,11 +555,21 @@ module.exports = async function handler(req, res) {
 
     if (action === "staff-profile" && req.method === "DELETE") {
       requireAdmin(profile);
-      const body = Object.keys(params).length ? params : await readBody(req);
-      const userId = String(body.user_id || body.id || "").trim();
+      const body = await readBody(req).catch(() => ({}));
+      const userId = String(body.user_id || body.id || params.user_id || params.id || "").trim();
       if (!userId) return send(res, 400, { error: "Staff user id is required." });
       if (userId === profile.user_id) return send(res, 400, { error: "You cannot remove your own administrator access." });
+      const existing = await sql()`
+        SELECT role FROM fms_profiles
+        WHERE user_id = ${userId} AND workspace_id = ${workspaceId}
+        LIMIT 1
+      `;
+      if (existing[0] && existing[0].role === "admin") {
+        return send(res, 400, { error: "Administrator accounts cannot be removed here." });
+      }
+      await sql()`DELETE FROM fms_sessions WHERE user_id = ${userId}`;
       await sql()`DELETE FROM fms_profiles WHERE user_id = ${userId} AND workspace_id = ${workspaceId} AND role = 'staff'`;
+      await sql()`DELETE FROM fms_users WHERE id = ${userId}`;
       return send(res, 200, { removed: true });
     }
 

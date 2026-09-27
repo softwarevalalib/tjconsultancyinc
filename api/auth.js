@@ -14,19 +14,22 @@ module.exports = async function handler(req, res) {
   try {
     if (action === "login" && req.method === "POST") {
       const body = await readBody(req);
-      const email = String(body.email || "").trim().toLowerCase();
+      const identifier = String(body.email || body.username || body.identifier || "").trim().toLowerCase();
       const password = String(body.password || "");
-      if (!email || !password) return send(res, 400, { error: "Email and password are required." });
+      if (!identifier || !password) return send(res, 400, { error: "Email or username and password are required." });
 
       const users = await sql()`
-        SELECT id, email, display_name
+        SELECT id, email, display_name, username
         FROM fms_users
-        WHERE lower(email) = ${email}
-          AND password_hash = crypt(${password}, password_hash)
+        WHERE password_hash = crypt(${password}, password_hash)
+          AND (
+            lower(email) = ${identifier}
+            OR (username IS NOT NULL AND lower(username) = ${identifier})
+          )
         LIMIT 1
       `;
       const user = users[0];
-      if (!user) return send(res, 401, { error: "Invalid email or password." });
+      if (!user) return send(res, 401, { error: "Invalid email, username, or password." });
 
       const profiles = await sql()`
         SELECT disabled FROM fms_profiles WHERE user_id = ${user.id} LIMIT 1

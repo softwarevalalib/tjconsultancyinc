@@ -282,6 +282,9 @@
     if (authoritative) clearDeletedIds(name, rows.map(recordId));
     const nextRows = filterDeletedRows(name, rows.map(row => ({ ...row })));
     ensureRowIds(nextRows, name);
+    try {
+      if (JSON.stringify(MEM[name] || []) === JSON.stringify(nextRows)) return true;
+    } catch (_) {}
     replaceInPlace(name, nextRows);
     lsWrite(name, MEM[name]);
     idbPutTable(name, MEM[name]);

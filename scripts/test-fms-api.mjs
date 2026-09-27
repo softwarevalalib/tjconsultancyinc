@@ -125,25 +125,48 @@ async function main() {
   if (!(notes.notifications || []).some((row) => row.id === note.notification.id)) throw new Error("Notification was not listed.");
   pass("notifications");
 
-  const staffEmail = "staff.api." + Date.now() + "@tjconsultancyinc.com";
+  const staffStamp = Date.now();
+  const staffEmail = "staff.api." + staffStamp + "@tjconsultancyinc.com";
+  const staffUsername = "staff.api." + staffStamp;
+  const staffPassword = "StaffTest!123";
   const created = await request("/api/neon", {
     method: "POST",
     query: { action: "staff-profiles" },
     token,
-    body: { profile: { display_name: "API Staff", email: staffEmail, permissions: ["dashboard", "loans"] } },
+    body: {
+      profile: {
+        display_name: "API Staff",
+        email: staffEmail,
+        username: staffUsername,
+        password: staffPassword,
+        permissions: ["dashboard", "reports", "loans"],
+      },
+    },
   });
-  if (!created.temporary_password) throw new Error("Staff create should return a temporary password.");
+  if (!created.profile || created.profile.username !== staffUsername) throw new Error("Staff create should store the username.");
+  if ((created.profile.permissions || []).includes("loans")) throw new Error("Unknown permissions should be ignored.");
   const staffLogin = await request("/api/auth", {
     method: "POST",
     query: { action: "login" },
-    body: { email: staffEmail, password: created.temporary_password },
+    body: { email: staffEmail, password: staffPassword },
   });
   pass("staff login", staffEmail);
+
+  const usernameLogin = await request("/api/auth", {
+    method: "POST",
+    query: { action: "login" },
+    body: { email: staffUsername, password: staffPassword },
+  });
+  if (!usernameLogin.session || !usernameLogin.session.access_token) throw new Error("Username login failed.");
+  pass("staff username login", staffUsername);
 
   const staffToken = staffLogin.session.access_token;
   const staffProfile = await request("/api/neon", { query: { action: "profile" }, token: staffToken });
   if (staffProfile.profile.role !== "staff") throw new Error("Staff role was not assigned.");
-  pass("staff profile role", staffProfile.profile.role);
+  if (!Array.isArray(staffProfile.profile.permissions) || !staffProfile.profile.permissions.includes("dashboard")) {
+    throw new Error("Staff permissions were not assigned.");
+  }
+  pass("staff profile role", staffProfile.profile.role + " / " + staffProfile.profile.permissions.join(","));
 
   await request("/api/neon", {
     method: "POST",
@@ -154,10 +177,18 @@ async function main() {
   const disabled = await fetch(BASE + "/api/auth?action=login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: staffEmail, password: created.temporary_password }),
+    body: JSON.stringify({ email: staffUsername, password: staffPassword }),
   });
   if (disabled.status !== 403) throw new Error("Disabled staff should not sign in.");
   pass("disabled staff cannot sign in");
+
+  await request("/api/neon", {
+    method: "DELETE",
+    query: { action: "staff-profile" },
+    token,
+    body: { user_id: created.profile.user_id },
+  });
+  pass("staff login removed");
 
   const workforce = await request("/api/neon", {
     method: "POST",

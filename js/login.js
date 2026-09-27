@@ -69,7 +69,7 @@
     const email = (username && username.value || '').trim();
     const pass = password && password.value || '';
     let invalid = false;
-    if (!email) { if (usernameHint) usernameHint.textContent = 'Email is required.'; if (usernameField) usernameField.classList.add('invalid'); invalid = true; }
+    if (!email) { if (usernameHint) usernameHint.textContent = 'Email or username is required.'; if (usernameField) usernameField.classList.add('invalid'); invalid = true; }
     if (!pass) { if (passwordHint) passwordHint.textContent = 'Password is required.'; if (passwordField) passwordField.classList.add('invalid'); invalid = true; }
     if (invalid) return;
     if (!window.FMSCloud || !window.FMSCloud.hasConfiguration || !window.FMSCloud.hasConfiguration()) {
@@ -79,7 +79,7 @@
     loading(true);
     try {
       const result = await window.FMSCloud.signIn(email, pass);
-      if (!result || !result.success) throw new Error(result && result.error || 'Email or password is incorrect.');
+      if (!result || !result.success) throw new Error(result && result.error || 'Email, username, or password is incorrect.');
       if (buttonText) buttonText.innerHTML = '<i class="fas fa-check"></i> Signed in';
       setTimeout(() => window.location.replace('index.html'), 250);
     } catch (cause) {

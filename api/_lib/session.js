@@ -17,6 +17,7 @@ async function createSession(user) {
     user: {
       id: user.id,
       email: user.email,
+      username: user.username || "",
     },
   };
 }
@@ -30,6 +31,7 @@ async function loadSession(req) {
       s.expires_at,
       u.id,
       u.email,
+      u.username,
       u.display_name
     FROM fms_sessions s
     JOIN fms_users u ON u.id = s.user_id
@@ -60,7 +62,8 @@ async function loadProfile(userId) {
       p.display_name,
       p.permissions,
       p.disabled,
-      u.email
+      u.email,
+      u.username
     FROM fms_profiles p
     JOIN fms_users u ON u.id = p.user_id
     WHERE p.user_id = ${userId}
@@ -76,6 +79,7 @@ async function loadProfile(userId) {
     permissions: Array.isArray(row.permissions) ? row.permissions : [],
     disabled: !!row.disabled,
     email: row.email,
+    username: row.username || "",
   };
 }
 

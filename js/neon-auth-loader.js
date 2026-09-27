@@ -48,6 +48,7 @@
         try {
           var result = await request("login", "POST", {
             email: credentials && credentials.email,
+            username: credentials && (credentials.username || credentials.email),
             password: credentials && credentials.password,
           });
           writeSession(result.session);

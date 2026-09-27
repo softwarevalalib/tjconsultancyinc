@@ -294,11 +294,21 @@
      4. RESET PASSWORD helper (used by the Staff Access list)
      ============================================================ */
   window.FMSResetStaffPassword = function (username, newPassword) {
+    var ident = String(username || '').trim().toLowerCase();
+    if (window.FMSCloud && typeof FMSCloud.listStaffProfiles === 'function') {
+      return FMSCloud.listStaffProfiles().then(function (rows) {
+        var match = (rows || []).find(function (row) {
+          return String(row.username || '').toLowerCase() === ident || String(row.email || '').toLowerCase() === ident;
+        });
+        if (!match) return false;
+        return FMSCloud.updateStaffProfile(match.user_id, { password: newPassword }).then(function () { return true; });
+      });
+    }
     return FMSSha256(newPassword).then(function (hash) {
       var list = [];
       try { list = JSON.parse(localStorage.getItem('fms_staff_accounts_v1') || '[]'); } catch (_) {}
       var acc = list.find(function (a) {
-        return String(a.username || '').toLowerCase() === String(username || '').toLowerCase();
+        return String(a.username || '').toLowerCase() === ident;
       });
       if (!acc) return false;
       acc.passwordHash = hash;

@@ -187,9 +187,22 @@
   };
   let currentView = "dashboard";
 
+  function allowedStaffViews() {
+    const role = sessionStorage.getItem("fms_auth_role") || "staff";
+    if (role === "admin") return null;
+    try {
+      const permissions = JSON.parse(sessionStorage.getItem("fms_auth_permissions") || "[]");
+      return Array.isArray(permissions) ? permissions : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
   function switchView(viewKey) {
     if (!views[viewKey]) return;
     if (["salary", "attendance", "leave"].includes(viewKey) && sessionStorage.getItem("fms_auth_role") !== "admin") return;
+    const allowed = allowedStaffViews();
+    if (allowed && !allowed.includes(viewKey)) return;
 
     // Hide all views
     $$(".view").forEach((v) => v.classList.remove("active"));
@@ -903,6 +916,10 @@
   ];
 
   function openStaffModal() {
+    if (sessionStorage.getItem("fms_auth_role") !== "admin") {
+      showToast("Administrator access is required to create staff.");
+      return;
+    }
     [
       "staffName",
       "staffRole",
@@ -971,7 +988,7 @@
           permissions,
         });
         closeStaffModal();
-        showToast(`${name} added to the Staff Spreadsheet with login access.`);
+        showToast(`${name} can now sign in with their username or email.`);
       } catch (error) {
         showToast(
           error && error.message
@@ -1597,7 +1614,8 @@
     initDashboardView();
     loadInventory();
     renderInventory();
-    renderStaff(staffList);
+    const grid = $("staffGrid");
+    if (grid && grid.style.display !== "none") renderStaff(staffList);
   }
 
   function initChartCardCollapse() {

@@ -87,6 +87,12 @@
             </a>
           </li>
           <li>
+            <a href="#" class="nav-link" data-view="clients">
+              <i class="fas fa-address-book nav-icon"></i>
+              <span class="nav-label">Clients</span>
+            </a>
+          </li>
+          <li>
             <a href="#" class="nav-link" data-view="staff">
               <i class="fas fa-users nav-icon"></i>
               <span class="nav-label">Staff</span>
@@ -2807,10 +2813,9 @@
             </div>
             <p class="sheet-hint">
               <i class="fas fa-circle-info"></i>
-              Use <strong>Edit</strong> to unlock a row; changes save
-              automatically. The <strong>Username</strong> and
-              <strong>Password</strong> columns create a real staff login
-              instantly.
+              Use <strong>Add Staff</strong> to create a login with role,
+              permissions, username, and password. Staff can sign in
+              immediately and only see the sidebar items you assign.
             </p>
             <div class="sheet-scroll">
               <table class="sheet-table">
@@ -2860,58 +2865,15 @@
                     class="fas fa-user-shield"
                     style="color: var(--active-color)"
                   ></i>
-                  Staff Access
+                  Staff Logins
                 </h2>
                 <span class="settings-badge">Admin</span>
               </div>
-              <div class="settings-form" style="padding: 0 4px">
-                <div class="form-group">
-                  <label class="form-label" for="saName">Full Name</label
-                  ><input
-                    class="form-input"
-                    id="saName"
-                    type="text"
-                    placeholder="e.g. Mary Johnson"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="saEmail"
-                    >Supabase Auth Email</label
-                  ><input
-                    class="form-input"
-                    id="saEmail"
-                    type="email"
-                    placeholder="e.g. mary@company.com"
-                    autocomplete="off"
-                  />
-                </div>
-                <p class="hr-muted">Create the sign-in account in Supabase Auth first. This form assigns access to an existing Supabase Auth user.</p>
-                <div class="form-group">
-                  <span class="form-label">Granted Permissions</span>
-                  <div class="perm-grid" id="saPerms">
-                    <label class="perm-item"
-                      ><input type="checkbox" value="dashboard" checked />
-                      Dashboard</label
-                    >
-                    <label class="perm-item"
-                      ><input type="checkbox" value="reports" /> Reports</label
-                    >
-                    <label class="perm-item"
-                      ><input type="checkbox" value="staff" /> Staff</label
-                    >
-                    <label class="perm-item"
-                      ><input type="checkbox" value="clients" /> Clients</label
-                    >
-                    <label class="perm-item"
-                      ><input type="checkbox" value="settings" />
-                      Settings</label
-                    >
-                  </div>
-                </div>
-                <button class="btn-primary" id="saCreateBtn">
-                  <i class="fas fa-user-plus"></i> Add Supabase User
-                </button>
-              </div>
+              <p class="hr-muted" style="padding: 0 4px 8px">
+                These accounts can sign in with their username or email. Enable,
+                disable, or remove access here. Use <strong>Add Staff</strong>
+                to create a new login.
+              </p>
               <div class="staff-access-list" id="staffAccessList"></div>
             </div>
           </div>

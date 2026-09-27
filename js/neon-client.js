@@ -12,10 +12,11 @@
   var companyNameTimer = null, companyNameValue = "";
   var knownSettings = Object.create(null);
   var authWatchTimer = null;
+  var lastCloudStatus = "";
   var queues = Object.create(null), scheduled = Object.create(null), knownRecords = Object.create(null);
 
   function clearLegacySession() {
-    try { ["fms_auth_token", "fms_auth_uid", "fms_auth_sid", "fms_auth_user", "fms_auth_role", "fms_auth_permissions"].forEach(k => sessionStorage.removeItem(k)); } catch (_) {}
+    try { ["fms_auth_token", "fms_auth_uid", "fms_auth_sid", "fms_auth_user", "fms_auth_role", "fms_auth_permissions", "fms_auth_username"].forEach(k => sessionStorage.removeItem(k)); } catch (_) {}
   }
   function saveLegacySession(session, p) {
     if (!session || !session.access_token || !p) return;
@@ -25,12 +26,23 @@
       sessionStorage.setItem("fms_auth_user", p.display_name || session.user.email || "User");
       sessionStorage.setItem("fms_auth_role", p.role || "staff");
       sessionStorage.setItem("fms_auth_permissions", JSON.stringify(p.permissions || []));
+      sessionStorage.setItem("fms_auth_username", p.username || session.user.username || "");
       localStorage.setItem("fms_display_name", p.display_name || session.user.email || "User");
       localStorage.setItem("fms_display_role", p.role === "admin" ? "Finance Manager" : "Staff Member");
     } catch (_) {}
   }
   function status(detail) {
+    var next = JSON.stringify({
+      connected: !!(detail && detail.connected),
+      error: (detail && detail.error) || "",
+      initialized: detail && detail.initialized,
+    });
+    if (next === lastCloudStatus) return;
+    lastCloudStatus = next;
     try { document.dispatchEvent(new CustomEvent("fms:cloud-status", { detail: detail || {} })); } catch (_) {}
+  }
+  function emitPermissions(nextProfile) {
+    try { document.dispatchEvent(new CustomEvent("fms:permissions-updated", { detail: { profile: nextProfile || profile || null } })); } catch (_) {}
   }
   function database() { return global.FMSDB || null; }
   function recordId(row) { return row && row._id != null ? String(row._id) : row && row.id != null ? String(row.id) : ""; }
@@ -174,6 +186,7 @@
       profile = await loadProfile(session.user, session.access_token);
       workspaceId = profile.workspace_id;
       saveLegacySession(session, profile);
+      emitPermissions(profile);
       return { configured: true, authenticated: true, profile: profile };
     } catch (error) {
       clearLegacySession();
@@ -188,7 +201,31 @@
         var session = await currentSession();
         if (!session) {
           if (profile) { profile = null; workspaceId = null; syncOnline = false; clearLegacySession(); status({ connected: false }); }
-        } else if (profile) saveLegacySession(session, profile);
+        } else if (profile) {
+          try {
+            var nextProfile = await loadProfile(session.user, session.access_token);
+            var changed = !equal({
+              role: profile.role,
+              permissions: profile.permissions || [],
+              disabled: !!profile.disabled,
+              display_name: profile.display_name,
+            }, {
+              role: nextProfile.role,
+              permissions: nextProfile.permissions || [],
+              disabled: !!nextProfile.disabled,
+              display_name: nextProfile.display_name,
+            });
+            profile = nextProfile;
+            workspaceId = nextProfile.workspace_id;
+            saveLegacySession(session, profile);
+            if (changed) emitPermissions(profile);
+          } catch (error) {
+            if (error && (error.code === "PROFILE_MISSING" || /disabled|not assigned/i.test(error.message || ""))) {
+              await signOut();
+              if (typeof location !== "undefined") location.replace("login.html");
+            }
+          }
+        }
       } catch (_) {}
     };
     authWatchTimer = setInterval(check, 15000);
@@ -346,6 +383,7 @@
       profile = await loadProfile(session.user, session.access_token);
       workspaceId = profile.workspace_id;
       saveLegacySession(session, profile);
+      emitPermissions(profile);
       return { success: true, profile: profile };
     } catch (error) {
       await client.auth.signOut(); clearLegacySession();
@@ -425,6 +463,15 @@
     listSettings: async function () { var result = await api("settings"); return result.settings || {}; },
     saveSettings: saveSettings, pushCompanyName: pushCompanyName,
     startSync: beginWhenReady, waitUntilConnected: waitUntilConnected,
+    refreshProfile: async function () {
+      var session = await currentSession();
+      if (!session) return null;
+      profile = await loadProfile(session.user, session.access_token);
+      workspaceId = profile.workspace_id;
+      saveLegacySession(session, profile);
+      emitPermissions(profile);
+      return profile;
+    },
   };
   beginWhenReady();
 })(window);

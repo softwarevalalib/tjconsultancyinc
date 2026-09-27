@@ -77,18 +77,17 @@
           <span id="loginErrorText">Invalid username or password.</span>
         </div>
 
-        <!-- Supabase uses an email; standalone local mode uses the same field. -->
         <div class="login-field" id="fieldUsername">
           <label class="login-label" for="loginUsername">
             <i class="fas fa-user login-field-icon"></i>
-            Email address
+            Email or username
           </label>
           <input
-            type="email"
+            type="text"
             id="loginUsername"
             class="login-input"
-            placeholder="name@company.com"
-            autocomplete="email"
+            placeholder="email or username"
+            autocomplete="username"
             spellcheck="false"
             aria-required="true"
             aria-describedby="usernameHint"

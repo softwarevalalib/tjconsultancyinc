@@ -1,7 +1,10 @@
-/* Staff access profiles stored in the shared Supabase workspace. */
+/* Staff access profiles stored in the shared Neon workspace. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  let lastProfileFingerprint = '';
+  let staffListTimer = 0;
+  let appliedAccess = '';
 
   function toast(message) {
     const el = $('toast');
@@ -24,77 +27,95 @@
       permissions: Array.isArray(permissions) ? permissions : [],
     };
   }
-  function selectedPermissions() {
-    const wrap = $('saPerms');
-    return wrap ? Array.from(wrap.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value) : [];
-  }
   function applyPermissions() {
     const user = identity();
-    if (user.role === 'admin') return;
-    const sharedDataViews = new Set(['clients', 'loans']);
+    const isAdmin = user.role === 'admin';
+    const allowed = new Set(user.permissions);
+    const fingerprint = JSON.stringify({ role: user.role, permissions: user.permissions });
     document.querySelectorAll('.nav-link[data-view]').forEach(link => {
       const view = link.dataset.view;
-      if (user.permissions.includes(view) || sharedDataViews.has(view)) return;
+      const show = isAdmin || allowed.has(view);
       const item = link.closest('li');
-      if (item) item.style.display = 'none';
+      if (item) item.style.display = show ? '' : 'none';
       const panel = $('view-' + view);
-      if (panel) { panel.style.display = 'none'; panel.classList.remove('active'); }
+      if (panel) {
+        if (!show) {
+          panel.style.display = 'none';
+          panel.classList.remove('active');
+        } else {
+          panel.style.display = '';
+        }
+      }
+    });
+    document.querySelectorAll('[data-view]').forEach(el => {
+      if (el.classList.contains('nav-link')) return;
+      const view = el.dataset.view;
+      if (!view) return;
+      el.hidden = !(isAdmin || allowed.has(view));
     });
     const card = $('staffAccessCard');
-    if (card) card.style.display = 'none';
+    if (card) card.style.display = isAdmin ? '' : 'none';
+    const addBtn = $('addStaffBtn');
+    if (addBtn) addBtn.style.display = isAdmin ? '' : 'none';
     const active = document.querySelector('.view.active');
-    if (active && active.style.display === 'none' && user.permissions.length && typeof window.fmsSwitchView === 'function') {
-      window.fmsSwitchView(user.permissions[0]);
+    const needsSwitch = active && (active.style.display === 'none' || active.hidden);
+    if (needsSwitch) {
+      const first = isAdmin ? 'dashboard' : (user.permissions[0] || '');
+      if (first && typeof window.fmsSwitchView === 'function') window.fmsSwitchView(first);
     }
+    if (fingerprint !== appliedAccess) appliedAccess = fingerprint;
   }
 
-  async function renderStaffList() {
+  function profilesFingerprint(rows) {
+    return JSON.stringify((rows || []).map(user => ([
+      user.user_id, user.email, user.username, user.display_name, !!user.disabled, user.permissions || []
+    ])));
+  }
+
+  async function renderStaffList(force) {
     const box = $('staffAccessList');
     if (!box) return;
-    if (!window.FMSCloud || !FMSCloud.isConfigured || !FMSCloud.isConfigured()) {
-      box.innerHTML = '<p class="staff-access-empty">Connect Supabase Auth and Supabase to manage shared staff access.</p>';
+    if (identity().role !== 'admin') {
+      box.innerHTML = '';
+      lastProfileFingerprint = '';
       return;
     }
-    box.innerHTML = '<p class="staff-access-empty">Loading Supabase workspace users...</p>';
+    if (!window.FMSCloud || !FMSCloud.isConfigured || !FMSCloud.isConfigured()) {
+      box.innerHTML = '<p class="staff-access-empty">Sign in to manage shared staff login accounts.</p>';
+      return;
+    }
+    if (!box.dataset.ready) {
+      box.innerHTML = '<p class="staff-access-empty">Loading workspace users…</p>';
+    }
     try {
       const rows = await FMSCloud.listStaffProfiles();
+      const next = profilesFingerprint(rows);
+      if (!force && next === lastProfileFingerprint && box.dataset.ready) return;
+      lastProfileFingerprint = next;
+      box.dataset.ready = '1';
       if (!rows.length) {
-        box.innerHTML = '<p class="staff-access-empty" style="padding:12px 0">No staff profiles have been assigned yet. Create their Supabase Auth account, then add them here.</p>';
+        box.innerHTML = '<p class="staff-access-empty" style="padding:12px 0">No staff logins yet. Use Add Staff to create a username, password, role, and permissions.</p>';
         return;
       }
       box.innerHTML = rows.map(user => {
         const disabled = !!user.disabled;
+        const username = user.username ? '@' + user.username + ' · ' : '';
         return `<div class="sa-row">
           <div class="sa-info"><span class="sa-name">${esc(user.display_name || user.email)}</span>
-            <span class="sa-sub">${esc(user.email)} · ${esc((user.permissions || []).join(', '))}</span></div>
+            <span class="sa-sub">${esc(username)}${esc(user.email)} · ${esc((user.permissions || []).join(', ') || 'no views')}</span></div>
           <div class="sa-actions"><span class="sa-status ${disabled ? 'disabled' : 'active'}">${disabled ? 'Disabled' : 'Active'}</span>
             <button class="sa-btn" data-act="toggle" data-id="${esc(user.user_id)}">${disabled ? 'Enable' : 'Disable'}</button>
             <button class="sa-btn danger" data-act="delete" data-id="${esc(user.user_id)}">Remove access</button></div>
         </div>`;
       }).join('');
     } catch (error) {
-      box.innerHTML = `<p class="staff-access-empty">Could not load Supabase staff profiles: ${esc(error.message || 'connection error')}</p>`;
+      box.innerHTML = `<p class="staff-access-empty">Could not load staff logins: ${esc(error.message || 'connection error')}</p>`;
     }
   }
 
-  async function addStaffProfile() {
-    if (identity().role !== 'admin') { toast('Administrator access is required.'); return; }
-    const name = ($('saName') || {}).value.trim();
-    const email = ($('saEmail') || {}).value.trim();
-    const permissions = selectedPermissions();
-    if (!name) return toast('Enter the staff member’s full name.');
-    if (!email || !email.includes('@')) return toast('Enter the email used for their Supabase Auth account.');
-    if (!permissions.length) return toast('Grant at least one permission.');
-    const button = $('saCreateBtn');
-    if (button) button.disabled = true;
-    try {
-      await FMSCloud.saveStaffProfile({ display_name: name, email, permissions, disabled: false });
-      $('saName').value = '';
-      $('saEmail').value = '';
-      await renderStaffList();
-      toast('Supabase workspace access added for ' + name + '.');
-    } catch (error) { toast(error.message || 'Could not add this Supabase user.'); }
-    finally { if (button) button.disabled = false; }
+  function scheduleStaffList() {
+    clearTimeout(staffListTimer);
+    staffListTimer = setTimeout(() => { renderStaffList(false); }, 250);
   }
 
   async function handleAction(event) {
@@ -103,14 +124,14 @@
     if (identity().role !== 'admin') return toast('Administrator access is required.');
     const userId = button.dataset.id;
     const action = button.dataset.act;
-    if (action === 'delete' && !confirm('Remove this user’s access to the shared FMS workspace? Their Supabase Auth account will remain.')) return;
+    if (action === 'delete' && !confirm('Remove this staff login from the shared FMS workspace? They will no longer be able to sign in.')) return;
     button.disabled = true;
     try {
       if (action === 'toggle') await FMSCloud.updateStaffProfile(userId, { disabled: button.textContent.trim() === 'Disable' });
       if (action === 'delete') await FMSCloud.removeStaffProfile(userId);
-      await renderStaffList();
-      toast(action === 'delete' ? 'Workspace access removed.' : 'Workspace access updated.');
-    } catch (error) { toast(error.message || 'Could not update this Supabase profile.'); }
+      await renderStaffList(true);
+      toast(action === 'delete' ? 'Staff login removed.' : 'Staff login updated.');
+    } catch (error) { toast(error.message || 'Could not update this staff login.'); }
     finally { button.disabled = false; }
   }
 
@@ -119,11 +140,28 @@
     const card = $('staffAccessCard');
     if (mount && card) mount.appendChild(card);
     applyPermissions();
-    renderStaffList();
-    const addButton = $('saCreateBtn');
-    if (addButton) addButton.addEventListener('click', addStaffProfile);
+    renderStaffList(true);
     const list = $('staffAccessList');
     if (list) list.addEventListener('click', handleAction);
-    document.addEventListener('fms:cloud-status', event => { if (event.detail && event.detail.connected) renderStaffList(); });
+    document.addEventListener('fms:permissions-updated', applyPermissions);
+    document.addEventListener('fms:staff-accounts-changed', () => renderStaffList(true));
+    document.addEventListener('fms:cloud-status', event => {
+      if (event.detail && event.detail.connected) scheduleStaffList();
+    });
+    if (window.FMSDB) {
+      FMSDB.on(change => {
+        if (change.table === 'staff' || change.table === '*') scheduleStaffList();
+      });
+    }
   });
+
+  window.FMSAccess = {
+    apply: applyPermissions,
+    identity,
+    canOpen (view) {
+      const user = identity();
+      if (user.role === 'admin') return true;
+      return user.permissions.indexOf(view) !== -1;
+    }
+  };
 })();

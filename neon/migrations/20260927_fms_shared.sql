@@ -11,11 +11,16 @@ CREATE TABLE IF NOT EXISTS fms_workspaces (
 CREATE TABLE IF NOT EXISTS fms_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL UNIQUE,
+  username TEXT,
   password_hash TEXT NOT NULL,
   display_name TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS fms_users_username_lower_idx
+  ON fms_users (lower(username))
+  WHERE username IS NOT NULL AND btrim(username) <> '';
 
 CREATE TABLE IF NOT EXISTS fms_profiles (
   user_id UUID PRIMARY KEY REFERENCES fms_users(id) ON DELETE CASCADE,
