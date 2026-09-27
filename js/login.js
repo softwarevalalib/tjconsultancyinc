@@ -1,4 +1,4 @@
-/* Supabase Auth sign-in for the TJ Consultancy FMS. */
+/* Neon Auth sign-in for the TJ Consultancy FMS. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -29,33 +29,6 @@
   function clearField(field, hint) {
     if (field) field.classList.remove('invalid', 'valid');
     if (hint) hint.textContent = '';
-  }
-
-  async function localLogin(email, pass) {
-    const normalizedEmail = email.trim().toLowerCase();
-    const savedEmail = (localStorage.getItem('fms_local_admin_email') || 'admin@tjconsultancyinc.com').trim().toLowerCase();
-    let expectedHash = localStorage.getItem('fms_cred_ph');
-    if (!expectedHash) {
-      const bytes = new TextEncoder().encode(pass);
-      const digest = await crypto.subtle.digest('SHA-256', bytes);
-      expectedHash = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
-      localStorage.setItem('fms_local_admin_email', savedEmail);
-      localStorage.setItem('fms_cred_ph', expectedHash);
-      localStorage.setItem('fms_local_admin_name', 'Administrator');
-    }
-    const bytes = new TextEncoder().encode(pass);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    const actualHash = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
-    if (normalizedEmail !== savedEmail || actualHash !== expectedHash) return { success: false, error: 'Invalid email or password for this browser’s local account.' };
-    const userId = 'local-admin-' + normalizedEmail;
-    sessionStorage.setItem('fms_auth_token', 'local:' + crypto.randomUUID());
-    sessionStorage.setItem('fms_auth_uid', userId);
-    sessionStorage.setItem('fms_auth_user', localStorage.getItem('fms_local_admin_name') || 'Administrator');
-    sessionStorage.setItem('fms_auth_role', 'admin');
-    sessionStorage.setItem('fms_auth_permissions', JSON.stringify(['dashboard', 'reports', 'staff', 'settings']));
-    localStorage.setItem('fms_display_name', localStorage.getItem('fms_local_admin_name') || 'Administrator');
-    localStorage.setItem('fms_display_role', 'Finance Manager');
-    return { success: true, local: true };
   }
 
   try {
@@ -99,23 +72,18 @@
     if (!email) { if (usernameHint) usernameHint.textContent = 'Email is required.'; if (usernameField) usernameField.classList.add('invalid'); invalid = true; }
     if (!pass) { if (passwordHint) passwordHint.textContent = 'Password is required.'; if (passwordField) passwordField.classList.add('invalid'); invalid = true; }
     if (invalid) return;
+    if (!window.FMSCloud || !window.FMSCloud.hasConfiguration || !window.FMSCloud.hasConfiguration()) {
+      error('Neon sign-in is not available in this browser context. Open the deployed HTTPS site.');
+      return;
+    }
     loading(true);
     try {
-      const authState = window.FMSCloud && window.FMSCloud.ready ? await window.FMSCloud.ready : null;
-      if (authState && authState.error && !window.FMSCloud.hasConfiguration()) throw authState.error;
-      const cloudConfigured = window.FMSCloud && window.FMSCloud.hasConfiguration && window.FMSCloud.hasConfiguration();
-      const hosted = /^https?:$/.test(window.location.protocol) && !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
-      if (hosted && !cloudConfigured) throw new Error('Shared FMS sign-in is not configured. Ask the administrator to connect this domain to the shared database.');
-      const result = cloudConfigured
-        ? await window.FMSCloud.signIn(email, pass)
-        : await localLogin(email, pass);
+      const result = await window.FMSCloud.signIn(email, pass);
       if (!result || !result.success) throw new Error(result && result.error || 'Email or password is incorrect.');
-      if (buttonText) buttonText.innerHTML = result.local
-        ? '<i class="fas fa-check"></i> Signed in locally'
-        : '<i class="fas fa-check"></i> Signed in';
+      if (buttonText) buttonText.innerHTML = '<i class="fas fa-check"></i> Signed in';
       setTimeout(() => window.location.replace('index.html'), 250);
     } catch (cause) {
-      error(cause && cause.message || 'Supabase could not sign you in. Try again.');
+      error(cause && cause.message || 'Neon could not sign you in. Try again.');
       if (password) { password.value = ''; password.focus(); }
       loading(false);
     }

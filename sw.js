@@ -18,7 +18,7 @@
   'use strict';
 
   /* Bump whenever an app-shell asset changes so installed apps receive it. */
-  var CACHE = 'tj-fms-v30-signin-guard';
+  var CACHE = 'tj-fms-v31-neon-auth';
 
   /* App shell — everything the system needs to run 100% offline */
   var SHELL = [
@@ -38,9 +38,9 @@
     './js/workforce.js',
     './js/data.js',
     './js/db.js',
-    './js/supabase-auth-config.js',
-    './js/supabase-auth-loader.js',
-    './js/supabase-client.js',
+    './js/neon-auth-config.js',
+    './js/neon-auth-loader.js',
+    './js/neon-client.js',
     './js/auth-guard.js',
     './js/app.js',
     './js/live-financials.js',
